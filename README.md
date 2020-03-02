@@ -244,6 +244,7 @@ Our results:
 | T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
 | T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 57.4            |
 | T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 79.6            |
+
 **Note**:
 
 1. The equivlent model architectures of public models are shown in the brackets. 
