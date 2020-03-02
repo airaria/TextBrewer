@@ -312,7 +312,11 @@ Fore more details, see the explanations in [API documentation](API.md)
 
 ## FAQ
 
-TBA
+**Q**: How to initialize the student model?
+
+**A**: The student model could be randomly initialized (i.e., with no prior knwledge) or be initialized by pre-trained weights.
+For example, when distilling a BERT-base model to a 3-layer BERT, you could initialize the student model with [RBT3](#https://github.com/ymcui/Chinese-BERT-wwm) (for Chinese tasks) or the first three layers of BERT (for English tasks) to avoid cold start problem. 
+We recommend that users use pre-trained student models whenever possible to fully take the advantage of large-scale pre-training.
 
 ## Citation
 
