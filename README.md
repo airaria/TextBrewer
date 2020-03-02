@@ -174,8 +174,8 @@ We have tested different student models. To compare with public results, the stu
 
 | Model                 | \#Layers | Hidden_size | Feed-forward size | \#Params | Relative size |
 | --------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
-| BERT-base (Teacher) | 12        | 768         | 3072              | 108M     | 100%          |
-| RoBERTa-wwm (Teacher) | 12        | 768         | 3072              | 108M     | 100%          |
+| BERT-base       | 12        | 768         | 3072              | 108M     | 100%          |
+| RoBERTa-wwm-ext | 12        | 768         | 3072              | 108M     | 100%          |
 | T6              | 6         | 768         | 3072              | 65M      | 60%           |
 | T3              | 3         | 768         | 3072              | 44M      | 41%           |
 | T3-small        | 3         | 384         | 1536              | 17M      | 16%           |
@@ -226,7 +226,7 @@ We list the public results from [DistilBERT](https://arxiv.org/abs/1910.01108), 
 
 Public results:
 
-  | Model (public) | MNLI (m/mm Acc) | SQuAD (EM/F1) | CoNLL-2003 (F1) |
+  | Model (public) | MNLI  | SQuAD  | CoNLL-2003 |
   | -------------  | --------------- | ------------- | --------------- |
   | DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
   | BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
@@ -236,9 +236,9 @@ Public results:
 
 Our results:
 
-| Model (ours) | MNLI (m/mm Acc) | SQuAD (EM/F1) | CoNLL-2003 (F1) |
+| Model (ours) | MNLI  | SQuAD  | CoNLL-2003 |
 | -------------  | --------------- | ------------- | --------------- |
-| BERT-base (teacher)    | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
+| **BERT-base**  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 88.1 / 80.8   | 90.7            |
 | T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
@@ -266,12 +266,12 @@ We experiment on the following typical Chinese datasets:
 
 The results are listed below.
 
-| Model           | XNLI (Acc) | LCQMC (Acc) | CMRC 2018 (EM/F1) | DRCD (EM/F1) |
+| Model           | XNLI | LCQMC | CMRC 2018 | DRCD |
 | --------------- | ---------- | ----------- | ---------------- | ------------ |
-| **RoBERTa-wwm** (teacher) | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
-| **T3**          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
-| **T3-small**    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
-| **T4-tiny**     | 76.2       | 88.4        | 61.8 / 81.8      | 73.3 / 83.5  |
+| **RoBERTa-wwm-ext** | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
+| T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
+| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
+| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 73.3 / 83.5  |
 
 
 **Note**:
