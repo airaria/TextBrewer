@@ -173,7 +173,7 @@ We have performed distillation experiments on several typical English and Chines
 We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of the each specific task. 
 
 | Model                 | \#Layers | Hidden_size | Feed-forward size | \#Params | Relative size |
-| --------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
+| :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
 | BERT-base       | 12        | 768         | 3072              | 108M     | 100%          |
 | RoBERTa-wwm-ext | 12        | 768         | 3072              | 108M     | 100%          |
 | T6              | 6         | 768         | 3072              | 65M      | 60%           |
@@ -196,7 +196,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 `matches` are differnt for different models:
 
 | Model    | matches                                                      |
-| -------- | ------------------------------------------------------------ |
+| :-------- | ------------------------------------------------------------ |
 | BiGRU    | None                                                         |
 | T6       | L6_hidden_mse + L6_hidden_smmd                               |
 | T3       | L3_hidden_mse + L3_hidden_smmd                               |
@@ -217,7 +217,7 @@ We use GeneralDistiller in all the distillation experiments.
 We experiment on the following typical Enlgish datasets:
 
 | Dataset    | Task type | Metrics | \#Train | \#Dev | Note |
-| ---------- | -------- | ------- | ------- | ---- | ---- | 
+| :---------- | -------- | ------- | ------- | ---- | ---- | 
 | [**MNLI**](https://www.nyu.edu/projects/bowman/multinli/)       | text classification | m/mm Acc | 393K    | 20K  | sentence-pair 3-class classification |
 | [**SQuAD 1.1**](https://rajpurkar.github.io/SQuAD-explorer/)   | reading comprehension | EM/F1   | 88K     | 11K  | span-extraction machine reading comprehension | 
 | [**CoNLL-2003**](https://www.clips.uantwerpen.be/conll2003/ner) | sequence labeling | F1      | 23K     | 6K   | named entity recognition |
@@ -227,7 +227,7 @@ We list the public results from [DistilBERT](https://arxiv.org/abs/1910.01108), 
 Public results:
 
   | Model (public) | MNLI  | SQuAD  | CoNLL-2003 |
-  | -------------  | --------------- | ------------- | --------------- |
+  | :-------------  | --------------- | ------------- | --------------- |
   | DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
   | BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
   | BERT-of-Theseus (T6) | 82.4/  82.1   | -        | -                |
@@ -237,7 +237,7 @@ Public results:
 Our results:
 
 | Model (ours) | MNLI  | SQuAD  | CoNLL-2003 |
-| -------------  | --------------- | ------------- | --------------- |
+| :-------------  | --------------- | ------------- | --------------- |
 | **BERT-base**  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 88.1 / 80.8   | 90.7            |
@@ -258,7 +258,7 @@ We experiment on the following typical Chinese datasets:
 
 
 | Dataset | Task type | Metrics | \#Train | \#Dev | Note |
-| ------- | ---- | ------- | ------- | ---- | ---- |
+| :------- | ---- | ------- | ------- | ---- | ---- |
 | [**XNLI**](https://github.com/google-research/bert/blob/master/multilingual.md) | text classification | Acc | 393K | 2.5K | Chinese translation version of MNLI |
 | [**LCQMC**](http://icrc.hitsz.edu.cn/info/1037/1146.htm) | text classification | Acc | 239K | 8.8K | sentence-pair matching, binary classification |
 | [**CMRC 2018**](https://github.com/ymcui/cmrc2018) | reading comprehension | EM/F1 | 10K | 3.4K | span-extraction machine reading comprehension |
@@ -267,7 +267,7 @@ We experiment on the following typical Chinese datasets:
 The results are listed below.
 
 | Model           | XNLI | LCQMC | CMRC 2018 | DRCD |
-| --------------- | ---------- | ----------- | ---------------- | ------------ |
+| :--------------- | ---------- | ----------- | ---------------- | ------------ |
 | **RoBERTa-wwm-ext** | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
 | T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |

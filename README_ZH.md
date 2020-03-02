@@ -177,7 +177,7 @@ with distiller:
 我们测试了不同的学生模型，为了与已有公开结果相比较，除了BiGRU都是和BERT一样的多层Transformer结构。模型的参数如下表所示。需要注意的是，参数量的统计包括了embedding层，但不包括最终适配各个任务的输出层。
 
 | Model                 | \#Layers | Hidden size | Feed-forward size | \#Params | Relative size |
-| --------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
+| :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
 | BERT-base | 12        | 768         | 3072              | 108M     | 100%          |
 | RoBERTa-wwm-ext | 12        | 768         | 3072              | 108M     | 100%          |
 | T6  | 6         | 768         | 3072              | 65M      | 60%           |
@@ -200,7 +200,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 不同的模型用的`matches`我们采用了以下配置：
 
 | Model    | matches                                                      |
-| -------- | ------------------------------------------------------------ |
+| :-------- | ------------------------------------------------------------ |
 | BiGRU    | None                                                         |
 | T6       | L6_hidden_mse + L6_hidden_smmd                               |
 | T3       | L3_hidden_mse + L3_hidden_smmd                               |
@@ -217,7 +217,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 在英文实验中，我们使用了如下三个典型数据集。
 
 | Dataset    | Task type | Metrics | \#Train | \#Dev | Note |
-| ---------- | -------- | ------- | ------- | ---- | ---- | 
+| :---------- | -------- | ------- | ------- | ---- | ---- | 
 | [**MNLI**](https://www.nyu.edu/projects/bowman/multinli/)       | 文本分类 | m/mm Acc | 393K    | 20K  | 句对三分类任务 |
 | [**SQuAD 1.1**](https://rajpurkar.github.io/SQuAD-explorer/)   | 阅读理解 | EM/F1   | 88K     | 11K  | 篇章片段抽取型阅读理解 | 
 | [**CoNLL-2003**](https://www.clips.uantwerpen.be/conll2003/ner) | 序列标注 | F1      | 23K     | 6K   | 命名实体识别任务 |
@@ -227,7 +227,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 Public results:
 
   | Model (public) | MNLI | SQuAD | CoNLL-2003 |
-  | -------------  | --------------- | ------------- | --------------- |
+  | :-------------  | --------------- | ------------- | --------------- |
   | DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
   | BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
   | BERT-of-Theseus (T6) | 82.4/  82.1   | -        | -                |
@@ -237,7 +237,7 @@ Public results:
 Our results:
 
 | Model (ours) | MNLI | SQuAD | CoNLL-2003 |
-| -------------  | --------------- | ------------- | --------------- |
+| :-------------  | --------------- | ------------- | --------------- |
 | **BERT-base**  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 88.1 / 80.8   | 90.7            |
@@ -256,7 +256,7 @@ Our results:
 在中文实验中，我们使用了如下四个典型数据集。
 
 | Dataset | Task type | Metrics | \#Train | \#Dev | Note |
-| ------- | ---- | ------- | ------- | ---- | ---- |
+| :------- | ---- | ------- | ------- | ---- | ---- |
 | [**XNLI**](https://github.com/google-research/bert/blob/master/multilingual.md) | 文本分类 | Acc | 393K | 2.5K | MNLI的中文翻译版本，3分类任务 |
 | [**LCQMC**](http://icrc.hitsz.edu.cn/info/1037/1146.htm) | 文本分类 | Acc | 239K | 8.8K | 句对二分类任务，判断两个句子的语义是否相同 |
 | [**CMRC 2018**](https://github.com/ymcui/cmrc2018) | 阅读理解 | EM/F1 | 10K | 3.4K | 篇章片段抽取型阅读理解 |
@@ -265,7 +265,7 @@ Our results:
 实验结果如下表所示。
 
 | Model           | XNLI | LCQMC | CMRC 2018 | DRCD |
-| --------------- | ---------- | ----------- | ---------------- | ------------ |
+| :--------------- | ---------- | ----------- | ---------------- | ------------ |
 | **RoBERTa-wwm-ext** | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
 | T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
