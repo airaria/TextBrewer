@@ -167,14 +167,14 @@ We have performed distillation experiments on several typical English and Chines
 
 ### Models
 
-* For English tasks, the teacher model is [**BERT-base**](https://github.com/google-research/bert).
+* For English tasks, the teacher model is [**BERT-base-cased**](https://github.com/google-research/bert).
 * For Chinese tasks, the teacher model is [**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm) released by the Joint Laboratory of HIT and iFLYTEK Research.
 
 We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of the each specific task. 
 
 | Model                 | \#Layers | Hidden_size | Feed-forward size | \#Params | Relative size |
 | :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
-| BERT-base       | 12        | 768         | 3072              | 108M     | 100%          |
+| BERT-base-cased   | 12        | 768         | 3072              | 108M     | 100%          |
 | RoBERTa-wwm-ext | 12        | 768         | 3072              | 108M     | 100%          |
 | T6              | 6         | 768         | 3072              | 65M      | 60%           |
 | T3              | 3         | 768         | 3072              | 44M      | 41%           |
@@ -238,7 +238,7 @@ Our results:
 
 | Model (ours) | MNLI  | SQuAD  | CoNLL-2003 |
 | :-------------  | --------------- | ------------- | --------------- |
-| **BERT-base**  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
+| **BERT-base-cased**  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 88.1 / 80.8   | 90.7            |
 | T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
