@@ -182,9 +182,9 @@ We have tested different student models. To compare with public results, the stu
 | T4-Tiny         | 4         | 312         | 1200              | 14M      | 13%           |
 | BiGRU           | -         | 768         | -                 | 31M      | 29%           |
 
-* T6 archtecture is the same as [DistilBERT<sup>[1]</sup>](https://arxiv.org/abs/1910.01108), [BERT<sub>6<sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355), and  [BERT-of-Theseus<sup>[3]</sup>](https://arxiv.org/abs/2002.02925).
+* T6 archtecture is the same as [DistilBERT<sup>[1]</sup>](https://arxiv.org/abs/1910.01108), [BERT<sub>6</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355), and  [BERT-of-Theseus<sup>[3]</sup>](https://arxiv.org/abs/2002.02925).
 * T4-tiny archtecture is the same as [TinyBERT<sup>[4]</sup>](https://arxiv.org/abs/1909.10351).
-* T3 architecure is the same as [BERT<sub>3<sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355).
+* T3 architecure is the same as [BERT<sub>3</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355).
 
 ### Distillation Configurations
 
