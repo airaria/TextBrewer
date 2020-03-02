@@ -178,13 +178,13 @@ with distiller:
 
 | Model                 | \#Layers | Hidden size | Feed-forward size | \#Params | Relative size |
 | :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
-| BERT-base-cased | 12        | 768         | 3072              | 108M     | 100%          |
-| RoBERTa-wwm-ext | 12        | 768         | 3072              | 108M     | 100%          |
-| T6  | 6         | 768         | 3072              | 65M      | 60%           |
-| T3            | 3         | 768         | 3072              | 44M      | 41%           |
-| T3-small        | 3         | 384         | 1536              | 17M      | 16%           |
-| T4-Tiny  | 4         | 312         | 1200              | 14M      | 13%           |
-| BiGRU           | -         | 768         | -                 | 31M      | 29%           |
+| BERT-base-cased (教师) | 12        | 768         | 3072              | 108M     | 100%          |
+| RoBERTa-wwm-ext (教师) | 12        | 768         | 3072              | 108M     | 100%          |
+| T6 (学生)  | 6         | 768         | 3072              | 65M      | 60%           |
+| T3 (学生)            | 3         | 768         | 3072              | 44M      | 41%           |
+| T3-small (学生)        | 3         | 384         | 1536              | 17M      | 16%           |
+| T4-Tiny (学生)  | 4         | 312         | 1200              | 14M      | 13%           |
+| BiGRU (学生)           | -         | 768         | -                 | 31M      | 29%           |
 
 * T6的结构与[DistilBERT<sup>[1]</sup>](https://arxiv.org/abs/1910.01108), [BERT<sub>6</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355), [BERT-of-Theseus<sup>[3]</sup>](https://arxiv.org/abs/2002.02925) 相同。
 * T4-tiny的结构与 [TinyBERT<sup>[4]</sup>](https://arxiv.org/abs/1909.10351) 相同。
