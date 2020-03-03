@@ -89,6 +89,7 @@ See [API documentation](API.md) for detailed usages.
   * PyTorch >= 1.1.0
   * TensorboardX or Tensorboard
   * NumPy
+  * tqdm
   * Transformers >= 2.0 (optional, used by some examples)
 
 * Install from PyPI

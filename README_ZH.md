@@ -92,6 +92,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 * PyTorch >= 1.1.0
 * TensorboardX or Tensorboard
 * NumPy
+* tqdm
 * Transformers >= 2.0 (可选, Transformer相关示例需要用到)
 
 ### 安装方式
