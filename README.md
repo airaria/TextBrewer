@@ -333,6 +333,10 @@ Fore more details, see the explanations in [API documentation](API.md)
 For example, when distilling a BERT-base model to a 3-layer BERT, you could initialize the student model with [RBT3](#https://github.com/ymcui/Chinese-BERT-wwm) (for Chinese tasks) or the first three layers of BERT (for English tasks) to avoid cold start problem. 
 We recommend that users use pre-trained student models whenever possible to fully take the advantage of large-scale pre-training.
 
+**Q**: How to set training hyperparamters in distillation experiments？
+
+**A**: Konwledge distillation usually requires more training epochs and larger learning rate than training on labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experience and are only suggestions**.
+
 ## Citation
 
 If you find TextBrewer is helpful, please cite [our paper](https://arxiv.org/abs/2002.12620):
