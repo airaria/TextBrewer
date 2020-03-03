@@ -1,6 +1,21 @@
  [**English**](README.md) | [**中文说明**](README_ZH.md)
 
-# TextBrewer
+<p align="center">
+    <br>
+    <img src="./pics/banner.png" width="500"/>
+    <br>
+<p>
+<p align="center">
+    <a href="https://github.com/airaria/TextBrewer/blob/master/LICENSE">
+        <img alt="GitHub" src="https://img.shields.io/github/license/airaria/TextBrewer.svg?color=blue&style=flat-square">
+    </a>
+    <a href="https://pypi.org/project/textbrewer">
+        <img alt="PyPI" src="https://img.shields.io/pypi/v/textbrewer">
+    </a>    
+    <a href="https://github.com/airaria/TextBrewer/releases">
+        <img alt="GitHub release" src="https://img.shields.io/github/v/release/airaria/TextBrewer?include_prereleases">
+    </a>
+</p>
 
 **TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. It includes various distilltion techniques from both NLP and CV, and provides an easy-to-use distillation framkework, which allows users to quickly experiment with state-of-the-art distillation methods to compress the model with a relatively small sacrifice in performance, increase the inference speed and reduce the memory usage.
 

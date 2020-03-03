@@ -1,12 +1,25 @@
  [**English**](README.md) | [**中文说明**](README_ZH.md)
 
-# TextBrewer
+<p align="center">
+    <br>
+    <img src="./pics/banner.png" width="500"/>
+    <br>
+<p>
+<p align="center">
+    <a href="https://github.com/airaria/TextBrewer/blob/master/LICENSE">
+        <img alt="GitHub" src="https://img.shields.io/github/license/airaria/TextBrewer.svg?color=blue&style=flat-square">
+    </a>
+    <a href="https://pypi.org/project/textbrewer">
+        <img alt="PyPI" src="https://img.shields.io/pypi/v/textbrewer">
+    </a>    
+    <a href="https://github.com/airaria/TextBrewer/releases">
+        <img alt="GitHub release" src="https://img.shields.io/github/v/release/airaria/TextBrewer?include_prereleases">
+    </a>
+</p>
 
 **TextBrewer**是一个基于PyTorch的、为实现NLP中的**知识蒸馏**任务而设计的工具包，
 融合并改进了NLP和CV中的多种知识蒸馏技术，提供便捷快速的知识蒸馏框架，
 用于以较低的性能损失压缩神经网络模型的大小，提升模型的推理速度，减少内存占用。
-
-
 
 Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
