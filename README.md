@@ -25,11 +25,11 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
-**Mar 4，2020**
+**Mar 9，2020**
 
-* Set `TrainingConfig.log_dir` to `None` to disable tensorboard.
+* `TrainingConfig.log_dir` can be set to `None` to disable tensorboard.
 * Add attribute `print_freq` to the distiller to control the frequency of logging.
-* Add new argument `num_steps` to the `train` method of the distiller. If `num_steps` is specified, distiller will ignore `num_epochs`, and dataloader can have an unkonwn size, i.e., has no `__len__` attribute.
+* Add new argument `num_steps` to the `train` method of the distiller. If `num_steps` is specified, distiller will ignore `num_epochs` and allow an unkonw-size dataloader , i.e., which has no `__len__` attribute.
 * Add new argument `batch_postprocessor` to the `train` method of the distiller to allow post-processing of batches.
 
 **Mar 2, 2020**
