@@ -25,6 +25,13 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
+**Mar 4，2020**
+
+* Set `TrainingConfig.log_dir` to `None` to disable tensorboard.
+* Add attribute `print_freq` to the distiller to control the frequency of logging.
+* Add new argument `num_steps` to the `train` method of the distiller. If `num_steps` is specified, distiller will ignore `num_epochs`, and dataloader can have an unkonwn size, i.e., has no `__len__` attribute.
+* Add new argument `batch_postprocessor` to the `train` method of the distiller to allow post-processing of batches.
+
 **Mar 2, 2020**
 
 * **Current version**: 0.1.7, the first public version.
@@ -42,6 +49,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 | [Experiments](#experiments) | Distillation experiments on typical English and Chinese datasets |
 | [Core Concepts](#core-concepts) | Brief explanations of the core concepts in TextBrewer |
 | [FAQ](#faq) | Frequently asked questions |
+| [Known Issues](#know-issues) | Known issues |
 | [Citation](#citation) | Citation to TextBrewer |
 | [Follow Us](#follow-us) | - |
 
@@ -337,6 +345,11 @@ We recommend that users use pre-trained student models whenever possible to full
 **Q**: How to set training hyperparamters in distillation experiments？
 
 **A**: Konwledge distillation usually requires more training epochs and larger learning rate than training on labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experience and are only suggestions**.
+
+## Know Issues
+
+* compatibility with FP16 training has not been tested.
+* Currently supports multi-GPU training only through `DataParallel`.
 
 ## Citation
 

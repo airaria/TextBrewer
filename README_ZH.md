@@ -27,6 +27,13 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Mar 9，2020**
+
+* 允许TrainingConfig中的log_dir=None，将不启用tensorboard。
+* 为distiller添加了print_freq属性，控制打印信息的频率。
+* 为distiller的train方法增加num_steps参数，允许指定训练步数而不是训练轮数；指定训练步数时，不要求dataloader有__len__属性，适用于数据集大小不可知的情形。
+* 为distiller的train方法增加了batch_postprocessor参数，方便对dataloader生成的batch做后处理。
+
 **Mar 2, 2020**
 
 * **当前版本**: 0.1.7, 初始版本。
@@ -45,6 +52,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 | [核心概念](#核心概念) | TextBrewer中的核心概念介绍 |
 | [FAQ](#faq) | 常见问题解答 |
 | [引用](#引用) | TextBrewer参考引用 |
+| [已知问题](#已知问题) | 尚未解决的问题 |
 | [关注我们](#关注我们) | - |
 
 <!-- /TOC -->
@@ -69,14 +77,14 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 * 多教师知识蒸馏
 * ...
 
-
 **TextBrewer**的主要功能与模块分为3块：
 
 1. **Distillers**：进行蒸馏的核心部件，不同的distiller提供不同的蒸馏模式。目前包含GeneralDistiller, MultiTeacherDistiller, MultiTaskDistiller等
-2.  **Configurations and Presets**：训练与蒸馏方法的配置，并提供预定义的蒸馏策略以及多种知识蒸馏损失函数
-3.  **Utilities**：模型参数分析显示等辅助工具
+2. **Configurations and Presets**：训练与蒸馏方法的配置，并提供预定义的蒸馏策略以及多种知识蒸馏损失函数
+3. **Utilities**：模型参数分析显示等辅助工具
 
 用户需要准备：
+
 1. 已训练好的**教师**模型, 待蒸馏的**学生**模型
 2. 训练数据与必要的实验配置， 即可开始蒸馏
 
@@ -224,10 +232,11 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 各种matches的定义在[exmaple/matches/matches.py](exmaple/matches/matches.py)文件中。均使用GeneralDistiller进行蒸馏。
 
 #### 训练配置
+
 蒸馏用的学习率 lr=1e-4(除非特殊说明)。训练30\~60轮。
 
-
 ### 英文实验结果
+
 在英文实验中，我们使用了如下三个典型数据集。
 
 | Dataset    | Task type | Metrics | \#Train | \#Dev | Note |
@@ -312,10 +321,12 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 
 蒸馏实验中，有两个组件需要由用户提供，分别是**callback** 和 **adaptor** :
 
-####  Callback
+#### Callback
+
 回调函数。在每个checkpoint，保存模型后会被`distiller`调用，并传入当前模型。可以借由回调函数在每个checkpoint评测模型效果。
 
 #### Adaptor
+
 将模型的输入和输出转换为指定的格式，向`distiller`解释模型的输入和输出，以便`distiller`根据不同的策略进行不同的计算。在每个训练步，`batch`和模型的输出`model_outputs`会作为参数传递给`adaptor`，`adaptor`负责重新组织这些数据，返回一个字典。
 
 更多细节可参见[API文档](API.md)中的说明。
@@ -330,9 +341,15 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 
 **A**: 知识蒸馏的比有标签数据上的训练需要更多的训练轮数与更大的学习率。比如，BERT-base上训练SQuAD一般以lr=3e-5训练3轮左右即可达到较好的效果；而蒸馏时需要以lr=1e-4训练30~50轮。当然具体到各个任务上肯定还有区别，**我们的建议仅是基于我们的经验得出的，仅供参考**。
 
+## 已知问题
+
+* FP16精度训练的兼容性尚未测试。
+* 尚不支持DataParallel以外的多卡训练策略。
+
 ## 引用
 
 如果TextBrewer工具包对你的研究工作有所帮助，请在文献中引用下述[技术报告](https://arxiv.org/abs/2002.12620)：
+
 ```
  @article{textbrewer,
    title={TextBrewer: An Open-Source Knowledge Distillation Toolkit for Natural Language Processing},
@@ -342,8 +359,8 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
   }
  ```
 
-
 ## 关注我们
+
 欢迎关注哈工大讯飞联合实验室官方微信公众号，了解最新的技术动态。
 
 ![](pics/hfl_qrcode.jpg)

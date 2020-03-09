@@ -33,7 +33,8 @@ class TrainingConfig(Config):
     def __init__(self,gradient_accumulation_steps = 1,
                  ckpt_frequency = 1,
                  ckpt_epoch_frequency = 1,
-                 log_dir = './logs',
+                 ckpt_steps = None,
+                 log_dir = None,
                  output_dir = './saved_models',
                  device = 'cuda'
                  ):
@@ -42,6 +43,7 @@ class TrainingConfig(Config):
         self.gradient_accumulation_steps =gradient_accumulation_steps
         self.ckpt_frequency = ckpt_frequency
         self.ckpt_epoch_frequency = ckpt_epoch_frequency
+        self.ckpt_steps = ckpt_steps
         self.log_dir = log_dir
         self.output_dir = output_dir
         self.device = device

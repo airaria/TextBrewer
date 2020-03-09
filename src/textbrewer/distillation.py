@@ -92,7 +92,12 @@ class AbstractDistiller(DistillationContext):
         self.adaptor_T = adaptor_T
 
         self.kd_loss = KD_LOSS_MAP[self.d_config.kd_loss_type]
-        self.tb_writer = SummaryWriter(log_dir = self.t_config.log_dir)
+        if self.t_config.log_dir is not None:
+            self.tb_writer = SummaryWriter(log_dir = self.t_config.log_dir)
+        else:
+            self.tb_writer = no_op
+        
+        self.print_freq = 20
 
 class BasicDistiller(AbstractDistiller):
     def __init__(self, train_config: TrainingConfig,
@@ -124,10 +129,53 @@ class BasicDistiller(AbstractDistiller):
         #    self.tb_writer.add_scalar(f"scalar/{name}", cpu_loss, writer_step)
 
 
-    def train(self, optimizer, scheduler, dataloader, num_epochs, callback, **args):
+    def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+        if num_steps is not None:
+            total_global_steps = num_steps
+            ckpt_steps =self.t_config.ckpt_steps
+            print_every = ckpt_steps // self.print_freq
+            if print_every == 0:
+                print_every = ckpt_steps
+            checkpoints = [ i * ckpt_steps for i in range(1,num_steps//ckpt_steps+1)] + [total_global_steps]
+            logger.info(f"Total training steps: {total_global_steps}")
+            logger.info(f"Checkpoints(step): {checkpoints}")
+
+            global_step = 0
+            writer_step = 0
+            for step, batch in tqdm(enumerate(cycle(dataloader)),disable=None):
+                if batch_postprocessor is not None:
+                    batch = batch_postprocessor(batch)
+                total_loss = self.train_on_batch(batch,args)
+                total_loss /= self.t_config.gradient_accumulation_steps
+                total_loss.backward()
+
+                self.write_loss(total_loss, writer_step)
+                writer_step += 1
+
+                if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                    optimizer.step()
+                    if scheduler is not None:
+                        scheduler.step()
+                    self.model_S.zero_grad()
+                    global_step += 1
+                    if self.d_config.kd_loss_weight_scheduler is not None:
+                        self.d_config.kd_loss_weight = \
+                            self.d_config.kd_loss_weight_scheduler(global_step/total_global_steps)
+                    if self.d_config.hard_label_weight_scheduler is not None:
+                        self.d_config.hard_label_weight = \
+                            self.d_config.hard_label_weight_scheduler(global_step/total_global_steps)
+
+                    if (global_step) % print_every == 0:
+                        logger.info(f"Global step: {global_step}, epoch step:{step+1}")
+                    if (global_step%ckpt_steps==0) or global_step==total_global_steps:
+                        self.save_and_callback(global_step, step, 0, callback)
+            logger.info("Training finished")
+            return
+
+
         train_steps_per_epoch = len(dataloader)//self.t_config.gradient_accumulation_steps
         total_global_steps = train_steps_per_epoch * num_epochs
-        print_every = int(train_steps_per_epoch/50)
+        print_every = train_steps_per_epoch // self.print_freq
         if print_every == 0:
             print_every = train_steps_per_epoch
         checkpoints = [int(train_steps_per_epoch*ci/self.t_config.ckpt_frequency) for ci in range(self.t_config.ckpt_frequency)]
@@ -141,6 +189,8 @@ class BasicDistiller(AbstractDistiller):
             self.model_S.zero_grad()
             logger.info(f"Length of current epoch in forward batch: {len(dataloader)}")
             for step, batch in tqdm(enumerate(dataloader),disable=None):
+                if batch_postprocessor is not None:
+                    batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
                 total_loss /= self.t_config.gradient_accumulation_steps
                 total_loss.backward()
@@ -354,7 +404,7 @@ class GeneralDistiller(BasicDistiller):
     def save_and_callback(self,global_step, step, epoch, callback):
         if self.has_custom_matches:
             handles_T = self.model_T._forward_hooks
-            handles_S = self.model_S.forward_hooks
+            handles_S = self.model_S._forward_hooks
             self.model_S._forward_hooks = OrderedDict()  # clear hooks
             self.model_T._forward_hooks = OrderedDict()
 
@@ -364,8 +414,7 @@ class GeneralDistiller(BasicDistiller):
             self.model_S._forward_hooks = handles_S  # restore hooks
             self.model_T._forward_hooks = handles_T
 
-    def train(self, optimizer: torch.optim.Optimizer,
-                    scheduler, dataloader, num_epochs, callback, **args):
+    def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
         # update optimizer for projection layer
         for proj,proj_group in zip(self.projs, self.projs_group):
             if proj is not None:
@@ -383,7 +432,7 @@ class GeneralDistiller(BasicDistiller):
             for k,v in group.items():
                 logger.debug(f"{k}:{v}")
 
-        super(GeneralDistiller, self).train(optimizer, scheduler, dataloader,num_epochs, callback, **args)
+        super(GeneralDistiller, self).train(optimizer, scheduler, dataloader, num_epochs, num_steps, callback, batch_postprocessor, **args)
 
     def train_on_batch(self, batch, args):
         if type(batch) is dict:
@@ -538,24 +587,33 @@ class MultiTaskDistiller(BasicDistiller):
                 "BasicMultiTaskDistiller does not support WEIGHT_SCHEDULER in the current version."
 
 
-    def train(self, optimizer, scheduler, dataloaders, num_steps, callback, tau=1, **args):
+    def train(self, optimizer, scheduler, dataloaders, num_steps, tau=1, callback=None, batch_postprocessors=None, **args):
         '''
         :param dataloaders:  {taskname1: dataloader1, taskname2: dataloader2, ... }
+        :param batch_postprocessors: {taskname1: proc1, taskname2: proc2, ...}
         '''
-        dataiters = {k:cycle(v) for k,v in dataloaders}
-        dataloader_sizes = {k:len(v)//self.t_config.gradient_accumulation_steps for k,v in dataloaders.items()}
-        logger.info(f"Size of each dataset:{dataloader_sizes}")
-        total_size = sum(v for k,v in dataloader_sizes.items())
-        logger.info(f"Size of all datasets:{total_size}")
-        print_every = total_size // 20
+        total_global_steps = num_steps
+        ckpt_steps =self.t_config.ckpt_steps
+        print_every = ckpt_steps // self.print_freq
         if print_every == 0:
-            print_every = total_size
-        checkpoints = total_size//self.t_config.ckpt_frequency
+            print_every = ckpt_steps
+        checkpoints = [ i * ckpt_steps for i in range(1,num_steps//ckpt_steps+1)] + [total_global_steps]
+        logger.info(f"Total training steps: {total_global_steps}")
         logger.info(f"Checkpoints(step): {checkpoints}")
 
-        Z = sum(pow(v,tau) for v in dataloader_sizes.values())
-        tasknames, sampling_weights = zip(*((k,pow(v,tau)/Z) for k,v in dataloader_sizes.items()))
+        dataiters = {k:cycle(v) for k,v in dataloaders}
+        if all(hasattr(v,'__len__') for v in dataloaders.values()):
+            dataloader_sizes = {k:len(v) for k,v in dataloaders.items()}
+            total_size = sum(v for k,v in dataloader_sizes.items())//self.t_config.gradient_accumulation_steps
+            logger.info(f"Total size of all datasets (in number of batch_size):{total_size}")
+            Z = sum(pow(v,tau) for v in dataloader_sizes.values())
+            tasknames, sampling_weights = zip(*((k,pow(v,tau)/Z) for k,v in dataloader_sizes.items()))
+        else:
+            logger.info("The size of some datasets are unknown, so tau=1")
+            tasknames = tuple(dataloaders.keys())
+            sampling_weights = None
 
+            
         global_step = 0
         writer_step = 0
         self.model_S.zero_grad()
@@ -566,7 +624,8 @@ class MultiTaskDistiller(BasicDistiller):
                 taskname = np.random.choice(tasknames,p=sampling_weights)
                 dataiter = dataiters[taskname]
                 batch = next(dataiter)
-
+                if batch_postprocessors is not None:
+                    batch = batch_postprocessors[taskname](batch)
                 batch_taskname = (batch, taskname)
                 total_loss = self.train_on_batch(batch_taskname, args)
                 total_loss /= self.t_config.gradient_accumulation_steps
@@ -574,32 +633,23 @@ class MultiTaskDistiller(BasicDistiller):
                 scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
                 self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
                 writer_step += 1
-
             optimizer.step()
             if scheduler is not None:
                 scheduler.step()
             self.model_S.zero_grad()
+
+            if self.d_config.kd_loss_weight_scheduler is not None:
+                self.d_config.kd_loss_weight = \
+                    self.d_config.kd_loss_weight_scheduler(global_step/total_global_steps)
+            if self.d_config.hard_label_weight_scheduler is not None:
+                self.d_config.hard_label_weight = \
+                    self.d_config.hard_label_weight_scheduler(global_step/total_global_steps)
+
             if (global_step) % print_every == 0:
                 logger.info(f"Global step: {global_step}/{num_steps}")
-            if  global_step % checkpoints == 0:
-                logger.info(f"Saving at global step {global_step}/{num_steps}")
-                coreModel = self.model_S.module if \
-                    'DataParallel' in self.model_S.__class__.__name__ else self.model_S
-                state_dict = coreModel.state_dict()
-                torch.save(state_dict, os.path.join(self.t_config.output_dir, f"gs{global_step}.pkl"))
-                if callback is not None:
-                    logger.info("Running callback function...")
-                    callback(model=self.model_S, step=global_step)
-
-        logger.info(f"Saving at last global step {global_step}/{num_steps}")
-        coreModel = self.model_S.module if \
-            'DataParallel' in self.model_S.__class__.__name__ else self.model_S
-        state_dict = coreModel.state_dict()
-        torch.save(state_dict, os.path.join(self.t_config.output_dir, f"gs{global_step}.pkl"))
-        if callback is not None:
-            logger.info("Running callback function...")
-            callback(model=self.model_S, step=global_step)
-
+            if (global_step % ckpt_steps == 0) or global_step==total_global_steps:
+                self.save_and_callback(global_step, global_step-1, 0, callback)
+        logger.info("Training finished")
 
     def train_on_batch(self, batch_taskname, args) -> torch.Tensor:
         # Basic uses no cache
@@ -732,11 +782,59 @@ class BasicTrainer:
         self.t_config = train_config
         self.model = model
         self.adaptor = adaptor
-        self.tb_writer = SummaryWriter(log_dir = self.t_config.log_dir)
+        if self.t_config.log_dir is not None:
+            self.tb_writer = SummaryWriter(log_dir = self.t_config.log_dir)
+        else:
+            self.tb_writer = no_op
+        self.print_freq = 20
 
-    def train(self, optimizer, scheduler, dataloader, num_epochs, callback, **args):
+    def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+        if num_steps is not None:
+            total_global_steps = num_steps
+            ckpt_steps =self.t_config.ckpt_steps
+            print_every = ckpt_steps // self.print_freq
+            if print_every == 0:
+                print_every = ckpt_steps
+            checkpoints = [ i * ckpt_steps for i in range(1,num_steps//ckpt_steps+1)] + [total_global_steps]
+            logger.info(f"Total training steps: {total_global_steps}")
+            logger.info(f"Checkpoints: {checkpoints}")
+
+            global_step = 0
+            writer_step = 0
+            for step, batch in tqdm(enumerate(cycle(dataloader)),disable=None):
+                if batch_postprocessor is not None:
+                    batch = batch_postprocessor(batch)
+                total_loss = self.train_on_batch(batch,args)
+                total_loss /= self.t_config.gradient_accumulation_steps
+                total_loss.backward()
+
+                scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
+                self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
+                writer_step += 1
+
+                if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                    optimizer.step()
+                    if scheduler is not None:
+                        scheduler.step()
+                    self.model.zero_grad()
+                    global_step += 1
+                    if (global_step) % print_every == 0:
+                        logger.info(f"Global step: {global_step}, epoch step:{step+1}")
+                    if (global_step%ckpt_steps==0) or global_step==total_global_steps:
+                        logger.info(f"Saving at global step {global_step}")
+                        coreModel = self.model.module if \
+                            'DataParallel' in self.model.__class__.__name__ else self.model
+                        state_dict = coreModel.state_dict()
+                        torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
+                        if callback is not None:
+                            logger.info("Running callback function...")
+                            callback(model=self.model, step=global_step)
+                            self.model.train()
+            logger.info("Training finished")
+            return
+
         train_steps_per_epoch = len(dataloader)//self.t_config.gradient_accumulation_steps
-        print_every = int(train_steps_per_epoch/50)
+        print_every = train_steps_per_epoch // self.print_freq
         if print_every == 0:
             print_every = train_steps_per_epoch
         checkpoints = [int(train_steps_per_epoch*ci/self.t_config.ckpt_frequency) for ci in range(self.t_config.ckpt_frequency)]
@@ -750,6 +848,8 @@ class BasicTrainer:
             self.model.zero_grad()
             logger.info(f"Length of current epoch in forward batch: {len(dataloader)}")
             for step, batch in tqdm(enumerate(dataloader),disable=None):
+                if batch_postprocessor is not None:
+                    batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
                 total_loss /= self.t_config.gradient_accumulation_steps
                 total_loss.backward()
@@ -835,3 +935,6 @@ def probability_shift_(tensor, labels):  # In-place operation. shape (batch_size
         return tensor
     else:
         raise TypeError("Rank of tensor must be 2 or 3")
+
+def no_op(*args, **kwargs):
+    pass

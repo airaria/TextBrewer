@@ -34,17 +34,20 @@ Meanwhile, we are working on moving to readthedoc.
 
 * **scheduler**: instance of `torch.optim.lr_scheduler`, allows flexible adjustment of learning rate.
 
-* **dataloader**: data iterator, used to generate data batches. The type of batch can be tuple or dict.
-
+* **dataloader**: data iterator, used to generate data batches. A batch can be a tuple or a dict.
+t
 ```python
   for batch in dataloader:
-    # batch can be tuple or dict
-    # ...
-    # forward and backward pass
+    # if batch_postprocessor is not None:
+    batch = batch_postprocessor(batch)
+    # check batch datatype
+    # passes batch to the model and adaptors
 ```
 
-**Note:** 
-during training, the distiller will check if the batch is a dict, if so the model will be called as model(\*\*batch, \*\*args). Otherwise the model is called as model(\*batch, \*\*args). Hence if the batch is not a dict, **users should make sure that the order of each element in the batch is the same as the order of the arguments of model.forward**. `args` is used for passing additional parameters.
+**Note:**
+1. During training, the distiller will check if the batch is a dict, if so the model will be called as model(\*\*batch, \*\*args), otherwise the model is called as model(\*batch, \*\*args). Hence if the batch is not a dict, **users should make sure that the order of each element in the batch is the same as the order of the arguments of model.forward**. `args` is used for passing additional parameters.
+2. Users can define a `batch_postprocessor` function to post-process batches if needed. `batch_postprocessor` should take a batch and return a batch. See the explanation on `train` method of [Distillers](#Distillers) for more details.
+
 
 ### Config and Distiller
 
@@ -142,15 +145,16 @@ These keys are all **optional**:
 
 ### Configurations
 
-class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **log_dir** = './logs', **output_dir** = './saved_models', **device** = 'cuda')
+class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **ckpt_steps** = None, **log_dir** = None, **output_dir** = './saved_models', **device** = 'cuda')
 
-* **gradient_accumulation_steps** (`int`) : accumulates gradients from several steps before doing optimization to save GPU memory consumption. It calls optimizer.step() every `gradient_accumulation_steps` number of backward steps. When it's set larger than 1, it will help reduce GPU memory consumption especially when the batch size is big.
+* **gradient_accumulation_steps** (`int`) : accumulates gradients from several steps before doing optimization to save GPU memory consumption. It calls optimizer.step() every **gradient_accumulation_steps** number of backward steps. When it's set larger than 1, it will help reduce GPU memory consumption especially when the batch size is big.
 * **ckpt_frequency** (`int`): The frequency of storing model weights, i.e. the number of times to store the model weights for each epoch.
 * **ckpt_epoch_frequency** (`int`): stores model after how many epochs each time. For example:
   * **ckpt_frequency**=1, **ckpt_epoch_frequency**=1 : stores once at the end of each epoch (Default).
   * **ckpt_frequency**=2, **ckpt_epoch_frequency**=1 : stores twice (at the middle and at the end) at each epoch.
   * **ckpt_frequency**=1, **ckpt_epoch_frequency**=2 : stores once every two epochs.
-* **log_dir** (`str`) : directory to save the tensorboard log file.
+* **ckpt_steps** (`int`) :  if `num_steps` in `distiller.train` is set, saves the model every **ckpt_steps**, meanwhile  `ckpt_frequency` and `ckpt_epoch_frequency` will be ignored.
+* **log_dir** (`str`) : directory to save the tensorboard log file. Set it to None to disable tensorboard.
 * **output_dir** (`str`) : directory to save trained model weights.
 * **device** (str, torch.device) : training on CPU or GPU.
 
@@ -269,8 +273,8 @@ Recommended for single-model single-task distillation.
 * class **textbrewer.GeneralDistiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**, **custom_matches** = None)
 
 
-	* train_config (`TrainingConfig`) : training configuration.
-	* Distill_config (`DistillationConfig`)：distillation configuration.
+	* train_config (`TrainingConfig`): training configuration.
+	* distill_config (`DistillationConfig`)：distillation configuration.
 	* model_T (`torch.nn.Module`)：teacher model.
 	* model_S (`torch.nn.Module`)：student model.
 	* adaptor_T (`Callable`, function)：teacher model's adaptor.
@@ -306,12 +310,21 @@ Recommended for single-model single-task distillation.
       ```
   * custom_matches (`List`) : supports more flexible self-defined matches (testing).
 
-*  **textbrewer.GeneralDistiller.train** (**optimizer**, **schduler**, **dataloader**, **num_epochs**,**callback**, **\*\*args**)	
+* **textbrewer.GeneralDistiller.train** (**optimizer**, **schduler**, **dataloader**, **num_epochs**, **num_steps**=None, **callback**=None, **batch_postprocessor**=None, **\*\*args**)
   * optimizer: optimizer.
-	* scheduler: used to adjust learning rate, optional (can be None).
-	* dataloader: dataset iterator.
-	* num_epochs: number of epochs.
-  * callback: function called after each epoch, can be None. It is called as  `callback(model=self.model_S, step = global_step)`. It can be used to do evaluation of the model at each checkpoint.
+  * scheduler: used to adjust learning rate, optional (can be None).
+  * dataloader: dataset iterator.
+  * num_epochs (`int`): number of training epochs.
+  * num_steps  (`int`): number of training steps. If it is not None, distiller will ignore **num_epochs** and trains for **num_steps**. Dataloader can have an unkonwn size, i.e., has no `__len__` attribute. Dataloader will be cycled automatically after iterating over the whole dataset.
+  * callback (`Callable`): function called after each epoch, can be None. It is called as  `callback(model=self.model_S, step = global_step)`. It can be used to do evaluation of the model at each checkpoint.
+  * batch_postprocessor (`Callable`): a function for post-processing batches. It should take a batch and return a batch. Inside the distiller, it works like:
+  ```python
+  for batch in dataloader:
+    # if batch_postprocessor is not None:
+    batch = batch_postprocessor(batch)
+    # check batch datatype
+    # passes batch to the model and adaptors
+  ```
   * \*\*args: additional arguments fed to the model.
 
 **Note**: 
@@ -325,7 +338,7 @@ Recommended for single-model single-task distillation.
 It performs supervised training, not distillation. It can be used for training the teacher model.
 
 * class **BasicTrainer** (**train_config**, **model**, **adaptor**)
-  * train_config (`TrainingConfig`) : training configuration.
+  * train_config (`TrainingConfig`): training configuration.
   * model (`torch.nn.Module`): model to be trained.
   * adaptor (`Callable`, function)：adaptor of the model.
 * BasicTrainer.train: same as `GeneralDistiller.train`.
@@ -335,8 +348,8 @@ It performs supervised training, not distillation. It can be used for training t
 Performs single-model single-task distillation. **It doesn't support intermediate feature matching**. Can be used for debugging or testing.
 
 * class **BasicDistiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**)
-  * train_config (`TrainingConfig`) : training configuration.
-  * Distill_config (`DistillationConfig`)：distillation configuration.
+  * train_config (`TrainingConfig`): training configuration.
+  * distill_config (`DistillationConfig`)：distillation configuration.
   * model_T (`torch.nn.Module`)：teacher model.
   * model_S (`torch.nn.Module`)：student model.
   * adaptor_T (`Callable`, function)：teacher model adaptor.
@@ -349,8 +362,8 @@ Multi-teacher distillation. Distill multiple teacher models (of the same tasks) 
 
 * class **MultiTeacherDistiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**)
 
-  * train_config (`TrainingConfig`) : training configuration.
-  * Distill_config (`DistillationConfig`)：distillation configuration.
+  * train_config (`TrainingConfig`): training configuration.
+  * distill_config (`DistillationConfig`)：distillation configuration.
   * model_T (`List[torch.nn.Module]`)：List of teacher models.
   * model_S (`torch.nn.Module`)：student model.
   * adaptor_T (`Callable`, function)：teacher model's adaptor.
@@ -364,21 +377,30 @@ Distills multiple teachers (of different tasks) into a single student. **It does
 
 * class **textbrewer.MultiTaskDistiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**)
 
-  * train_config (`TrainingConfig`) : training configuration.
-  * Distill_config (`DistillationConfig`)：distillation configuration.
+  * train_config (`TrainingConfig`): training configuration.
+  *distill_config (`DistillationConfig`)：distillation configuration.
   * model_T (`Dict[str,torch.nn.Module]`)：dict of teacher models. Keys are task names, values are teacher models.
   * model_S (`torch.nn.Module`)：student model.
   * adaptor_T (`Dict[str,Callable]`)：dict of teacher adaptors. Keys are task names, values are corresponding adaptors.
   * adaptor_S (`Dict[str,Callable]`)：dict of student adaptors. Keys are task names, values are corresponding adaptors.
 
-Its `train` method is a little different from other distillers:
+Its `train` method is different from other distillers:
 
-* **textbrewer.MultiTaskDistiller.train** (**optimizer**, **schduler**, **dataloaders**, **num_steps**,**callback**, **tau=1**, **\*\*args**)
+* **textbrewer.MultiTaskDistiller.train** (**optimizer**, **schduler**, **dataloaders**, **num_steps**, **tau**=1, **callback**=None, **batch_postprocessors**=None, **\*\*args**)
   * optimizer: optimizer.
   * scheduler: used to adjust learning rate, optional (can be None).
   * dataloaders: dict of dataset iterator. Keys are task names, values are corresponding dataloaders.
   * num_steps: number of training steps.
-  * tau: the probability of training on an example for a task d is proportional to |d|^tau, where |d| is the size of d's training set.
+  * tau: the probability of training on an example of a task d is proportional to |d|^tau, where |d| is the size of d's training set. If the size of any dataset is unknown, ignores tau and samples examples unifromly from each dataset.
+  * callback (`Callable`): function called after each epoch, can be None. It is called as  `callback(model=self.model_S, step = global_step)`. It can be used to do evaluation of the model at each checkpoint.
+  * batch_postprocessors (`Dict[Callable]`): a dict of batch_postprocessors. Keys are tasknames, values are corresponding batch_postprocessors. It should take a batch and return a batch. Inside the distiller, it works like:
+    ```python
+      batch = next(dataloaders[taskname])
+      # if batch_postprocessors is not None:
+      batch = batch_postprocessors[taskname](batch)
+      # check batch datatype
+      # passes batch to the model and adaptors
+    ```
   * \*\*args: additional arguments fed to the model
 
 

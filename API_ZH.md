@@ -34,14 +34,19 @@
 
 * **scheduler**: 动态调整学习率。`torch.optim.lr_scheduler`下的类的实例，提供单独的学习率调整策略。
 
-* **dataloader**: 迭代器，用于获取 batch，一般用`torch.utils.data.Dataloader`构造。batch的类型可以是`Tuple`或`Dict`:
+* **dataloader**: 迭代器，用于获取 batch，一般用`torch.utils.data.Dataloader`构造。batch的类型可以是`tuple`或`dict`:
 
   ```python
   for batch in dataloader:
-    # batch 可以是 Tuple 或者 Dict
+    # if batch_postprocessor is not None:
+    batch = batch_postprocessor(batch)
+    # check batch datatype
+    # passes batch to the model and adaptors
   ```
   
-  **注意：** 训练循环中会判断batch是否是dict。如果是dict，那么以model(\*\*batch, \*\*args) 的形式调用model，否则以 model(\*batch, \*\*args)的形式调用model。所以当batch不是dict时，**注意batch中每个元素的顺序和model.forward的参数的顺序相一致**。args则用于传递额外的参数。
+  **注意：**:
+  1. 训练循环中会判断batch是否是dict。如果是dict，那么以model(\*\*batch, \*\*args) 的形式调用model，否则以 model(\*batch, \*\*args)的形式调用model。所以当batch不是dict时，**注意batch中每个元素的顺序和model.forward的参数的顺序相一致**。`args`则用于传递额外的参数。
+  2. 如果用户需要对从dataloader得到的batch进行后处理，可以定义batch_postprocessor函数，接受一个batch并返回处理后的batch。详见[Distillers](#Distillers)中关于`train`方法的说明。
 
 ### Config和Distiller
 
@@ -137,18 +142,19 @@ adatpor(batch: Union[Dict,Tuple], model_outputs: Tuple) -> Dict
 
 ### Configurations
 
-class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **log_dir** = './logs', **output_dir** = './saved_models', **device** = 'cuda')
+class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **ckpt_steps** = None, **log_dir** = None, **output_dir** = './saved_models', **device** = 'cuda')
 
 * **gradient_accumulation_steps** (`int`) : 梯度累加以节约显存。每计算 *gradient_accumulation_steps* 个batch的梯度，调用一次optimizer.step()。大于1时用于在大batch_size情况下节约显存。
-* **ckpt_frequency** (`int`) : 存储模型权重的频率。每训练一个epoch储存模型权重的次数
-* **ckpt_epoch_frequency** (`int`)：每多少个epoch储存模型
-  * **ckpt_frequency**=1, **ckpt_epoch_frequency**=1 : 每个epoch结束时存一次 （默认行为）
-  * **ckpt_frequency**=2, **ckpt_epoch_frequency**=1 : 在每个epoch的一半和结束时，各存一次
-  * **ckpt_frequency**=1, **ckpt_epoch_frequency**=2 : 每两个epoch结束时，存一次
-  * **ckpt_frequency**=2, **ckpt_epoch_frequency**=2 : 每2个epoch，仅在第2个epoch的一半和结束时各存一次（一般不会这样设置）
-* **log_dir** (`str`) : 存放tensorboard日志的位置
-* **output_dir** (`str`) : 储存模型权重的位置
-* **device** (`str`, `torch.device`) : 在CPU或GPU上训练
+* **ckpt_frequency** (`int`) : 存储模型权重的频率。每训练一个epoch储存模型权重的次数。
+* **ckpt_epoch_frequency** (`int`)：每多少个epoch储存模型。
+  * **ckpt_frequency**=1, **ckpt_epoch_frequency**=1 : 每个epoch结束时存一次 （默认行为）。
+  * **ckpt_frequency**=2, **ckpt_epoch_frequency**=1 : 在每个epoch的一半和结束时，各存一次。
+  * **ckpt_frequency**=1, **ckpt_epoch_frequency**=2 : 每两个epoch结束时，存一次。
+  * **ckpt_frequency**=2, **ckpt_epoch_frequency**=2 : 每2个epoch，仅在第2个epoch的一半和结束时各存一次（一般不会这样设置）。
+* **ckpt_steps** (`int`) : 每ckpt_steps步存一次模型，仅当调用distiller.train时指定了训练步数`num_steps`时有效，不会与ckpt_frequency以及ckpt_epoch_frequency同时起效。
+* **log_dir** (`str`) : 存放tensorboard日志的位置。如果为None，不启用tensorboard。
+* **output_dir** (`str`) : 储存模型权重的位置。
+* **device** (`str`, `torch.device`) : 在CPU或GPU上训练。
 
 示例：
 
@@ -268,8 +274,8 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
 
 * class **textbrewer.GeneralDistiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**, **custom_matches** = None)
 
-  * train_config (`TrainingConfig`) : 训练配置
-  * Distill_config (`DistillationConfig`)：蒸馏配置
+  * train_config (`TrainingConfig`): 训练配置
+  * distill_config (`DistillationConfig`)：蒸馏配置
   * model_T (`torch.nn.Module`)：教师模型
   * model_S (`torch.nn.Module`)：学生模型
   * adaptor_T (`Callable`, function)：教师模型的adaptor
@@ -280,12 +286,20 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
     为适配不同模型的输入与输出，adaptor需要由用户提供。Adaptor接受两个输入，分别为batch(dataloader的输出)和model_outputs(模型的输出)，返回一个字典。
   * custom_matches (`List`) : 支持更灵活的特征匹配 (测试功能)
 
-* **textbrewer.GeneralDistiller.train** (**optimizer**, **schduler**, **dataloader**, **num_epochs**,**callback**, **\*\*args**)
+* **textbrewer.GeneralDistiller.train** (**optimizer**, **schduler**, **dataloader**, **num_epochs**, **num_steps**=None, **callback**=None, **batch_postprocessor**=None, **\*\*args**)
   * optimizer: 优化器
   * schduler: 调整学习率，可以为None
   * dataloader: 数据集迭代器
-  * num_epochs : 训练的轮数
-  * callback: 回调函数，可以为None。在每个checkpoint会被distiller调用，调用方式为callback(model=self.model_S, step = global_step)。可用于在每个checkpoint做evaluation。
+  * num_epochs (`int`): 训练的轮数
+  * num_steps  (`int`): 指定训练的步数。当num_steps不为None时，distiller将忽略num_epochs而按num_steps设定的步数训练。此时不要求dataloader具有__len__属性，适用于数据集大小未知的情形。每当完成一次遍历，dataloader将被自动循环。
+  * callback (`Callable`): 回调函数，可选。在每个checkpoint会被distiller调用，调用方式为callback(model=self.model_S, step = global_step)。可用于在每个checkpoint做evaluation。
+  * batch_postprocessor (`Callable`): 函数，用于对batch做后处理，接受batch作为参数，返回处理后的batch。在distiller内部以如下方式调用：
+    ```
+    for batch in dataloader:
+        batch = batch_postprocessor(batch)
+        # check batch datatype
+        # passes batch to the model and adaptors
+    ```
   * \*\*args：额外的需要提供给模型的参数
 
 调用模型过程说明：
@@ -298,7 +312,7 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
 进行有监督训练，而非蒸馏。可用于训练教师模型。
 
 * class **textbrewer.BasicTrainer** (**train_config**, **model**, **adaptor**)
-  * train_config (`TrainingConfig`) : 训练配置
+  * train_config (`TrainingConfig`): 训练配置
   * model (`torch.nn.Module`)：待训练的模型
   * adaptor (`Callable`, function)：待训练的模型的adaptor
 * BasicTrainer.train 同 GeneralDistiller.train
@@ -308,8 +322,8 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
 用于单模型单任务蒸馏，**不支持中间层特征匹配**。可作为调试或测试使用。
 
 * class **textbrewer.BasicDIstiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**)
-  * train_config (`TrainingConfig`) : 训练配置
-  * Distill_config (`DistillationConfig`)：蒸馏配置
+  * train_config (`TrainingConfig`): 训练配置
+  * distill_config (`DistillationConfig`)：蒸馏配置
   * model_T (`torch.nn.Module`)：教师模型
   * model_S (`torch.nn.Module`)：学生模型
   * adaptor_T (`Callable`, function)：教师模型的adaptor
@@ -322,8 +336,8 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
 
 * class **textbrewer.MultiTeacherDistiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**)
 
-  * train_config (`TrainingConfig`) : 训练配置
-  * Distill_config (`DistillationConfig`)：蒸馏配置
+  * train_config (`TrainingConfig`): 训练配置
+  * distill_config (`DistillationConfig`)：蒸馏配置
   * model_T (`List[torch.nn.Module]`)：教师模型的列表
   * model_S (`torch.nn.Module`)：学生模型
   * adaptor_T (`Callable`, function)：教师模型的adaptor
@@ -337,20 +351,28 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
 
 * class **textbrewer.MultiTaskDistiller** (**train_config**, **distill_config**, **model_T**, **model_S**, **adaptor_T**, **adaptor_S**)
 
-  * train_config (`TrainingConfig`) : 训练配置
-  * Distill_config (`DistillationConfig`)：蒸馏配置
+  * train_config (`TrainingConfig`): 训练配置。因为MultiTaskDistiller按训练步数num_steps而不是训练轮数num_epochs执行训练过程，所以ckpt_steps必须被指定。
+  * distill_config (`DistillationConfig`)：蒸馏配置
   * model_T (`Dict[str,torch.nn.Module]`)：教师模型的字典，key为任务名，value为模型
   * model_S (`torch.nn.Module`)：学生模型
   * adaptor_T (`Dict[str,Callable]`)：教师模型的adaptor字典，key为任务名，value为对应的adaptor
   * adaptor_S (`Dict[str,Callable]`)：学生模型的adaptor字典，key为任务名，value为对应的adaptor
 
-* **textbrewer.MultiTaskDistiller.train** (**optimizer**, **schduler**, **dataloaders**, **num_steps**,**callback**, **tau=1**, **\*\*args**)
+* **textbrewer.MultiTaskDistiller.train** (**optimizer**, **schduler**, **dataloaders**, **num_steps**, **tau**=1, **callback**=None, **batch_postprocessors**=None, **\*\*args**)
   * optimizer: 优化器
   * schduler: 调整学习率，可以为None
-  * dataloaders: 数据集迭代器字典，key为任务名，value为对应数据的dataloader
-  * num_steps : 训练步数
-  * callback: 回调函数，可以为None。在每个checkpoint会被distiller调用，调用方式为callback(model=self.model_S, step = global_step)。可用于在每个checkpoint做evaluation
-  * tau: 训练样本来自任务d的的概率正比如|d|的tau次方，|d|是任务d的训练集大小
+  * dataloaders : 数据集迭代器字典，key为任务名，value为对应数据的dataloader
+  * num_steps (`int`): 训练步数。每当完成一次遍历，dataloader将被自动循环。
+  * tau (`float`): 训练样本来自任务d的的概率正比如|d|的tau次方，|d|是任务d的训练集大小。如果某一个dataloader的长度未知，那么tau无效，即以等概率从各个任务采样。
+  * callback (`Callable`): 回调函数，可以为None。在每个checkpoint会被distiller调用，调用方式为callback(model=self.model_S, step = global_step)。可用于在每个checkpoint做evaluation
+  * batch_postprocessors (`Dict[Callable]`):  batch_postprocessors的字典，key为任务名，value为对应任务数据的batch_postprocessor。用于对batch做后处理，每个batch_postprocessor接受batch作为参数，返回处理后的batch。在distiller内部以如下方式调用：
+      ```python
+      batch = next(dataloaders[taskname])
+      # if batch_postprocessors is not None:
+      batch = batch_postprocessors[taskname](batch)
+      # check batch datatype
+      # passes batch to the model and adaptors
+    ```
   * \*\*args：额外的需要提供给模型的参数
 
 ### utils
