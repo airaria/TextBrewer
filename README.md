@@ -25,11 +25,11 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
-**Mar 9，2020**
+**Mar 9, 2020**
 
-* `TrainingConfig.log_dir` can be set to `None` to disable tensorboard.
+* `TrainingConfig.log_dir` can be set to `None` to disable TensorBoard.
 * Add attribute `print_freq` to the distiller to control the frequency of logging.
-* Add new argument `num_steps` to the `train` method of the distiller. If `num_steps` is specified, distiller will ignore `num_epochs` and allow an unkonw-size dataloader , i.e., which has no `__len__` attribute.
+* Add new argument `num_steps` to the `train` method of the distiller. If `num_steps` is specified, distiller will ignore `num_epochs` and allow an unknown-size dataloader (i.e., which has no `__len__` attribute).
 * Add new argument `batch_postprocessor` to the `train` method of the distiller to allow post-processing of batches.
 
 **Mar 2, 2020**
@@ -49,7 +49,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 | [Experiments](#experiments) | Distillation experiments on typical English and Chinese datasets |
 | [Core Concepts](#core-concepts) | Brief explanations of the core concepts in TextBrewer |
 | [FAQ](#faq) | Frequently asked questions |
-| [Known Issues](#know-issues) | Known issues |
+| [Known Issues](#known-issues) | Known issues |
 | [Citation](#citation) | Citation to TextBrewer |
 | [Follow Us](#follow-us) | - |
 
@@ -342,14 +342,14 @@ Fore more details, see the explanations in [API documentation](API.md)
 For example, when distilling a BERT-base model to a 3-layer BERT, you could initialize the student model with [RBT3](#https://github.com/ymcui/Chinese-BERT-wwm) (for Chinese tasks) or the first three layers of BERT (for English tasks) to avoid cold start problem. 
 We recommend that users use pre-trained student models whenever possible to fully take the advantage of large-scale pre-training.
 
-**Q**: How to set training hyperparamters in distillation experiments？
+**Q**: How to set training hyperparamters for the distillation experiments？
 
-**A**: Konwledge distillation usually requires more training epochs and larger learning rate than training on labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experience and are only suggestions**.
+**A**: Knowledge distillation usually requires more training epochs and larger learning rate than training on labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experiments, and you are advised to try on your own data**.
 
-## Know Issues
+## Known Issues
 
-* compatibility with FP16 training has not been tested.
-* Currently supports multi-GPU training only through `DataParallel`.
+* Compatibility with FP16 training has not been tested.
+* Multi-GPU training support is only available through `DataParallel` currently.
 
 ## Citation
 
