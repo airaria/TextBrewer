@@ -27,18 +27,12 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Mar 11, 2020**
 
-* Update version number to 0.1.8.
-
-**Mar 9, 2020**
-
-* `TrainingConfig.log_dir` can be set to `None` to disable TensorBoard.
-* Add attribute `print_freq` to the distiller to control the frequency of logging.
-* Add new argument `num_steps` to the `train` method of the distiller. If `num_steps` is specified, distiller will ignore `num_epochs` and allow an unknown-size dataloader (i.e., which has no `__len__` attribute).
-* Add new argument `batch_postprocessor` to the `train` method of the distiller to allow post-processing of batches.
+* Updated to 0.1.8 (Improvements on TrainingConfig and train method). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.8).
 
 **Mar 2, 2020**
 
-* **Current version**: 0.1.7, the first public version.
+* Initial public version 0.1.7 has been released. See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.7).
+
 
 ## Table of Contents
 
