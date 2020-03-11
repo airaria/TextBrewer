@@ -29,14 +29,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Mar 11, 2020**
 
-* 版本号更新至 0.1.8。
-
-**Mar 9，2020**
-
-* 允许TrainingConfig中的log_dir=None，将不启用tensorboard。
-* 为distiller添加了print_freq属性，控制打印信息的频率。
-* 为distiller的train方法增加num_steps参数，允许指定训练步数而不是训练轮数；指定训练步数时，不要求dataloader有__len__属性，适用于数据集大小不可知的情形。
-* 为distiller的train方法增加了batch_postprocessor参数，方便对dataloader生成的batch做后处理。
+* **版本更新至 0.1.8**（改进了`TrainingConfig`和distiller的`train`方法），细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.8)。
 
 **Mar 2, 2020**
 
