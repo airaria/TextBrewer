@@ -38,7 +38,7 @@ setup(
     long_description_content_type="text/markdown",
     keywords="NLP deep learning knowledge distillation pytorch",
     #license="",
-    url="textbrewer.hfl-rc.com",
+    url="http://textbrewer.hfl-rc.com",
     #package_dir={"": "src"},
     packages=['textbrewer'],
     package_dir={'':'src'},

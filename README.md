@@ -25,6 +25,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
+**Mar 11, 2020**
+
+* Update version number to 0.1.8.
+
 **Mar 9, 2020**
 
 * `TrainingConfig.log_dir` can be set to `None` to disable TensorBoard.

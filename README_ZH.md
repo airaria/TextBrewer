@@ -27,6 +27,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Mar 11, 2020**
+
+* 版本号更新至 0.1.8。
+
 **Mar 9，2020**
 
 * 允许TrainingConfig中的log_dir=None，将不启用tensorboard。
