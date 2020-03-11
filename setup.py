@@ -45,7 +45,7 @@ setup(
     install_requires=[
         "numpy",
         "torch >= 1.1",
-        "tensorboard"
+        "tensorboard",
         "tqdm"
     ],
 
