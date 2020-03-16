@@ -29,11 +29,32 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Mar 11, 2020**
 
-* **版本更新至 0.1.8**（改进了`TrainingConfig`和distiller的`train`方法），细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.8)。
+* **版本号更新至 0.1.8**
+
+**Mar 4，2020**
+
+* 允许TrainingConfig中的log_dir=None，将不启用tensorboard。
+* 为distiller添加了print_freq属性，控制打印信息的频率。
+* 为distiller的train方法增加num_steps参数，允许指定训练步数而不是训练轮数；指定训练步数时，不要求dataloader有__len__属性，适用于数据集大小不可知的情形。
+* 为distiller的train方法增加了batch_postprocessor参数，方便对dataloader生成的batch做后处理。
 
 **Mar 2, 2020**
 
-* **当前版本**: 0.1.7, 初始版本。
+* **当前版本**: 0.1.7
+* 与外部公开版本同步
+  * 对文档进行了大规模修订。
+  * 修复了MultTaskDistiller的一个bug。
+
+**Feb 17, 2020**
+
+* 增加了两份蒸馏样例代码:
+
+  1. （中文）CMRC2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。位于 examples/cmrc2018\_example
+  2. （英文）MNLI任务上的英文句对分类任务蒸馏，并展示如何使用多教师蒸馏。位于 examples/mnli\_example
+
+* 更新了快速开始与random_tokens_example中的代码:
+
+  1. 补充 with distiller 语句
 
 ## 目录
 
@@ -50,7 +71,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 | [FAQ](#faq) | 常见问题解答 |
 | [引用](#引用) | TextBrewer参考引用 |
 | [已知问题](#已知问题) | 尚未解决的问题 |
-| [关注我们](#关注我们) | - |
+| [使用反馈](#使用反馈) | - |
 
 <!-- /TOC -->
 
@@ -356,8 +377,11 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
   }
  ```
 
-## 关注我们
+## 使用反馈
 
-欢迎关注哈工大讯飞联合实验室官方微信公众号，了解最新的技术动态。
+如果在使用过程中有任何问题，可以通过如下方式进行反馈
+* 通过git中的issues
+* 通过i讯飞联系杨子清(zqyang5)
+* 通过i讯飞群"HFL中文预训练模型技术交流"
 
-![](pics/hfl_qrcode.jpg)
+![](pics/HFLChinesePretrain.png)
