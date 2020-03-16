@@ -936,5 +936,7 @@ def probability_shift_(tensor, labels):  # In-place operation. shape (batch_size
     else:
         raise TypeError("Rank of tensor must be 2 or 3")
 
-def no_op(*args, **kwargs):
-    pass
+class no_op:
+    @staticmethod
+    def add_scalar(*args, **kwargs):
+        pass
