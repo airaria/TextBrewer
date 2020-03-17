@@ -27,7 +27,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Mar 17, 2020**
 
-* Added CoNLL2003 English NER distillation example, see []( examples/conll2003_example).
+* Added CoNLL2003 English NER distillation example, see [examples/conll2003_example]( examples/conll2003_example).
 
 **Mar 11, 2020**
 
