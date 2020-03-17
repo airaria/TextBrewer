@@ -27,7 +27,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Mar 17, 2020**
 
-* Added CoNLL2003 English NER distillation example, see [examples/conll2003_example]( examples/conll2003_example).
+* Added CoNLL-2003 English NER distillation example, see [examples/conll2003_example]( examples/conll2003_example).
 
 **Mar 11, 2020**
 
@@ -184,7 +184,7 @@ with distiller:
 * [examples/random_token_example](examples/random_token_example) : a simple runable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
 * [examples/cmrc2018\_example](examples/cmrc2018_example) (Chinese): distillation on CMRC2018, a Chinese MRC task, using DRCD as data augmentation.
 * [examples/mnli\_example](examples/mnli_example) (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
-
+* [examples/conll2003_example](examples/conll2003_example) (English): distillation on CoNLL-2003 English NER task, which is in form of sequence labeling.
 
 
 ## Experiments
