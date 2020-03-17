@@ -27,6 +27,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Mar 17, 2020**
+
+* examples中添加了CoNLL2003英文NER任务上的蒸馏的示例代码，见 [examples/conll2003_example](examples/conll2003_example)。
+
 **Mar 11, 2020**
 
 * **版本号更新至 0.1.8**
