@@ -230,7 +230,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 | T3-small | L3n_hidden_mse + L3_hidden_smmd                              |
 | T4-Tiny  | L4t_hidden_mse + L4_hidden_smmd                              |
 
-各种matches的定义在[exmaples/matches/matches.py](exmaples/matches/matches.py)文件中。均使用GeneralDistiller进行蒸馏。
+各种matches的定义在[examples/matches/matches.py](examples/matches/matches.py)中。均使用GeneralDistiller进行蒸馏。
 
 #### 训练配置
 

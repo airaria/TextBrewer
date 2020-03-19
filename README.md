@@ -229,7 +229,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 | T3-small | L3n_hidden_mse + L3_hidden_smmd                              |
 | T4-Tiny  | L4t_hidden_mse + L4_hidden_smmd                              |
 
-The definitions of matches are at [exmaples/matches/matches.py](exmaples/matches/matches.py).
+The definitions of matches are at [examples/matches/matches.py](examples/matches/matches.py).
 
 We use GeneralDistiller in all the distillation experiments.
 
