@@ -17,7 +17,7 @@
     </a>
 </p>
 
-**TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. It includes various distilltion techniques from both NLP and CV, and provides an easy-to-use distillation framkework, which allows users to quickly experiment with state-of-the-art distillation methods to compress the model with a relatively small sacrifice in performance, increase the inference speed and reduce the memory usage.
+**TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. It includes various distilltion techniques from both NLP and CV, and provides an easy-to-use distillation framework, which allows users to quickly experiment with state-of-the-art distillation methods to compress the model with a relatively small sacrifice in performance, increase the inference speed and reduce the memory usage.
 
 Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
@@ -229,7 +229,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 | T3-small | L3n_hidden_mse + L3_hidden_smmd                              |
 | T4-Tiny  | L4t_hidden_mse + L4_hidden_smmd                              |
 
-The definitions of matches are at [exmaple/matches/matches.py](exmaple/matches/matches.py). 
+The definitions of matches are at [exmaples/matches/matches.py](exmaples/matches/matches.py).
 
 We use GeneralDistiller in all the distillation experiments.
 
