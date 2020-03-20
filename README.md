@@ -9,6 +9,9 @@
     <a href="https://github.com/airaria/TextBrewer/blob/master/LICENSE">
         <img alt="GitHub" src="https://img.shields.io/github/license/airaria/TextBrewer.svg?color=blue&style=flat-square">
     </a>
+    <a href="https://textbrewer.readthedocs.io/">
+        <img alt="Documentation" src="https://img.shields.io/website?down_message=offline&label=Documentation&up_message=online&url=https%3A%2F%2Ftextbrewer.readthedocs.io">
+    </a>    
     <a href="https://pypi.org/project/textbrewer">
         <img alt="PyPI" src="https://img.shields.io/pypi/v/textbrewer">
     </a>    
@@ -21,13 +24,13 @@
 
 Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
-[API Documentation](API.md)
+[API Documentation](https://textbrewer.readthedocs.io/)
 
 ## Update
 
 **Mar 17, 2020**
 
-* Added CoNLL-2003 English NER distillation example, see [examples/conll2003_example]( examples/conll2003_example).
+* Added CoNLL-2003 English NER distillation example, see [examples/conll2003_example](examples/conll2003_example).
 
 **Mar 11, 2020**
 
