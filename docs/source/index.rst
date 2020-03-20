@@ -3,11 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-TextBrewer
-======================================
 
 .. image:: ../../pics/banner.png
   :width: 500
+  :align: center
+
+|
 
 **TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. 
 
