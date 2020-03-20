@@ -155,6 +155,7 @@ Citation
 ========
 
 .. highlight:: none
+
 If you find TextBrewer is helpful, please cite `our paper <https://arxiv.org/abs/2002.12620>`_ :
 
 .. code-block:: none

@@ -34,9 +34,7 @@ TEMPERATURE_SCHEDULER=DynamicKeyDict(
     * '**flsw**' :  See `Preparing Lessons: Improve Knowledge Distillation with Better Supervision <https://arxiv.org/abs/1911.07471>`_. Needs parameters ``beta`` and ``gamma``.
     * '**cwsm**': See `Preparing Lessons: Improve Knowledge Distillation with Better Supervision <https://arxiv.org/abs/1911.07471>`_. Needs parameter ``beta``.
 
-Different from other options, when using ``'flsw'`` and ``'cwsm'``, you need to provide extra parameters, for example:
-
-.. code-block::
+Different from other options, when using ``'flsw'`` and ``'cwsm'``, you need to provide extra parameters, for example::
 
     #flsw
     distill_config = DistillationConfig(
@@ -47,6 +45,7 @@ Different from other options, when using ``'flsw'`` and ``'cwsm'``, you need to 
     distill_config = DistillationConfig(
         temperature_scheduler = ['cwsm', 1] # beta = 1
     )
+
 """
 
 
