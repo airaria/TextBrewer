@@ -6,9 +6,8 @@
 TextBrewer
 ======================================
 
-.. .. image:: ../../pics/banner.png
+.. image:: ../../pics/banner.png
   :width: 500
-  :align: center
 
 **TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. 
 
