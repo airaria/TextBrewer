@@ -23,7 +23,7 @@
 
 Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
-[API文档](API_ZH.md)
+[完整文档](https://textbrewer.readthedocs.io/)
 
 ## 更新
 
