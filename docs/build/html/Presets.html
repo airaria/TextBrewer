@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Presets &mdash; TextBrewer 0.1.8 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Intermediate Losses" href="Losses.html" />
+    <link rel="prev" title="Distillers" href="Distillers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TextBrewer
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Concepts.html">Core Concepts</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Configurations.html">Configurations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Distillers.html">Distillers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Presets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-variables">Module variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adaptor-keys">ADAPTOR_KEYS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kd-loss-map">KD_LOSS_MAP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#proj-map">PROJ_MAP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#match-loss-map">MATCH_LOSS_MAP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#weight-scheduler">WEIGHT_SCHEDULER</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#temperature-scheduler">TEMPERATURE_SCHEDULER</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#customization">Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Losses.html">Intermediate Losses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html">Model Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html#data-utils">Data Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TextBrewer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Presets</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Presets.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="presets">
+<h1>Presets<a class="headerlink" href="#presets" title="Permalink to this headline">¶</a></h1>
+<p>Presets include module variables that define pre-defined loss functions and strategies.</p>
+<div class="section" id="module-variables">
+<h2>Module variables<a class="headerlink" href="#module-variables" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="adaptor-keys">
+<h3>ADAPTOR_KEYS<a class="headerlink" href="#adaptor-keys" title="Permalink to this headline">¶</a></h3>
+<dl class="data">
+<dt id="textbrewer.presets.ADAPTOR_KEYS">
+<code class="sig-prename descclassname">textbrewer.presets.</code><code class="sig-name descname">ADAPTOR_KEYS</code><a class="headerlink" href="#textbrewer.presets.ADAPTOR_KEYS" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>list</em>) valid keys of the dict returned by the adaptor, includes:</p>
+<ul class="simple">
+<li><p>‘<strong>logits</strong>’</p></li>
+<li><p>‘<strong>logits_mask</strong>’</p></li>
+<li><p>‘<strong>losses</strong>’</p></li>
+<li><p>‘<strong>inputs_mask</strong>’</p></li>
+<li><p>‘<strong>labels</strong>’</p></li>
+<li><p>‘<strong>hidden</strong>’</p></li>
+<li><p>‘<strong>attention</strong>’</p></li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="kd-loss-map">
+<h3>KD_LOSS_MAP<a class="headerlink" href="#kd-loss-map" title="Permalink to this headline">¶</a></h3>
+<dl class="data">
+<dt id="textbrewer.presets.KD_LOSS_MAP">
+<code class="sig-prename descclassname">textbrewer.presets.</code><code class="sig-name descname">KD_LOSS_MAP</code><a class="headerlink" href="#textbrewer.presets.KD_LOSS_MAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>dict</em>) available KD losses</p>
+<ul class="simple">
+<li><p>‘<strong>mse</strong>’ : mean squared error</p></li>
+<li><p>‘<strong>ce</strong>’: cross-entropy loss</p></li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="proj-map">
+<h3>PROJ_MAP<a class="headerlink" href="#proj-map" title="Permalink to this headline">¶</a></h3>
+<dl class="data">
+<dt id="textbrewer.presets.PROJ_MAP">
+<code class="sig-prename descclassname">textbrewer.presets.</code><code class="sig-name descname">PROJ_MAP</code><a class="headerlink" href="#textbrewer.presets.PROJ_MAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>dict</em>) layers used to match the different dimensions of intermediate features</p>
+<ul class="simple">
+<li><p>‘<strong>linear</strong>’ : linear layer, no activation</p></li>
+<li><p>‘<strong>relu</strong>’ : ReLU activation</p></li>
+<li><p>‘<strong>tanh</strong>’: Tanh activation</p></li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="match-loss-map">
+<h3>MATCH_LOSS_MAP<a class="headerlink" href="#match-loss-map" title="Permalink to this headline">¶</a></h3>
+<dl class="data">
+<dt id="textbrewer.presets.MATCH_LOSS_MAP">
+<code class="sig-prename descclassname">textbrewer.presets.</code><code class="sig-name descname">MATCH_LOSS_MAP</code><a class="headerlink" href="#textbrewer.presets.MATCH_LOSS_MAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>dict</em>) intermediate feature matching loss functions, includes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="Losses.html#textbrewer.losses.att_mse_sum_loss" title="textbrewer.losses.att_mse_sum_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">attention_mse_sum</span></code></a></p></li>
+<li><p><a class="reference internal" href="Losses.html#textbrewer.losses.att_mse_loss" title="textbrewer.losses.att_mse_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">attention_mse</span></code></a></p></li>
+<li><p><a class="reference internal" href="Losses.html#textbrewer.losses.att_ce_mean_loss" title="textbrewer.losses.att_ce_mean_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">attention_ce_mean</span></code></a></p></li>
+<li><p><a class="reference internal" href="Losses.html#textbrewer.losses.att_ce_loss" title="textbrewer.losses.att_ce_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">attention_ce</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">hidden_mse</span></code></p></li>
+<li><p><a class="reference internal" href="Losses.html#textbrewer.losses.cos_loss" title="textbrewer.losses.cos_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">cos</span></code></a></p></li>
+<li><p><a class="reference internal" href="Losses.html#textbrewer.losses.pkd_loss" title="textbrewer.losses.pkd_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">pkd</span></code></a></p></li>
+<li><p><a class="reference internal" href="Losses.html#textbrewer.losses.fsp_loss" title="textbrewer.losses.fsp_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">fsp</span></code></a>, <a class="reference internal" href="Losses.html#textbrewer.losses.fsp_loss" title="textbrewer.losses.fsp_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">gram</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">nst</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">mmd</span></code></p></li>
+</ul>
+<p>See <a class="reference internal" href="Losses.html#intermediate-losses"><span class="std std-ref">Intermediate Losses</span></a> for details.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="weight-scheduler">
+<h3>WEIGHT_SCHEDULER<a class="headerlink" href="#weight-scheduler" title="Permalink to this headline">¶</a></h3>
+<dl class="data">
+<dt id="textbrewer.presets.WEIGHT_SCHEDULER">
+<code class="sig-prename descclassname">textbrewer.presets.</code><code class="sig-name descname">WEIGHT_SCHEDULER</code><a class="headerlink" href="#textbrewer.presets.WEIGHT_SCHEDULER" title="Permalink to this definition">¶</a></dt>
+<dd><p>(dict) Scheduler used to dynamically adjust KD loss weight and hard_label_loss weight.</p>
+<ul class="simple">
+<li><p>‘<strong>linear_decay</strong>’ : decay from 1 to 0 during the whole training process.</p></li>
+<li><p>‘<strong>linear_growth</strong>’ : grow from 0 to 1 during the whole training process.</p></li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="temperature-scheduler">
+<h3>TEMPERATURE_SCHEDULER<a class="headerlink" href="#temperature-scheduler" title="Permalink to this headline">¶</a></h3>
+<dl class="data">
+<dt id="textbrewer.presets.TEMPERATURE_SCHEDULER">
+<code class="sig-prename descclassname">textbrewer.presets.</code><code class="sig-name descname">TEMPERATURE_SCHEDULER</code><a class="headerlink" href="#textbrewer.presets.TEMPERATURE_SCHEDULER" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>custom dict</em>) used to dynamically adjust distillation temperature.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘<strong>constant</strong>’ : Constant temperature.</p></li>
+<li><p>‘<strong>flsw</strong>’ :  See <a class="reference external" href="https://arxiv.org/abs/1911.07471">Preparing Lessons: Improve Knowledge Distillation with Better Supervision</a>. Needs parameters <code class="docutils literal notranslate"><span class="pre">beta</span></code> and <code class="docutils literal notranslate"><span class="pre">gamma</span></code>.</p></li>
+<li><p>‘<strong>cwsm</strong>’: See <a class="reference external" href="https://arxiv.org/abs/1911.07471">Preparing Lessons: Improve Knowledge Distillation with Better Supervision</a>. Needs parameter <code class="docutils literal notranslate"><span class="pre">beta</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>Different from other options, when using <code class="docutils literal notranslate"><span class="pre">'flsw'</span></code> and <code class="docutils literal notranslate"><span class="pre">'cwsm'</span></code>, you need to provide extra parameters, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#flsw
+distill_config = DistillationConfig(
+    temperature_scheduler = [&#39;flsw&#39;, 1， 2]  # beta=1, gamma=2
+)
+
+#cwsm
+distill_config = DistillationConfig(
+    temperature_scheduler = [&#39;cwsm&#39;, 1] # beta = 1
+)
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Permalink to this headline">¶</a></h2>
+<p>If the pre-defined modules do not satisfy your requirements, you can add your own defined modules to the above dict.</p>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MATCH_LOSS_MAP</span><span class="p">[</span><span class="s1">&#39;my_L1_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_L1_loss</span>
+<span class="n">WEIGHT_SCHEDULER</span><span class="p">[</span><span class="s1">&#39;my_weight_scheduler&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_weight_scheduler</span>
+</pre></div>
+</div>
+<p>then used in <a class="reference internal" href="Configurations.html#textbrewer.DistillationConfig" title="textbrewer.DistillationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">DistillationConfig</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">distill_config</span> <span class="o">=</span> <span class="n">DistillationConfig</span><span class="p">(</span>
+<span class="n">kd_loss_weight_scheduler</span> <span class="o">=</span> <span class="s1">&#39;my_weight_scheduler&#39;</span>
+<span class="n">intermediate_matches</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;my_L1_loss&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+<span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Refer to the source code for more details on inputs and outputs conventions (will be explained in more details in a later version of the documentation).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Losses.html" class="btn btn-neutral float-right" title="Intermediate Losses" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Distillers.html" class="btn btn-neutral float-left" title="Distillers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ziqing Yang
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

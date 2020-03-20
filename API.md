@@ -35,7 +35,7 @@ Meanwhile, we are working on moving to readthedoc.
 * **scheduler**: instance of `torch.optim.lr_scheduler`, allows flexible adjustment of learning rate.
 
 * **dataloader**: data iterator, used to generate data batches. A batch can be a tuple or a dict.
-t
+
 ```python
   for batch in dataloader:
     # if batch_postprocessor is not None:

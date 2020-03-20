@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; TextBrewer 0.1.8 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="TextBrewer" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TextBrewer
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#workflow">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#quickstart">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#experiments">Experiments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#models">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distillation-configurations">Distillation Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#training-configurations">Training Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#results-on-english-datasets">Results on English Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#results-on-chinese-datasets">Results on Chinese Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#core-concepts">Core Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configurations">Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distillers">Distillers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#user-defined-functions">User-Defined Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#callback"><strong>Callback</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adaptor">Adaptor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#faq">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#known-issues">Known Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#citation">Citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#follow-us">Follow Us</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TextBrewer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/GettingStarted.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><strong>Textbrewer</strong> is designed for the knowledge distillation of NLP models. It provides various distillation methods and offers a distillation framework for quickly setting up experiments.</p>
+<p>The main features of <strong>TextBrewer</strong> are:</p>
+<ul class="simple">
+<li><p>Wide-support: it supports various model architectures (especially <strong>transformer</strong>-based models)</p></li>
+<li><p>Flexibility: design your own distillation scheme by combining different techniques; it also supports user-defined loss functions, modules, etc.</p></li>
+<li><p>Easy-to-use: users don’t need to modify the model architectures</p></li>
+<li><p>Built for NLP: it is suitable for a wide variety of NLP tasks: text classification, machine reading comprehension, sequence labeling, …</p></li>
+</ul>
+<p><strong>TextBrewer</strong> currently is shipped with the following distillation techniques:</p>
+<ul class="simple">
+<li><p>Mixed soft-label and hard-label training</p></li>
+<li><p>Dynamic loss weight adjustment and temperature adjustment</p></li>
+<li><p>Various distillation loss functions: hidden states MSE, attention-matrix-based loss, neuron selectivity transfer, …</p></li>
+<li><p>Freely adding intermediate features matching losses</p></li>
+<li><p>Multi-teacher distillation</p></li>
+<li><p>…</p></li>
+</ul>
+<p><strong>TextBrewer</strong> includes:</p>
+<ol class="simple">
+<li><p><strong>Distillers</strong>: the cores of distillation. Different distillers perform different distillation modes. There are GeneralDistiller, MultiTeacherDistiller, BasicTrainer, etc.</p></li>
+<li><p><strong>Configurations and presets</strong>: Configuration classes for training and distillation, and predefined distillation loss functions and strategies.</p></li>
+<li><p><strong>Utilities</strong>: auxiliary tools such as model parameters analysis.</p></li>
+</ol>
+<p>To start distillation, users need to provide</p>
+<ol class="simple">
+<li><p>the models (the trained <strong>teacher</strong> model and the un-trained <strong>student</strong> model)</p></li>
+<li><p>datasets and experiment configurations</p></li>
+</ol>
+<p><strong>TextBrewer</strong> has achieved impressive results on several typical NLP tasks. See <a class="reference external" href="#experiments">Experiments</a>.</p>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<ul>
+<li><p>Requirements</p>
+<ul class="simple">
+<li><p>Python &gt;= 3.6</p></li>
+<li><p>PyTorch &gt;= 1.1.0</p></li>
+<li><p>TensorboardX or Tensorboard</p></li>
+<li><p>NumPy</p></li>
+<li><p>tqdm</p></li>
+<li><p>Transformers &gt;= 2.0 (optional, used by some examples)</p></li>
+</ul>
+</li>
+<li><p>Install from PyPI</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install textbrewer
+</pre></div>
+</div>
+</li>
+<li><p>Install from the Github source</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/airaria/TextBrewer.git
+pip install ./textbrewer
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="workflow">
+<h1>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h1>
+<p><img alt="pics/distillation_workflow_en.png" src="pics/distillation_workflow_en.png" /></p>
+<ul class="simple">
+<li><p><strong>Stage 1</strong>: Preparation:</p>
+<ol class="simple">
+<li><p>Train the teacher model</p></li>
+<li><p>Define and intialize the student model</p></li>
+<li><p>Construct a dataloader, an optimizer and a learning rate scheduler</p></li>
+</ol>
+</li>
+<li><p><strong>Stage 2</strong>: Distillation with TextBrewer:</p>
+<ol class="simple">
+<li><p>Construct a <strong>TraningConfig</strong> and a <strong>DistillationConfig</strong>, initialize a <strong>distiller</strong></p></li>
+<li><p>Define an <strong>adaptor</strong> and a <strong>callback</strong>. The <strong>adaptor</strong> is used for adaptation of model inputs and outputs. The <strong>callback</strong> is called by the distiller during training</p></li>
+<li><p>Call the <strong>train</strong> method of the <strong>distiller</strong></p></li>
+</ol>
+</li>
+</ul>
+</div>
+<div class="section" id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<p>Here we show the usage of TextBrewer by distilling BERT-base to a 3-layer BERT.</p>
+<p>Before distillation, we assume users have provided:</p>
+<ul class="simple">
+<li><p>A trained teacher model <code class="docutils literal notranslate"><span class="pre">teacher_model</span></code> (BERT-base) and a to-be-trained student model <code class="docutils literal notranslate"><span class="pre">student_model</span></code> (3-layer BERT).</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">dataloader</span></code> of the dataset, an <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> and a learning rate <code class="docutils literal notranslate"><span class="pre">scheduler</span></code>.</p></li>
+</ul>
+<p>Distill with TextBrewer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">textbrewer</span>
+<span class="kn">from</span> <span class="nn">textbrewer</span> <span class="kn">import</span> <span class="n">GeneralDistiller</span>
+<span class="kn">from</span> <span class="nn">textbrewer</span> <span class="kn">import</span> <span class="n">TrainingConfig</span><span class="p">,</span> <span class="n">DistillationConfig</span>
+
+<span class="c1"># Show the statistics of model parameters</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">teacher_model&#39;s parametrers:&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">textbrewer</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">display_parameters</span><span class="p">(</span><span class="n">teacher_model</span><span class="p">,</span><span class="n">max_level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;student_model&#39;s parametrers:&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">textbrewer</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">display_parameters</span><span class="p">(</span><span class="n">student_model</span><span class="p">,</span><span class="n">max_level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Define an adaptor for translating the model inputs and outputs</span>
+<span class="k">def</span> <span class="nf">simple_adaptor</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">model_outputs</span><span class="p">):</span>
+  	<span class="c1"># The second and third elements of model outputs are the logits and hidden states</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;logits&#39;</span><span class="p">:</span> <span class="n">model_outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s1">&#39;hidden&#39;</span><span class="p">:</span> <span class="n">model_outputs</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+
+<span class="c1"># Training configuration </span>
+<span class="n">train_config</span> <span class="o">=</span> <span class="n">TrainingConfig</span><span class="p">()</span>
+<span class="c1"># Distillation configuration</span>
+<span class="c1"># Matching different layers of the student and the teacher</span>
+<span class="n">distill_config</span> <span class="o">=</span> <span class="n">DistillationConfig</span><span class="p">(</span>
+    <span class="n">intermediate_matches</span><span class="o">=</span><span class="p">[</span>    
+     <span class="p">{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;hidden_mse&#39;</span><span class="p">,</span><span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+     <span class="p">{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;hidden_mse&#39;</span><span class="p">,</span><span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">}])</span>
+
+<span class="c1"># Build distiller</span>
+<span class="n">distiller</span> <span class="o">=</span> <span class="n">GeneralDistiller</span><span class="p">(</span>
+    <span class="n">train_config</span><span class="o">=</span><span class="n">train_config</span><span class="p">,</span> <span class="n">distill_config</span> <span class="o">=</span> <span class="n">distill_config</span><span class="p">,</span>
+    <span class="n">model_T</span> <span class="o">=</span> <span class="n">teacher_model</span><span class="p">,</span> <span class="n">model_S</span> <span class="o">=</span> <span class="n">student_model</span><span class="p">,</span> 
+    <span class="n">adaptor_T</span> <span class="o">=</span> <span class="n">simple_adaptor</span><span class="p">,</span> <span class="n">adaptor_S</span> <span class="o">=</span> <span class="n">simple_adaptor</span><span class="p">)</span>
+
+<span class="c1"># Start!</span>
+<span class="k">with</span> <span class="n">distiller</span><span class="p">:</span>
+    <span class="n">distiller</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">dataloader</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Examples can be found in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory :</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="examples/random_token_example">examples/random_token_example</a> : a simple runable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.</p></li>
+<li><p><a class="reference external" href="examples/cmrc2018_example">examples/cmrc2018_example</a> (Chinese): distillation on CMRC2018, a Chinese MRC task, using DRCD as data augmentation.</p></li>
+<li><p><a class="reference external" href="examples/mnli_example">examples/mnli_example</a> (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.</p></li>
+<li><p><a class="reference external" href="examples/conll2003_example">examples/conll2003_example</a> (English): distillation on CoNLL-2003 English NER task, which is in form of sequence labeling.</p></li>
+</ul>
+<div class="section" id="experiments">
+<h2>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h2>
+<p>We have performed distillation experiments on several typical English and Chinese NLP datasets. The setups and configurations are listed below.</p>
+<div class="section" id="models">
+<h3>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>For English tasks, the teacher model is <a class="reference external" href="https://github.com/google-research/bert"><strong>BERT-base-cased</strong></a>.</p></li>
+<li><p>For Chinese tasks, the teacher model is <a class="reference external" href="https://github.com/ymcui/Chinese-BERT-wwm"><strong>RoBERTa-wwm-ext</strong></a> released by the Joint Laboratory of HIT and iFLYTEK Research.</p></li>
+</ul>
+<p>We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of the each specific task.</p>
+<p>| Model                 | #Layers | Hidden_size | Feed-forward size | #Params | Relative size |
+| :——————— | ——— | ———– | —————– | ——– | ————- |
+| BERT-base-cased (teacher)  | 12        | 768         | 3072              | 108M     | 100%          |
+| RoBERTa-wwm-ext (teacher) | 12        | 768         | 3072              | 108M     | 100%          |
+| T6 (student)              | 6         | 768         | 3072              | 65M      | 60%           |
+| T3 (student)              | 3         | 768         | 3072              | 44M      | 41%           |
+| T3-small (student)        | 3         | 384         | 1536              | 17M      | 16%           |
+| T4-Tiny (student)         | 4         | 312         | 1200              | 14M      | 13%           |
+| BiGRU (student)           | -         | 768         | -                 | 31M      | 29%           |</p>
+<ul class="simple">
+<li><p>T6 archtecture is the same as <a class="reference external" href="https://arxiv.org/abs/1910.01108">DistilBERT<sup>[1]</sup></a>, <a class="reference external" href="https://arxiv.org/abs/1908.09355">BERT<sub>6</sub>-PKD<sup>[2]</sup></a>, and  <a class="reference external" href="https://arxiv.org/abs/2002.02925">BERT-of-Theseus<sup>[3]</sup></a>.</p></li>
+<li><p>T4-tiny archtecture is the same as <a class="reference external" href="https://arxiv.org/abs/1909.10351">TinyBERT<sup>[4]</sup></a>.</p></li>
+<li><p>T3 architecure is the same as <a class="reference external" href="https://arxiv.org/abs/1908.09355">BERT<sub>3</sub>-PKD<sup>[2]</sup></a>.</p></li>
+</ul>
+</div>
+<div class="section" id="distillation-configurations">
+<h3>Distillation Configurations<a class="headerlink" href="#distillation-configurations" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">distill_config</span> <span class="o">=</span> <span class="n">DistillationConfig</span><span class="p">(</span><span class="n">temperature</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">intermediate_matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">)</span>
+<span class="c1"># Others arguments take the default values</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">matches</span></code> are differnt for different models:</p>
+<p>| Model    | matches                                                      |
+| :——– | ———————————————————— |
+| BiGRU    | None                                                         |
+| T6       | L6_hidden_mse + L6_hidden_smmd                               |
+| T3       | L3_hidden_mse + L3_hidden_smmd                               |
+| T3-small | L3n_hidden_mse + L3_hidden_smmd                              |
+| T4-Tiny  | L4t_hidden_mse + L4_hidden_smmd                              |</p>
+<p>The definitions of matches are at <a class="reference external" href="exmaple/matches/matches.py">exmaple/matches/matches.py</a>.</p>
+<p>We use GeneralDistiller in all the distillation experiments.</p>
+</div>
+<div class="section" id="training-configurations">
+<h3>Training Configurations<a class="headerlink" href="#training-configurations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Learning rate is 1e-4 (unless otherwise specified).</p></li>
+<li><p>We train all the models for 30~60 epochs.</p></li>
+</ul>
+</div>
+<div class="section" id="results-on-english-datasets">
+<h3>Results on English Datasets<a class="headerlink" href="#results-on-english-datasets" title="Permalink to this headline">¶</a></h3>
+<p>We experiment on the following typical Enlgish datasets:</p>
+<p>| Dataset    | Task type | Metrics | #Train | #Dev | Note |
+| :———- | ——– | ——- | ——- | —- | —- |
+| <a class="reference external" href="https://www.nyu.edu/projects/bowman/multinli/"><strong>MNLI</strong></a>       | text classification | m/mm Acc | 393K    | 20K  | sentence-pair 3-class classification |
+| <a class="reference external" href="https://rajpurkar.github.io/SQuAD-explorer/"><strong>SQuAD 1.1</strong></a>   | reading comprehension | EM/F1   | 88K     | 11K  | span-extraction machine reading comprehension |
+| <a class="reference external" href="https://www.clips.uantwerpen.be/conll2003/ner"><strong>CoNLL-2003</strong></a> | sequence labeling | F1      | 23K     | 6K   | named entity recognition |</p>
+<p>We list the public results from <a class="reference external" href="https://arxiv.org/abs/1910.01108">DistilBERT</a>, <a class="reference external" href="https://arxiv.org/abs/1908.09355">BERT-PKD</a>, <a class="reference external" href="https://arxiv.org/abs/2002.02925">BERT-of-Theseus</a>, <a class="reference external" href="https://arxiv.org/abs/1909.10351">TinyBERT</a> and our results below for comparison.</p>
+<p>Public results:</p>
+<p>| Model (public) | MNLI  | SQuAD  | CoNLL-2003 |
+| :————-  | ————— | ————- | ————— |
+| DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
+| BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
+| BERT-of-Theseus (T6) | 82.4/  82.1   | -        | -                |
+| BERT<sub>3</sub>-PKD (T3)     | 76.7 / 76.3     | -             | -|
+| TinyBERT (T4-tiny) | 82.8 / 82.9                | 72.7 / 82.1   | -|</p>
+<p>Our results:</p>
+<p>| Model (ours) | MNLI  | SQuAD  | CoNLL-2003 |
+| :————-  | ————— | ————- | ————— |
+| <strong>BERT-base-cased</strong>  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
+| BiGRU          | -               | -             | 85.3            |
+| T6             | 83.5 / 84.0     | 80.8 / 88.1   | 90.7            |
+| T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
+| T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 57.4            |
+| T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 79.6            |</p>
+<p><strong>Note</strong>:</p>
+<ol class="simple">
+<li><p>The equivlent model architectures of public models are shown in the brackets.</p></li>
+<li><p>When distilling to T4-tiny, NewsQA is used for data augmentation on SQuAD and HotpotQA is used for data augmentation on CoNLL-2003.</p></li>
+</ol>
+</div>
+<div class="section" id="results-on-chinese-datasets">
+<h3>Results on Chinese Datasets<a class="headerlink" href="#results-on-chinese-datasets" title="Permalink to this headline">¶</a></h3>
+<p>We experiment on the following typical Chinese datasets:</p>
+<p>| Dataset | Task type | Metrics | #Train | #Dev | Note |
+| :——- | —- | ——- | ——- | —- | —- |
+| <a class="reference external" href="https://github.com/google-research/bert/blob/master/multilingual"><strong>XNLI</strong></a> | text classification | Acc | 393K | 2.5K | Chinese translation version of MNLI |
+| <a class="reference external" href="http://icrc.hitsz.edu.cn/info/1037/1146.htm"><strong>LCQMC</strong></a> | text classification | Acc | 239K | 8.8K | sentence-pair matching, binary classification |
+| <a class="reference external" href="https://github.com/ymcui/cmrc2018"><strong>CMRC 2018</strong></a> | reading comprehension | EM/F1 | 10K | 3.4K | span-extraction machine reading comprehension |
+| <a class="reference external" href="https://github.com/DRCKnowledgeTeam/DRCD"><strong>DRCD</strong></a> | reading comprehension | EM/F1 | 27K | 3.5K | span-extraction machine reading comprehension (Traditional Chinese) |</p>
+<p>The results are listed below.</p>
+<p>| Model           | XNLI | LCQMC | CMRC 2018 | DRCD |
+| :————— | ———- | ———– | —————- | ———— |
+| <strong>RoBERTa-wwm-ext</strong> | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
+| T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
+| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
+| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 73.3 / 83.5  |</p>
+<p><strong>Note</strong>:</p>
+<ol class="simple">
+<li><p>On CMRC2018 and DRCD, learning rates are 1.5e-4 and 7e-5 respectively and there is no learning rate decay.</p></li>
+<li><p>CMRC2018 and DRCD take each other as the augmentation dataset In the experiments.</p></li>
+</ol>
+</div>
+</div>
+<div class="section" id="core-concepts">
+<h2>Core Concepts<a class="headerlink" href="#core-concepts" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="configurations">
+<h3>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TrainingConfig</span></code>: configuration related to general deep learning model training</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DistillationConfig</span></code>: configuration related to distillation methods</p></li>
+</ul>
+</div>
+<div class="section" id="distillers">
+<h3>Distillers<a class="headerlink" href="#distillers" title="Permalink to this headline">¶</a></h3>
+<p>Distillers are in charge of conducting the actual experiments. The following distillers are available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BasicDistiller</span></code>: <strong>single-teacher single-task</strong> distillation, provides basic distillation strategies.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GeneralDistiller</span></code> (Recommended): <strong>single-teacher single-task</strong> distillation, supports intermediate features matching. <strong>Recommended most of the time</strong>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MultiTeacherDistiller</span></code>: <strong>multi-teacher</strong> distillation, which distills multiple teacher models (of the same task) into a single student model. <strong>This class doesn’t support Intermediate features matching.</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MultiTaskDistiller</span></code>: <strong>multi-task</strong> distillation, which distills multiple teacher models (of different tasks) into a single student. <strong>This class doesn’t support Intermediate features matching.</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BasicTrainer</span></code>: Supervised training a single model on a labeled dataset, not for distillation. <strong>It can be used to train a teacher model</strong>.</p></li>
+</ul>
+</div>
+<div class="section" id="user-defined-functions">
+<h3>User-Defined Functions<a class="headerlink" href="#user-defined-functions" title="Permalink to this headline">¶</a></h3>
+<p>In TextBrewer, there are two functions that should be implemented by users: <strong>callback</strong> and <strong>adaptor</strong>.</p>
+<div class="section" id="callback">
+<h4><strong>Callback</strong><a class="headerlink" href="#callback" title="Permalink to this headline">¶</a></h4>
+<p>At each checkpoint, after saving the student model, the callback function will be called by the distiller. Callback can be used to evaluate the performance of the student model at each checkpoint.</p>
+</div>
+<div class="section" id="adaptor">
+<h4>Adaptor<a class="headerlink" href="#adaptor" title="Permalink to this headline">¶</a></h4>
+<p>It converts the model inputs and outputs to the specified format so that they could be recognized by the distiller, and distillation losses can be computed. At each training step, batch and model outputs will be passed to the adaptor; adaptor re-organize the data and returns a dictionary.</p>
+<p>Fore more details, see the explanations in <a class="reference external" href="API">API documentation</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">¶</a></h2>
+<p><strong>Q</strong>: How to initialize the student model?</p>
+<p><strong>A</strong>: The student model could be randomly initialized (i.e., with no prior knwledge) or be initialized by pre-trained weights.
+For example, when distilling a BERT-base model to a 3-layer BERT, you could initialize the student model with <a class="reference external" href="#https://github.com/ymcui/Chinese-BERT-wwm">RBT3</a> (for Chinese tasks) or the first three layers of BERT (for English tasks) to avoid cold start problem.
+We recommend that users use pre-trained student models whenever possible to fully take the advantage of large-scale pre-training.</p>
+<p><strong>Q</strong>: How to set training hyperparamters for the distillation experiments？</p>
+<p><strong>A</strong>: Knowledge distillation usually requires more training epochs and larger learning rate than training on labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. <strong>The conclusions are based on our experiments, and you are advised to try on your own data</strong>.</p>
+</div>
+<div class="section" id="known-issues">
+<h2>Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Compatibility with FP16 training has not been tested.</p></li>
+<li><p>Multi-GPU training support is only available through <code class="docutils literal notranslate"><span class="pre">DataParallel</span></code> currently.</p></li>
+</ul>
+</div>
+<div class="section" id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
+<p>If you find TextBrewer is helpful, please cite <a class="reference external" href="https://arxiv.org/abs/2002.12620">our paper</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@article</span><span class="p">{</span><span class="n">textbrewer</span><span class="p">,</span>
+  <span class="n">title</span><span class="o">=</span><span class="p">{</span><span class="n">TextBrewer</span><span class="p">:</span> <span class="n">An</span> <span class="n">Open</span><span class="o">-</span><span class="n">Source</span> <span class="n">Knowledge</span> <span class="n">Distillation</span> <span class="n">Toolkit</span> <span class="k">for</span> <span class="n">Natural</span> <span class="n">Language</span> <span class="n">Processing</span><span class="p">},</span>
+  <span class="n">author</span><span class="o">=</span><span class="p">{</span><span class="n">Yang</span><span class="p">,</span> <span class="n">Ziqing</span> <span class="ow">and</span> <span class="n">Cui</span><span class="p">,</span> <span class="n">Yiming</span> <span class="ow">and</span> <span class="n">Chen</span><span class="p">,</span> <span class="n">Zhipeng</span> <span class="ow">and</span> <span class="n">Che</span><span class="p">,</span> <span class="n">Wanxiang</span> <span class="ow">and</span> <span class="n">Liu</span><span class="p">,</span> <span class="n">Ting</span> <span class="ow">and</span> <span class="n">Wang</span><span class="p">,</span> <span class="n">Shijin</span> <span class="ow">and</span> <span class="n">Hu</span><span class="p">,</span> <span class="n">Guoping</span><span class="p">},</span>
+  <span class="n">journal</span><span class="o">=</span><span class="p">{</span><span class="n">arXiv</span> <span class="n">preprint</span> <span class="n">arXiv</span><span class="p">:</span><span class="mf">2002.12620</span><span class="p">},</span>
+  <span class="n">year</span><span class="o">=</span><span class="p">{</span><span class="mi">2020</span><span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="follow-us">
+<h2>Follow Us<a class="headerlink" href="#follow-us" title="Permalink to this headline">¶</a></h2>
+<p>Follow our official WeChat account to keep updated with our latest technologies!</p>
+<p><img alt="pics/hfl_qrcode.jpg" src="pics/hfl_qrcode.jpg" /></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="TextBrewer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ziqing Yang
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

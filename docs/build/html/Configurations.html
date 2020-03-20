@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configurations &mdash; TextBrewer 0.1.8 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Distillers" href="Distillers.html" />
+    <link rel="prev" title="Experiments" href="Experiments.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TextBrewer
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Concepts.html">Core Concepts</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configurations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#trainingconfig">TrainingConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distillationconfig">DistillationConfig</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Distillers.html">Distillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Presets.html">Presets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Losses.html">Intermediate Losses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html">Model Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html#data-utils">Data Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TextBrewer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Configurations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Configurations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configurations">
+<h1>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="trainingconfig">
+<h2>TrainingConfig<a class="headerlink" href="#trainingconfig" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="textbrewer.TrainingConfig">
+<em class="property">class </em><code class="sig-prename descclassname">textbrewer.</code><code class="sig-name descname">TrainingConfig</code><span class="sig-paren">(</span><em class="sig-param">gradient_accumulation_steps=1</em>, <em class="sig-param">ckpt_frequency=1</em>, <em class="sig-param">ckpt_epoch_frequency=1</em>, <em class="sig-param">ckpt_steps=None</em>, <em class="sig-param">log_dir=None</em>, <em class="sig-param">output_dir='./saved_models'</em>, <em class="sig-param">device='cuda'</em><span class="sig-paren">)</span><a class="headerlink" href="#textbrewer.TrainingConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configurations related to general model training.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gradient_accumulation_steps</strong> (<em>int</em>) – accumulates gradients before optimization to reduce GPU memory usage. It calls <code class="docutils literal notranslate"><span class="pre">optimizer.step()</span></code> every <cite>gradient_accumulation_steps</cite> backward steps.</p></li>
+<li><p><strong>ckpt_frequency</strong> (<em>int</em>) – stores model weights <cite>ckpt_frequency</cite> times every epoch.</p></li>
+<li><p><strong>ckpt_epoch_frequency</strong> (<em>int</em>) – stores model weights every <cite>ckpt_epoch_frequency</cite> epochs.</p></li>
+<li><p><strong>ckpt_steps</strong> (<em>int</em>) – if <em>num_steps</em> is passes to <code class="docutils literal notranslate"><span class="pre">distiller.train()</span></code>, saves the model every <strong>ckpt_steps</strong>, meanwhile ignore <cite>ckpt_frequency</cite> and <cite>ckpt_epoch_frequency</cite> .</p></li>
+<li><p><strong>log_dir</strong> (<em>str</em>) – directory to save the tensorboard log file. Set it to <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable tensorboard.</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – directory to save model weights.</p></li>
+<li><p><strong>device</strong> (<em>str</em><em> or </em><em>torch.device</em>) – training on CPU or GPU.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Usually just need to set log_dir and output_dir and leave others default</span>
+<span class="n">train_config</span> <span class="o">=</span> <span class="n">TrainingConfig</span><span class="p">(</span><span class="n">log_dir</span><span class="o">=</span><span class="n">my_log_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">my_output_dir</span><span class="p">)</span>
+
+<span class="c1"># Stores model at the end of each epoch</span>
+<span class="n">train_config</span> <span class="o">=</span> <span class="n">TrainingConfig</span><span class="p">(</span><span class="n">ckpt_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ckpt_epoch_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Stores model twice (at the middle and at the end) in each epoch</span>
+<span class="n">train_config</span> <span class="o">=</span> <span class="n">TrainingConfig</span><span class="p">(</span><span class="n">ckpt_frequency</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ckpt_epoch_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Stores model once every two epochs</span>
+<span class="n">train_config</span> <span class="o">=</span> <span class="n">TrainingConfig</span><span class="p">(</span><span class="n">ckpt_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ckpt_epoch_frequency</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="textbrewer.TrainingConfig.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">dict_object</em><span class="sig-paren">)</span><a class="headerlink" href="#textbrewer.TrainingConfig.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct configurations from a dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="textbrewer.TrainingConfig.from_json_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_json_file</code><span class="sig-paren">(</span><em class="sig-param">json_filename</em><span class="sig-paren">)</span><a class="headerlink" href="#textbrewer.TrainingConfig.from_json_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct configurations from a json file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="distillationconfig">
+<h2>DistillationConfig<a class="headerlink" href="#distillationconfig" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="textbrewer.DistillationConfig">
+<em class="property">class </em><code class="sig-prename descclassname">textbrewer.</code><code class="sig-name descname">DistillationConfig</code><span class="sig-paren">(</span><em class="sig-param">temperature=4</em>, <em class="sig-param">temperature_scheduler='none'</em>, <em class="sig-param">hard_label_weight=0</em>, <em class="sig-param">hard_label_weight_scheduler='none'</em>, <em class="sig-param">kd_loss_type='ce'</em>, <em class="sig-param">kd_loss_weight=1</em>, <em class="sig-param">kd_loss_weight_scheduler='none'</em>, <em class="sig-param">probability_shift=False</em>, <em class="sig-param">intermediate_matches: Optional[List[Dict]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#textbrewer.DistillationConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configurations related to distillation methods. It defines the total loss to be optimized:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{L}_{total}=  \mathcal{L}_{KD} * w_{KD} + \mathcal{L}_{hl} * w_{hl} + sum(\textrm{intermediate_losses})\]</div>
+<p>where</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathcal{L}_{KD}\)</span> is the KD loss on logits, <span class="math notranslate nohighlight">\(w_{KD}\)</span> is its weight;</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathcal{L}_{hl}\)</span> is the sum of <code class="docutils literal notranslate"><span class="pre">losses</span></code> returned by the adaptor and <span class="math notranslate nohighlight">\(w_{hl}\)</span> is its weight;</p></li>
+<li><p>intermediate_losses is defined via <cite>intermediate_matches</cite>.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature for the distillation. The teacher and student models’ logits will be divided by the temperature before computing the KD loss.</p></li>
+<li><p><strong>temperature_scheduler</strong> – dynamically adjusts temperature. See <a class="reference internal" href="Presets.html#textbrewer.presets.TEMPERATURE_SCHEDULER" title="textbrewer.presets.TEMPERATURE_SCHEDULER"><code class="xref py py-data docutils literal notranslate"><span class="pre">TEMPERATURE_SCHEDULER</span></code></a> for all available options.</p></li>
+<li><p><strong>kd_loss_type</strong> (<em>str</em>) – KD loss function for the <code class="docutils literal notranslate"><span class="pre">logits</span></code> term returned by the adaptor, can be <code class="docutils literal notranslate"><span class="pre">'ce'</span></code> or <code class="docutils literal notranslate"><span class="pre">'mse'</span></code>. See <a class="reference internal" href="Presets.html#textbrewer.presets.KD_LOSS_MAP" title="textbrewer.presets.KD_LOSS_MAP"><code class="xref py py-data docutils literal notranslate"><span class="pre">KD_LOSS_MAP</span></code></a>.</p></li>
+<li><p><strong>kd_loss_weight</strong> (<em>float</em>) – the weight for the KD loss.</p></li>
+<li><p><strong>hard_label_weight</strong> (<em>float</em>) – the weight for the sum of <code class="docutils literal notranslate"><span class="pre">losses</span></code> term returned by the adaptor. <code class="docutils literal notranslate"><span class="pre">losses</span></code> may include the losses on the ground-truth labels and other user-defined losses.</p></li>
+<li><p><strong>kd_loss_weight_scheduler</strong> – Dynamically adjusts KD loss weight. See <a class="reference internal" href="Presets.html#textbrewer.presets.WEIGHT_SCHEDULER" title="textbrewer.presets.WEIGHT_SCHEDULER"><code class="xref py py-data docutils literal notranslate"><span class="pre">WEIGHT_SCHEDULER</span></code></a> for all available options.</p></li>
+<li><p><strong>hard_label_weight_scheduler</strong> – Dynamically adjusts the weight of the sum of <code class="docutils literal notranslate"><span class="pre">losses</span></code>. See <a class="reference internal" href="Presets.html#textbrewer.presets.WEIGHT_SCHEDULER" title="textbrewer.presets.WEIGHT_SCHEDULER"><code class="xref py py-data docutils literal notranslate"><span class="pre">WEIGHT_SCHEDULER</span></code></a> for all available options.</p></li>
+<li><p><strong>probability_shift</strong> (<em>bool</em>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, switch the ground-truth label’s logit and the largest logit predicted by the teacher, to make the ground-truth label’s logit largest. Requires <code class="docutils literal notranslate"><span class="pre">labels</span></code> term returned by the adaptor.</p></li>
+<li><p><strong>intermediate_matches</strong> (<cite>List[Dict]</cite>) – Configuration for intermediate feature matching. Each element in the list is a dict, representing a pair of matching config.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The dict in <cite>intermediate_matches</cite> contains the following keys:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘<strong>layer_T</strong>’: <cite>layer_T</cite> (<em>int</em>): selects the layer_T-th layer of teacher model.</p></li>
+<li><p>‘<strong>layer_S</strong>’: <cite>layer_S</cite> (<em>int</em>): selects the layer_S-th layer of student model.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ol class="arabic simple">
+<li><p><cite>layer_T</cite> and <cite>layer_S</cite> indicate layers in <code class="docutils literal notranslate"><span class="pre">attention</span></code> or <code class="docutils literal notranslate"><span class="pre">hidden</span></code> list in the returned dict of the adaptor, rather than the actual layers in the model.</p></li>
+<li><p>If the loss is <a class="reference internal" href="Losses.html#textbrewer.losses.fsp_loss" title="textbrewer.losses.fsp_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">fst</span></code></a> or <a class="reference internal" href="Losses.html#textbrewer.losses.mmd_loss" title="textbrewer.losses.mmd_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">nst</span></code></a>, two layers have to be chosen from the teacher and the student respectively. In this case, <cite>layer_T</cite> and <cite>layer_S</cite> are lists of two ints. See the example below.</p></li>
+</ol>
+</div>
+<ul>
+<li><p>‘<strong>feature</strong>’: <cite>feature</cite> (<em>str</em>): features of intermediate layers. It can be:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘<strong>attention</strong>’ : attention matrix, of the shape (<em>batch_size</em>, <em>num_heads</em>, <em>length</em>, <em>length</em>) or (<em>batch_size</em>, <em>length</em>, <em>length</em>)</p></li>
+<li><p>‘<strong>hidden</strong>’：hidden states, of the shape (<em>batch_size</em>, <em>length</em>, <em>hidden_dim</em>).</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>‘<strong>loss</strong>’ : <cite>loss</cite> (<em>str</em>) : loss function. See <a class="reference internal" href="Presets.html#textbrewer.presets.MATCH_LOSS_MAP" title="textbrewer.presets.MATCH_LOSS_MAP"><code class="xref py py-data docutils literal notranslate"><span class="pre">MATCH_LOSS_MAP</span></code></a> for available losses. Currently includes: <code class="docutils literal notranslate"><span class="pre">'attention_mse'</span></code>, <code class="docutils literal notranslate"><span class="pre">'attention_ce'</span></code>, <code class="docutils literal notranslate"><span class="pre">'hidden_mse'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nst'</span></code>, etc.</p></li>
+<li><p>‘<strong>weight</strong>’: <cite>weight</cite> (float) : weight for the loss.</p></li>
+<li><p>‘<strong>proj</strong>’ : <cite>proj</cite> (<em>List</em>, optional) : if the teacher and the student have the same feature dimension, it is optional; otherwise it is required. It is the mapping function to match teacher and student intermediate feature dimension. It is a list, with these elements:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>proj[0]</strong> (<em>str</em>): mapping function, can be <code class="docutils literal notranslate"><span class="pre">'linear'</span></code>, <code class="docutils literal notranslate"><span class="pre">'relu'</span></code>, <code class="docutils literal notranslate"><span class="pre">'tanh'</span></code>. See <a class="reference internal" href="Presets.html#textbrewer.presets.PROJ_MAP" title="textbrewer.presets.PROJ_MAP"><code class="xref py py-data docutils literal notranslate"><span class="pre">textbrewer.presets.PROJ_MAP</span></code></a>.</p></li>
+<li><p><strong>proj[1]</strong> (<em>int</em>): feature dimension of student model.</p></li>
+<li><p><strong>proj[2]</strong> (<em>int</em>): feature dimension of teacher model.</p></li>
+<li><p><strong>proj[3]</strong> (<em>dict</em>): optional, provides configurations such as learning rate. If not provided, the learning rate and optimizer configurations will follow the default config of the optimizer, otherwise it will use the ones specified here.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">textbrewer</span> <span class="k">import</span> <span class="n">DistillationConfig</span>
+
+<span class="c1"># simple configuration: use default values, or try different temperatures</span>
+<span class="n">distill_config</span> <span class="o">=</span> <span class="n">DistillationConfig</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="c1"># adding intermediate feature matching</span>
+<span class="c1"># under this setting, the returned dict results_T/S of adaptor_T/S should contain &#39;hidden&#39; key.</span>
+<span class="c1"># The mse loss between teacher&#39;s results_T[&#39;hidden&#39;][10] and student&#39;s results_S[&#39;hidden&#39;][3] will be computed</span>
+<span class="n">distill_config</span> <span class="o">=</span> <span class="n">DistillationConfig</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">intermediate_matches</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">:</span><span class="s1">&#39;hidden_mse&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}]</span>
+<span class="p">)</span>
+
+<span class="c1"># multiple inatermediate feature matching. The teacher and the student have a  hidden_dim of 768 and 384 respectively.</span>
+<span class="n">distill_config</span> <span class="o">=</span> <span class="n">DistillationConfig</span><span class="p">(</span>
+    <span class="n">temperature</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="n">intermediate_matches</span> <span class="o">=</span> <span class="p">[</span> \
+    <span class="p">{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>  <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;hidden_mse&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="s1">&#39;proj&#39;</span><span class="p">:[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span><span class="mi">384</span><span class="p">,</span><span class="mi">768</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>  <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;hidden_mse&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="s1">&#39;proj&#39;</span><span class="p">:[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span><span class="mi">384</span><span class="p">,</span><span class="mi">768</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span>  <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;hidden_mse&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="s1">&#39;proj&#39;</span><span class="p">:[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span><span class="mi">384</span><span class="p">,</span><span class="mi">768</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s1">&#39;layer_T&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;layer_S&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">:</span><span class="s1">&#39;hidden&#39;</span><span class="p">,</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;hidden_mse&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="s1">&#39;proj&#39;</span><span class="p">:[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span><span class="mi">384</span><span class="p">,</span><span class="mi">768</span><span class="p">]}]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="textbrewer.DistillationConfig.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">dict_object</em><span class="sig-paren">)</span><a class="headerlink" href="#textbrewer.DistillationConfig.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct configurations from a dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="textbrewer.DistillationConfig.from_json_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_json_file</code><span class="sig-paren">(</span><em class="sig-param">json_filename</em><span class="sig-paren">)</span><a class="headerlink" href="#textbrewer.DistillationConfig.from_json_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct configurations from a json file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Distillers.html" class="btn btn-neutral float-right" title="Distillers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Experiments.html" class="btn btn-neutral float-left" title="Experiments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ziqing Yang
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

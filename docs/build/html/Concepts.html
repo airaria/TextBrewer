@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Core Concepts &mdash; TextBrewer 0.1.8 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Experiments" href="Experiments.html" />
+    <link rel="prev" title="Tutorial" href="Tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TextBrewer
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conventions">Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configurations">Configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distillers">Distillers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#user-defined-functions">User-Defined Functions</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Configurations.html">Configurations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Distillers.html">Distillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Presets.html">Presets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Losses.html">Intermediate Losses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html">Model Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html#data-utils">Data Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TextBrewer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Core Concepts</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Concepts.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="core-concepts">
+<h1>Core Concepts<a class="headerlink" href="#core-concepts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="conventions">
+<h2>Conventions<a class="headerlink" href="#conventions" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Model_T</span></code> an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, the teacher model that to be distilled.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Model_S</span></code>: an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, the student model, usually smaller than the teacher model for the purpose of model compression and faster inference speed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimizer</span></code>: an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.Optimizer</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scheduler</span></code>: an instance of a class under <code class="xref py py-mod docutils literal notranslate"><span class="pre">torch.optim.lr_scheduler</span></code>, allows flexible adjustment of learning rate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataloader</span></code>: data iterator, used to generate data batches. A batch can be a tuple or a dict</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+    <span class="c1"># if batch_postprocessor is not None:</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">batch_postprocessor</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+    <span class="c1"># check batch datatype</span>
+    <span class="c1"># passes batch to the model and adaptors</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ol class="arabic simple">
+<li><p>During training, the distiller will check if the <code class="docutils literal notranslate"><span class="pre">batch</span></code> is a <code class="docutils literal notranslate"><span class="pre">dict</span></code>, if so the model will be called as <code class="docutils literal notranslate"><span class="pre">model(**batch,</span> <span class="pre">**args)</span></code>, otherwise the model is called as <code class="docutils literal notranslate"><span class="pre">model(*batch,</span> <span class="pre">**args)</span></code>. Hence if the batch is not a dict, <strong>users should make sure that the order of each element in the batch is the same as the order of the arguments of</strong> <code class="docutils literal notranslate"><span class="pre">model.forward</span></code>. <code class="docutils literal notranslate"><span class="pre">args</span></code> is used for passing additional parameters.</p></li>
+<li><p>Users can define a <code class="docutils literal notranslate"><span class="pre">batch_postprocessor</span></code> function to post-process batches if needed. <code class="docutils literal notranslate"><span class="pre">batch_postprocessor</span></code> should take a batch and return a batch. See the explanation on <code class="docutils literal notranslate"><span class="pre">train</span></code> method of <a class="reference internal" href="Distillers.html#distillers"><span class="std std-ref">Distillers</span></a> for more details.</p></li>
+</ol>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="configurations">
+<h2>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="Configurations.html#textbrewer.TrainingConfig" title="textbrewer.TrainingConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainingConfig</span></code></a>: configurations related to general deep learning model training.</p></li>
+<li><p><a class="reference internal" href="Configurations.html#textbrewer.DistillationConfig" title="textbrewer.DistillationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">DistillationConfig</span></code></a>: configurations related to distillation methods.</p></li>
+</ul>
+</div>
+<div class="section" id="distillers">
+<h2>Distillers<a class="headerlink" href="#distillers" title="Permalink to this headline">¶</a></h2>
+<p>Distillers are in charge of conducting the actual experiments. The following distillers are available:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="Distillers.html#textbrewer.BasicDistiller" title="textbrewer.BasicDistiller"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasicDistiller</span></code></a>: <strong>single-teacher single-task</strong> distillation, provides basic distillation strategies.</p></li>
+<li><p><a class="reference internal" href="Distillers.html#textbrewer.GeneralDistiller" title="textbrewer.GeneralDistiller"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralDistiller</span></code></a> (Recommended): <strong>single-teacher single-task</strong> distillation, supports intermediate features matching. <strong>Recommended most of the time</strong>.</p></li>
+<li><p><a class="reference internal" href="Distillers.html#textbrewer.MultiTeacherDistiller" title="textbrewer.MultiTeacherDistiller"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiTeacherDistiller</span></code></a>: <strong>multi-teacher</strong> distillation, which distills multiple teacher models (of the same task) into a single student model. <strong>This class doesn’t support Intermediate features matching.</strong></p></li>
+<li><p><a class="reference internal" href="Distillers.html#textbrewer.MultiTaskDistiller" title="textbrewer.MultiTaskDistiller"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiTaskDistiller</span></code></a>: <strong>multi-task</strong> distillation, which distills multiple teacher models (of different tasks) into a single student. <strong>This class doesn’t support Intermediate features matching.</strong></p></li>
+<li><p><a class="reference internal" href="Distillers.html#textbrewer.BasicTrainer" title="textbrewer.BasicTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasicTrainer</span></code></a>: Supervised training a single model on a labeled dataset, not for distillation. <strong>It can be used to train a teacher model</strong>.</p></li>
+</ul>
+</div>
+<div class="section" id="user-defined-functions">
+<h2>User-Defined Functions<a class="headerlink" href="#user-defined-functions" title="Permalink to this headline">¶</a></h2>
+<p>In TextBrewer, there are two functions that should be implemented by users: <a class="reference internal" href="#callback" title="callback"><code class="xref py py-func docutils literal notranslate"><span class="pre">callback()</span></code></a> and <a class="reference internal" href="#adaptor" title="adaptor"><code class="xref py py-func docutils literal notranslate"><span class="pre">adaptor()</span></code></a> .</p>
+<dl class="function">
+<dt id="callback">
+<code class="sig-name descname">callback</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">step</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#callback" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>At each checkpoint, after saving the student model, the <cite>callback</cite> function will be called by the distiller. <cite>callback</cite> can be used to evaluate the performance of the student model at each checkpoint.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If users want to do an evaluation in the callback, remember to add <code class="docutils literal notranslate"><span class="pre">model.eval()</span></code> in the callback.</p>
+</div>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>torch.nn.Module</em>) – the student model</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – the current training step</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="adaptor">
+<code class="sig-name descname">adaptor</code><span class="sig-paren">(</span><em class="sig-param">batch</em>, <em class="sig-param">model_inputs</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#adaptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>It converts the model inputs and outputs to the specified format so that they can be recognized by the distiller. At each training step, batch and model outputs will be passed to the <cite>adaptor</cite>; <cite>adaptor</cite> reorganize the data and returns a dict.</p>
+<p>The functionality of the <cite>adaptor</cite> is shown in the figure below:</p>
+<a class="reference internal image-reference" href="_images/adaptor.png"><img alt="_images/adaptor.png" class="align-center" src="_images/adaptor.png" style="width: 375px;" /></a>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> – the input batch to the model</p></li>
+<li><p><strong>model_outputs</strong> – the outputs returned by the model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>a dictionary that may contain the following keys and values:</p>
+<ul>
+<li><p>’<strong>logits</strong>’ :  <code class="docutils literal notranslate"><span class="pre">List[torch.Tensor]</span></code> or <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code></p>
+<p>The inputs to the final softmax. Each tensor should have the shape (<em>batch_size</em>, <em>num_labels</em>) or (<em>batch_size</em>, <em>length</em>, <em>num_labels</em>).</p>
+</li>
+<li><p>’<strong>logits_mask</strong>’: <code class="docutils literal notranslate"><span class="pre">List[torch.Tensor]</span></code> or <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code></p>
+<p>0/1 matrix, which masks logits at specified positions. The positions where <em>mask==0</em> won’t be included in the calculation of loss on logits. Each tensor should have the shape (<em>batch_size</em>, <em>length</em>).</p>
+</li>
+<li><p>’<strong>labels</strong>’: <code class="docutils literal notranslate"><span class="pre">List[torch.Tensor]</span></code> or <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code></p>
+<p>Ground-truth labels of the examples. Each tensor should have the shape (<em>batch_size</em>,) or (<em>batch_size</em>, <em>length</em>).</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><strong>logits_mask</strong> only works for logits with shape (<em>batch_size</em>, <em>length</em>, <em>num_labels</em>). It’s used to mask along the length dimension, commonly used in sequence labeling tasks.</p></li>
+<li><p><strong>logits</strong>, <strong>logits_mask</strong> and <strong>labels</strong> should either all be lists of tensors, or all be tensors.</p></li>
+</ul>
+</div>
+<ul>
+<li><p>’<strong>losses</strong>’ :  <code class="docutils literal notranslate"><span class="pre">List[torch.Tensor]</span></code></p>
+<p>It stores pre-computed losses, for example, the cross-entropy between logits and ground-truth labels. All the losses stored here would be summed and weighted by <cite>hard_label_weight</cite> and added to the total loss. Each tensor in the list should be a scalar.</p>
+</li>
+<li><p>’<strong>attention</strong>’: <code class="docutils literal notranslate"><span class="pre">List[torch.Tensor]</span></code></p>
+<p>List of attention matrices, used to compute intermediate feature matching loss. Each tensor should have the shape (<em>batch_size</em>, <em>num_heads</em>, <em>length</em>, <em>length</em>) or (<em>batch_size</em>, <em>length</em>, <em>length</em>), depending on what attention loss is used. Details about various loss functions can be found at <a class="reference internal" href="Losses.html#intermediate-losses"><span class="std std-ref">Intermediate Losses</span></a>.</p>
+</li>
+<li><p>’<strong>hidden</strong>’: <code class="docutils literal notranslate"><span class="pre">List[torch.Tensor]</span></code></p>
+<p>List of hidden states used to compute intermediate feature matching loss. Each tensor should have the shape (<em>batch_size</em>, <em>length</em>, <em>hidden_dim</em>).</p>
+</li>
+<li><p>’<strong>inputs_mask</strong>’ : <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code></p>
+<p>0/1 matrix, performs masking on <strong>attention</strong> and <strong>hidden</strong>, should have the shape (<em>batch_size</em>, <em>length</em>).</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These keys are all optional:</p>
+<ul class="simple">
+<li><p>If there is no <strong>inputs_mask</strong> or <strong>logits_mask</strong>, then it’s considered as no masking.</p></li>
+<li><p>If not there is no intermediate feature matching loss, you can ignore <strong>attention</strong> and <strong>hidden</strong>.</p></li>
+<li><p>If you don’t want to add loss of the original hard labels, you can set <code class="docutils literal notranslate"><span class="pre">hard_label_weight=0</span></code> in the <a class="reference internal" href="Configurations.html#textbrewer.DistillationConfig" title="textbrewer.DistillationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">DistillationConfig</span></code></a> and ignore <strong>losses</strong>.</p></li>
+<li><p>If <strong>logits</strong> is not provided, the KD loss of the logits will be omitted.</p></li>
+<li><p><strong>labels</strong> is required if and only if  <code class="docutils literal notranslate"><span class="pre">probability_shift==True</span></code>.</p></li>
+<li><p>You shouldn’t ignore all the keys, otherwise the training won’t start :)</p></li>
+</ul>
+<p>In most cases <strong>logits</strong> should be provided, unless you are doing multi-stage training or non-classfification tasks, etc.</p>
+</div>
+</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Suppose the model outputs are: logits, sequence_output, total_loss</span>
+<span class="sd">class MyModel():</span>
+<span class="sd">  def forward(self, input_ids, attention_mask, labels, ...):</span>
+<span class="sd">    ...</span>
+<span class="sd">    return logits, sequence_output, total_loss</span>
+
+<span class="sd">logits: Tensor of shape (batch_size, num_classes)</span>
+<span class="sd">sequence_output: List of tensors of (batch_size, length, hidden_dim)</span>
+<span class="sd">total_loss: scalar tensor</span>
+
+<span class="sd">model inputs are:</span>
+<span class="sd">input_ids      = batch[0] : input_ids (batch_size, length)</span>
+<span class="sd">attention_mask = batch[1] : attention_mask (batch_size, length)</span>
+<span class="sd">labels         = batch[2] : labels (batch_size, num_classes)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="k">def</span> <span class="nf">SimpleAdaptor</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">model_outputs</span><span class="p">):</span>
+  <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;logits&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">model_outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span>
+      <span class="s1">&#39;hidden&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+      <span class="s1">&#39;inputs_mask&#39;</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Experiments.html" class="btn btn-neutral float-right" title="Experiments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ziqing Yang
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

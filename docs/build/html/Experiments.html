@@ -1,0 +1,596 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Experiments &mdash; TextBrewer 0.1.8 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configurations" href="Configurations.html" />
+    <link rel="prev" title="Core Concepts" href="Concepts.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TextBrewer
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Concepts.html">Core Concepts</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Experiments</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Experiments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configurations">Configurations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#distillation-configurations">Distillation Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#training-configurations">Training Configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#results-on-english-datasets">Results on English Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#results-on-chinese-datasets">Results on Chinese Datasets</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Configurations.html">Configurations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Distillers.html">Distillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Presets.html">Presets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Losses.html">Intermediate Losses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html">Model Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utils.html#data-utils">Data Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TextBrewer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Experiments</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Experiments.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="experiments">
+<h1>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h1>
+<p>We have performed distillation experiments on several typical English and Chinese NLP datasets. The setups and configurations are listed below.</p>
+<div class="section" id="models">
+<h2>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>For English tasks, the teacher model is <a class="reference external" href="https://github.com/google-research/bert"><strong>BERT-base-cased</strong></a>.</p></li>
+<li><p>For Chinese tasks, the teacher model is <a class="reference external" href="https://github.com/ymcui/Chinese-BERT-wwm"><strong>RoBERTa-wwm-ext</strong></a> released by the Joint Laboratory of HIT and iFLYTEK Research.</p></li>
+</ul>
+<p>We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of the each specific task.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">Model</th>
+<th>#Layers</th>
+<th>Hidden_size</th>
+<th>Feed-forward size</th>
+<th>#Params</th>
+<th>Relative size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">BERT-base-cased (teacher)</td>
+<td>12</td>
+<td>768</td>
+<td>3072</td>
+<td>108M</td>
+<td>100%</td>
+</tr>
+<tr>
+<td align="left">RoBERTa-wwm-ext (teacher)</td>
+<td>12</td>
+<td>768</td>
+<td>3072</td>
+<td>108M</td>
+<td>100%</td>
+</tr>
+<tr>
+<td align="left">T6 (student)</td>
+<td>6</td>
+<td>768</td>
+<td>3072</td>
+<td>65M</td>
+<td>60%</td>
+</tr>
+<tr>
+<td align="left">T3 (student)</td>
+<td>3</td>
+<td>768</td>
+<td>3072</td>
+<td>44M</td>
+<td>41%</td>
+</tr>
+<tr>
+<td align="left">T3-small (student)</td>
+<td>3</td>
+<td>384</td>
+<td>1536</td>
+<td>17M</td>
+<td>16%</td>
+</tr>
+<tr>
+<td align="left">T4-Tiny (student)</td>
+<td>4</td>
+<td>312</td>
+<td>1200</td>
+<td>14M</td>
+<td>13%</td>
+</tr>
+<tr>
+<td align="left">BiGRU (student)</td>
+<td>-</td>
+<td>768</td>
+<td>-</td>
+<td>31M</td>
+<td>29%</td>
+</tr>
+</tbody>
+</table><ul class="simple">
+<li><p>T6 archtecture is the same as <a class="reference external" href="https://arxiv.org/abs/1910.01108">DistilBERT<sup>[1]</sup></a>, <a class="reference external" href="https://arxiv.org/abs/1908.09355">BERT<sub>6</sub>-PKD<sup>[2]</sup></a>, and  <a class="reference external" href="https://arxiv.org/abs/2002.02925">BERT-of-Theseus<sup>[3]</sup></a>.</p></li>
+<li><p>T4-tiny archtecture is the same as <a class="reference external" href="https://arxiv.org/abs/1909.10351">TinyBERT<sup>[4]</sup></a>.</p></li>
+<li><p>T3 architecure is the same as <a class="reference external" href="https://arxiv.org/abs/1908.09355">BERT<sub>3</sub>-PKD<sup>[2]</sup></a>.</p></li>
+</ul>
+</div>
+<div class="section" id="configurations">
+<h2>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="distillation-configurations">
+<h3>Distillation Configurations<a class="headerlink" href="#distillation-configurations" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">distill_config</span> <span class="o">=</span> <span class="n">DistillationConfig</span><span class="p">(</span><span class="n">temperature</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">intermediate_matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">)</span>
+<span class="c1"># Others arguments take the default values</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">matches</span></code> are differnt for different models:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">Model</th>
+<th>matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">BiGRU</td>
+<td>None</td>
+</tr>
+<tr>
+<td align="left">T6</td>
+<td>L6_hidden_mse + L6_hidden_smmd</td>
+</tr>
+<tr>
+<td align="left">T3</td>
+<td>L3_hidden_mse + L3_hidden_smmd</td>
+</tr>
+<tr>
+<td align="left">T3-small</td>
+<td>L3n_hidden_mse + L3_hidden_smmd</td>
+</tr>
+<tr>
+<td align="left">T4-Tiny</td>
+<td>L4t_hidden_mse + L4_hidden_smmd</td>
+</tr>
+</tbody>
+</table><p>The definitions of <code class="docutils literal notranslate"><span class="pre">matches</span></code> are at <a class="reference external" href="https://github.com/airaria/TextBrewer/blob/master/examples/matches/matches.py">exmaple/matches/matches.py</a>.</p>
+<p>We use <code class="docutils literal notranslate"><span class="pre">GeneralDistiller</span></code> in all the distillation experiments.</p>
+</div>
+<div class="section" id="training-configurations">
+<h3>Training Configurations<a class="headerlink" href="#training-configurations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Learning rate is 1e-4 (unless otherwise specified).</p></li>
+<li><p>We train all the models for 30~60 epochs.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="results-on-english-datasets">
+<h2>Results on English Datasets<a class="headerlink" href="#results-on-english-datasets" title="Permalink to this headline">¶</a></h2>
+<p>We experiment on the following typical Enlgish datasets:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">Dataset</th>
+<th>Task type</th>
+<th>Metrics</th>
+<th>#Train</th>
+<th>#Dev</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a href="https://www.nyu.edu/projects/bowman/multinli/"><strong>MNLI</strong></a></td>
+<td>text classification</td>
+<td>m/mm Acc</td>
+<td>393K</td>
+<td>20K</td>
+<td>sentence-pair 3-class classification</td>
+</tr>
+<tr>
+<td align="left"><a href="https://rajpurkar.github.io/SQuAD-explorer/"><strong>SQuAD 1.1</strong></a></td>
+<td>reading comprehension</td>
+<td>EM/F1</td>
+<td>88K</td>
+<td>11K</td>
+<td>span-extraction machine reading comprehension</td>
+</tr>
+<tr>
+<td align="left"><a href="https://www.clips.uantwerpen.be/conll2003/ner"><strong>CoNLL-2003</strong></a></td>
+<td>sequence labeling</td>
+<td>F1</td>
+<td>23K</td>
+<td>6K</td>
+<td>named entity recognition</td>
+</tr>
+</tbody>
+</table><p>We list the public results from <a class="reference external" href="https://arxiv.org/abs/1910.01108">DistilBERT</a>, <a class="reference external" href="https://arxiv.org/abs/1908.09355">BERT-PKD</a>, <a class="reference external" href="https://arxiv.org/abs/2002.02925">BERT-of-Theseus</a>, <a class="reference external" href="https://arxiv.org/abs/1909.10351">TinyBERT</a> and our results below for comparison.</p>
+<p>Public results:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">Model (public)</th>
+<th>MNLI</th>
+<th>SQuAD</th>
+<th>CoNLL-2003</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">DistilBERT (T6)</td>
+<td>81.6 / 81.1</td>
+<td>78.1 / 86.2</td>
+<td>-</td>
+</tr>
+<tr>
+<td align="left">BERT<sub>6</sub>-PKD (T6)</td>
+<td>81.5 / 81.0</td>
+<td>77.1 / 85.3</td>
+<td>-</td>
+</tr>
+<tr>
+<td align="left">BERT-of-Theseus (T6)</td>
+<td>82.4/  82.1</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td align="left">BERT<sub>3</sub>-PKD (T3)</td>
+<td>76.7 / 76.3</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td align="left">TinyBERT (T4-tiny)</td>
+<td>82.8 / 82.9</td>
+<td>72.7 / 82.1</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>Our results:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">Model (ours)</th>
+<th>MNLI</th>
+<th>SQuAD</th>
+<th>CoNLL-2003</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>BERT-base-cased</strong></td>
+<td>83.7 / 84.0</td>
+<td>81.5 / 88.6</td>
+<td>91.1</td>
+</tr>
+<tr>
+<td align="left">BiGRU</td>
+<td>-</td>
+<td>-</td>
+<td>85.3</td>
+</tr>
+<tr>
+<td align="left">T6</td>
+<td>83.5 / 84.0</td>
+<td>80.8 / 88.1</td>
+<td>90.7</td>
+</tr>
+<tr>
+<td align="left">T3</td>
+<td>81.8 / 82.7</td>
+<td>76.4 / 84.9</td>
+<td>87.5</td>
+</tr>
+<tr>
+<td align="left">T3-small</td>
+<td>81.3 / 81.7</td>
+<td>72.3 / 81.4</td>
+<td>57.4</td>
+</tr>
+<tr>
+<td align="left">T4-tiny</td>
+<td>82.0 / 82.6</td>
+<td>75.2 / 84.0</td>
+<td>79.6</td>
+</tr>
+</tbody>
+</table><p><strong>Note</strong>:</p>
+<ol class="simple">
+<li><p>The equivlent model architectures of public models are shown in the brackets after their names.</p></li>
+<li><p>When distilling to T4-tiny, NewsQA is used for data augmentation on SQuAD and HotpotQA is used for data augmentation on CoNLL-2003.</p></li>
+</ol>
+</div>
+<div class="section" id="results-on-chinese-datasets">
+<h2>Results on Chinese Datasets<a class="headerlink" href="#results-on-chinese-datasets" title="Permalink to this headline">¶</a></h2>
+<p>We experiment on the following typical Chinese datasets:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">Dataset</th>
+<th>Task type</th>
+<th>Metrics</th>
+<th>#Train</th>
+<th>#Dev</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a href="https://github.com/google-research/bert/blob/master/multilingual.md"><strong>XNLI</strong></a></td>
+<td>text classification</td>
+<td>Acc</td>
+<td>393K</td>
+<td>2.5K</td>
+<td>Chinese translation version of MNLI</td>
+</tr>
+<tr>
+<td align="left"><a href="http://icrc.hitsz.edu.cn/info/1037/1146.htm"><strong>LCQMC</strong></a></td>
+<td>text classification</td>
+<td>Acc</td>
+<td>239K</td>
+<td>8.8K</td>
+<td>sentence-pair matching, binary classification</td>
+</tr>
+<tr>
+<td align="left"><a href="https://github.com/ymcui/cmrc2018"><strong>CMRC 2018</strong></a></td>
+<td>reading comprehension</td>
+<td>EM/F1</td>
+<td>10K</td>
+<td>3.4K</td>
+<td>span-extraction machine reading comprehension</td>
+</tr>
+<tr>
+<td align="left"><a href="https://github.com/DRCKnowledgeTeam/DRCD"><strong>DRCD</strong></a></td>
+<td>reading comprehension</td>
+<td>EM/F1</td>
+<td>27K</td>
+<td>3.5K</td>
+<td>span-extraction machine reading comprehension (Traditional Chinese)</td>
+</tr>
+</tbody>
+</table><p>The results are listed below.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">Model</th>
+<th>XNLI</th>
+<th>LCQMC</th>
+<th>CMRC 2018</th>
+<th>DRCD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>RoBERTa-wwm-ext</strong></td>
+<td>79.9</td>
+<td>89.4</td>
+<td>68.8 / 86.4</td>
+<td>86.5 / 92.5</td>
+</tr>
+<tr>
+<td align="left">T3</td>
+<td>78.4</td>
+<td>89.0</td>
+<td>66.4 / 84.2</td>
+<td>78.2 / 86.4</td>
+</tr>
+<tr>
+<td align="left">T3-small</td>
+<td>76.0</td>
+<td>88.1</td>
+<td>58.0 / 79.3</td>
+<td>65.5 / 78.6</td>
+</tr>
+<tr>
+<td align="left">T4-tiny</td>
+<td>76.2</td>
+<td>88.4</td>
+<td>61.8 / 81.8</td>
+<td>73.3 / 83.5</td>
+</tr>
+</tbody>
+</table><p><strong>Note</strong>:</p>
+<ol class="simple">
+<li><p>On CMRC2018 and DRCD, learning rates are 1.5e-4 and 7e-5 respectively and there is no learning rate decay.</p></li>
+<li><p>CMRC2018 and DRCD take each other as the augmentation dataset In the experiments.</p></li>
+</ol>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Configurations.html" class="btn btn-neutral float-right" title="Configurations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Concepts.html" class="btn btn-neutral float-left" title="Core Concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ziqing Yang
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

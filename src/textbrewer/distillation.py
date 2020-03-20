@@ -100,10 +100,24 @@ class AbstractDistiller(DistillationContext):
         self.print_freq = 20
 
 class BasicDistiller(AbstractDistiller):
-    def __init__(self, train_config: TrainingConfig,
-                       distill_config: DistillationConfig,
-                 model_T: Union[List,Dict,torch.nn.Module],
-                 model_S: torch.nn.Module,
+    """
+    Performs **single-teacher single-task** distillation, provides basic distillation strategies.
+
+    Args:
+        train_config (:class:`TrainingConfig`): training configuration.
+        distill_config (:class:`DistillationConfig`): distillation configuration.
+        model_T (:class:`torch.nn.Module`): teacher model.
+        model_S (:class:`torch.nn.Module`): student model.
+        adaptor_T (Callable): teacher model's adaptor.
+        adaptor_S (Callable): student model's adaptor.
+
+    The roles of `adaptor_T` and `adaptor_S` are explained in :py:func:`adaptor`.
+
+    """
+    def __init__(self, train_config,
+                       distill_config,
+                 model_T,
+                 model_S,
                  adaptor_T,
                  adaptor_S):
         super(BasicDistiller, self).__init__(train_config, distill_config, model_T, model_S, adaptor_T, adaptor_S)
@@ -130,6 +144,23 @@ class BasicDistiller(AbstractDistiller):
 
 
     def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+        """
+        trains the student model.
+
+        Args:
+            optimizer: optimizer.
+            scheduler: used to adjust learning rate, optional, can be None.
+            dataloader: dataset iterator.
+            num_epochs (int): number of training epochs.
+            num_steps (int): number of training steps. If it is not None, distiller will ignore `num_epochs` and trains for `num_steps`, and dataloader can have an unkonwn size, i.e., has no `__len__` attribute. Dataloader will be cycled automatically after iterating over the whole dataset.
+            callback (Callable): function called after each epoch, can be None. It is called as ``callback(model=self.model_S, step = global_step)``. It can be used to evaluate the model at each checkpoint.
+            batch_postprocessor (Callable): a function for post-processing batches. It should take a batch and return a batch. Its output is fed to the models and adaptors.
+            **args: additional arguments fed to the model.
+        Note:
+            * If the batch is a list or tuple, model is called as: ``model(*batch, **args)``. Make sure the order of elements in the batch matches their order in ``model.forward``.
+            * If the batch is a dict, model is called as: ``model(**batch,**args)``. Make sure the keys of the batch match the arguments of the ``model.forward``.
+
+        """
         if num_steps is not None:
             total_global_steps = num_steps
             ckpt_steps =self.t_config.ckpt_steps
@@ -276,10 +307,24 @@ class BasicDistiller(AbstractDistiller):
 
 
 class MultiTeacherDistiller(BasicDistiller):
-    def __init__(self, train_config: TrainingConfig,
-                 distill_config: DistillationConfig,
-                 model_T: List[nn.Module],
-                 model_S: nn.Module,
+    """
+    Distills multiple teacher models (of the same tasks) into a student model. **It doesn't support intermediate feature matching**.
+
+    Args:
+        train_config (:class:`TrainingConfig`): training configuration.
+        distill_config (:class:`DistillationConfig`): distillation configuration.
+        model_T (List[torch.nn.Module]): list of teacher models.
+        model_S (torch.nn.Module): student model.
+        adaptor_T (Callable): teacher model's adaptor.
+        adaptor_S (Callable): student model's adaptor.
+
+    The roles of `adaptor_T` and `adaptor_S` are explained in :py:func:`adaptor`.
+    """
+
+    def __init__(self, train_config,
+                 distill_config,
+                 model_T,
+                 model_S,
                  adaptor_T,
                  adaptor_S):
         super(MultiTeacherDistiller, self).__init__(
@@ -366,10 +411,25 @@ class MultiTeacherDistiller(BasicDistiller):
 
 
 class GeneralDistiller(BasicDistiller):
-    def __init__(self, train_config: TrainingConfig,
-                 distill_config: DistillationConfig,
-                 model_T: torch.nn.Module,
-                 model_S: torch.nn.Module,
+    """
+    Supports intermediate features matching. **Recommended for single-teacher single-task distillation**.
+
+    Args:
+        train_config (:class:`TrainingConfig`): training configuration.
+        distill_config (:class:`DistillationConfig`): distillation configuration.
+        model_T (:class:`torch.nn.Module`): teacher model.
+        model_S (:class:`torch.nn.Module`): student model.
+        adaptor_T (Callable): teacher model's adaptor.
+        adaptor_S (Callable): student model's adaptor.
+        custom_matches (list): supports more flexible user-defined matches (testing).
+
+    The roles of `adaptor_T` and `adaptor_S` are explained in :py:func:`adaptor`.
+
+    """
+    def __init__(self, train_config,
+                 distill_config,
+                 model_T,
+                 model_S,
                  adaptor_T,
                  adaptor_S,
                  custom_matches: Optional[List[CustomMatch]] = None):
@@ -415,6 +475,9 @@ class GeneralDistiller(BasicDistiller):
             self.model_T._forward_hooks = handles_T
 
     def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+        """
+        trains the student model. See :meth:`BasicDistiller.train`.
+        """
         # update optimizer for projection layer
         for proj,proj_group in zip(self.projs, self.projs_group):
             if proj is not None:
@@ -564,19 +627,26 @@ class GeneralDistiller(BasicDistiller):
 
 
 class MultiTaskDistiller(BasicDistiller):
-    def __init__(self, train_config: TrainingConfig,
-                 distill_config: DistillationConfig,
+    """
+    distills multiple teacher models (of different tasks) into a single student. **It doesn't support intermediate feature matching**.
+
+    Args:
+        train_config (:class:`TrainingConfig`): training configuration.
+        distill_config (:class:`DistillationConfig`): distillation configuration.
+        model_T (dict): dict of teacher models: {task1:model1, task2:model2, .... }. Keys are tasknames.
+        model_S (torch.nn.Module): student model.
+        adaptor_T (dict): dict of teacher adaptors: {task1:adpt1, task2:adpt2, .... }. Keys are tasknames.
+        adaptor_S (dict): dict of student adaptors: {task1:adpt1, task2:adpt2, .... }. Keys are tasknames.
+
+    """
+    
+    def __init__(self, train_config,
+                 distill_config,
                  model_T,
                  model_S,
                  adaptor_T,
                  adaptor_S):
-        '''
-        :param config:
-        :param model_T: Dict of teacher model: {task1:model_1, task2:model_2, .... }. Keys are tasknames
-        :param model_S:
-        :param output_adaptor_T: Dict of teacher adaptors: {task1:adpt_1, task2:adpt_2, .... }. Keys are tasknames
-        :param output_adaptor_S: Dict of student adaptors: {task1:adpt_1, task2:adpt_2, .... }. Keys are tasknames
-        '''
+
         super(MultiTaskDistiller, self).__init__(
             train_config, distill_config,
             model_T, model_S,
@@ -588,10 +658,19 @@ class MultiTaskDistiller(BasicDistiller):
 
 
     def train(self, optimizer, scheduler, dataloaders, num_steps, tau=1, callback=None, batch_postprocessors=None, **args):
-        '''
-        :param dataloaders:  {taskname1: dataloader1, taskname2: dataloader2, ... }
-        :param batch_postprocessors: {taskname1: proc1, taskname2: proc2, ...}
-        '''
+        """
+        trains the student model.
+
+        Args:
+            optimizer: optimizer.
+            scheduler: used to adjust learning rate, optional, can be None.
+            dataloaders (dict): dict of dataset iterator. Keys are tasknames, values are corresponding dataloaders.
+            num_steps (int): number of training steps.
+            tau (float): the probability of sampling an example from task `d` is proportional to \|d\|^{tau}, where \|d\| is the size of `d`'s training set. If the size of any dataset is unknown, ignores tau and samples examples unifromly from each dataset.
+            callback (Callable): function called after each epoch, can be None. It is called as ``callback(model=self.model_S, step = global_step)``. It can be used to do evaluation of the model at each checkpoint.
+            batch_postprocessors (dict): a dict of batch_postprocessors. Keys are tasknames, values are corresponding batch_postprocessors. Each batch_postprocessor should take a batch and return a batch.
+            **args: additional arguments fed to the model.
+        """
         total_global_steps = num_steps
         ckpt_steps =self.t_config.ckpt_steps
         print_every = ckpt_steps // self.print_freq
@@ -768,6 +847,17 @@ def post_adaptor(dict_object):
 
 
 class BasicTrainer:
+    """
+    It performs supervised training, not distillation. It can be used for training the teacher model.
+
+    Args:
+        train_config (:class:`TrainingConfig`): training configuration.
+        model (:class:`torch.nn.Module`): model to be trained.
+        adaptor (Callable)：adaptor of the model.
+    
+    The role of `adaptor` is explained in :py:func:`adaptor`.
+    """
+
     def __enter__(self):
         self.model_is_training = self.model.training
         self.model.train()
@@ -789,6 +879,9 @@ class BasicTrainer:
         self.print_freq = 20
 
     def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+        """
+        trains the model. See :meth:`BasicDistiller.train`.
+        """
         if num_steps is not None:
             total_global_steps = num_steps
             ckpt_steps =self.t_config.ckpt_steps
