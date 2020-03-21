@@ -15,7 +15,7 @@ def constant_temperature_scheduler(logits_S, logits_T, base_temperature):
     return base_temperature
 
 
-def flsw_temperature_scheduler_builder(beta,gamma,*args):
+def flsw_temperature_scheduler_builder(beta,gamma,eps=1e-4, *args):
     '''
     adapted from arXiv:1911.07471
     '''
@@ -23,8 +23,8 @@ def flsw_temperature_scheduler_builder(beta,gamma,*args):
         v = logits_S.detach()
         t = logits_T.detach()
         with torch.no_grad():
-            v = v/torch.norm(v,dim=-1,keepdim=True)
-            t = t/torch.norm(t,dim=-1,keepdim=True)
+            v = v/(torch.norm(v,dim=-1,keepdim=True)+eps)
+            t = t/(torch.norm(t,dim=-1,keepdim=True)+eps)
             w = torch.pow((1 - (v*t).sum(dim=-1)),gamma)
             tau = base_temperature + (w.mean()-w)*beta
         return tau
