@@ -13,6 +13,8 @@ from typing import Optional, Dict, Union
 from .presets import *
 from .configurations import TrainingConfig, DistillationConfig
 
+from .compatibility import mask_dtype
+
 logger = logging.getLogger("Distillation")
 logger.setLevel(logging.INFO)
 
@@ -796,7 +798,7 @@ def _select_logits_with_mask(logits_list, masks_list):
     if len(masks_list)==len(logits_list):
         for logits,mask in zip(logits_list,masks_list):
             if len(logits.shape)==3:
-                mask = mask.unsqueeze(-1).expand_as(logits).to(torch.uint8)
+                mask = mask.unsqueeze(-1).expand_as(logits).to(mask_dtype)
                 logits_select = torch.masked_select(logits,mask).view(-1,logits.size(-1))
             else:
                 logits_select = logits #Logits_mask has no effect on logits of shape (batch_size, logits_to_be_softmaxed)
@@ -805,7 +807,7 @@ def _select_logits_with_mask(logits_list, masks_list):
         mask = masks_list[0]
         for logits in logits_list:
             if len(logits.shape)==3:
-                mask = mask.unsqueeze(-1).expand_as(logits).to(torch.uint8)
+                mask = mask.unsqueeze(-1).expand_as(logits).to(mask_dtype)
                 logits_select = torch.masked_select(logits,mask).view(-1,logits.size(-1))
             else:
                 logits_select = logits #Logits_mask has no effect on logits of shape (batch_size, logits_to_be_softmaxed)

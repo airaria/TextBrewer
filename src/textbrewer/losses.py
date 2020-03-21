@@ -2,6 +2,8 @@ import torch.nn.functional as F
 import torch
 from typing import List
 
+from .compatibility import mask_dtype
+
 def kd_mse_loss(logits_S, logits_T, temperature=1):
     '''
     Calculate the mse loss between logits_S and logits_T
@@ -155,7 +157,7 @@ def cos_loss(state_S, state_T, mask=None):
         state_S = state_S.view(-1,state_S.size(-1))
         state_T = state_T.view(-1,state_T.size(-1))
     else:
-        mask = mask.to(state_S).unsqueeze(-1).expand_as(state_S).to(torch.uint8) #(bs,len,dim)
+        mask = mask.to(state_S).unsqueeze(-1).expand_as(state_S).to(mask_dtype) #(bs,len,dim)
         state_S = torch.masked_select(state_S, mask).view(-1, mask.size(-1))  #(bs * select, dim)
         state_T = torch.masked_select(state_T, mask).view(-1, mask.size(-1))  # (bs * select, dim)
 
