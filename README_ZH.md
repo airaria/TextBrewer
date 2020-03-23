@@ -91,7 +91,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 在多个典型NLP任务上，TextBrewer都能取得较好的压缩效果。相关实验见[蒸馏效果](#蒸馏效果)。
 
-详细的API可参见[API文档](API_ZH.md)。
+详细的API可参见 [完整文档](https://textbrewer.readthedocs.io/)。
 
 ## 安装
 
@@ -330,7 +330,7 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 
 将模型的输入和输出转换为指定的格式，向`distiller`解释模型的输入和输出，以便`distiller`根据不同的策略进行不同的计算。在每个训练步，`batch`和模型的输出`model_outputs`会作为参数传递给`adaptor`，`adaptor`负责重新组织这些数据，返回一个字典。
 
-更多细节可参见[API文档](API.md)中的说明。
+更多细节可参见[完整文档](https://textbrewer.readthedocs.io/)中的说明。
 
 ## FAQ
 

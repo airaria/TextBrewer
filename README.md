@@ -93,7 +93,7 @@ To start distillation, users need to provide
 
 **TextBrewer** has achieved impressive results on several typical NLP tasks. See [Experiments](#experiments).
 
-See [API documentation](API.md) for detailed usages.
+See [Full Documentation](https://textbrewer.readthedocs.io/) for detailed usages.
 
 ## Installation
 
@@ -337,7 +337,7 @@ At each checkpoint, after saving the student model, the callback function will b
 #### Adaptor
 It converts the model inputs and outputs to the specified format so that they could be recognized by the distiller, and distillation losses can be computed. At each training step, batch and model outputs will be passed to the adaptor; the adaptor re-organizes the data and returns a dictionary.
 
-For more details, see the explanations in [API documentation](API.md)
+For more details, see the explanations in [Full Documentation](https://textbrewer.readthedocs.io/).
 
 ## FAQ
 
