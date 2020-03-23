@@ -29,7 +29,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Mar 17, 2020**
 
-* examples中添加了CoNLL2003英文NER任务上的蒸馏的示例代码，见 [examples/conll2003_example](examples/conll2003_example)。
+* examples中添加了CoNLL-2003英文NER任务上的蒸馏的示例代码，见 [examples/conll2003_example](examples/conll2003_example)。
 
 **Mar 11, 2020**
 
@@ -207,7 +207,7 @@ with distiller:
 * [examples/random_token_example](examples/random_token_example): 一个可运行的简单示例，在文本分类任务上以随机文本为输入，演示TextBrewer用法。
 * [examples/cmrc2018\_example](examples/cmrc2018_example) (中文): CMRC2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。
 * [examples/mnli\_example](examples/mnli_example) (英文): MNLI任务上的英文句对分类任务蒸馏，并展示如何使用多教师蒸馏。
-
+* [examples/conll2003_example](examples/conll2003_example) (英文): CoNLL-2003英文实体识别任务上的序列标注任务蒸馏。
 
 ## 蒸馏效果
 
