@@ -1,4 +1,5 @@
 __pycache__/
+docs/build
 dist/
 *.egg-info/
 .ipynb_checkpoints

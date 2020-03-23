@@ -1,0 +1,31 @@
+.. TextBrewer documentation master file, created by
+   sphinx-quickstart on Tue Mar 17 17:23:13 2020.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+TextBrewer
+======================================
+
+.. .. image:: ../../pics/banner.png
+..  :width: 500
+
+**TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. 
+
+It includes various distilltion techniques from both NLP and CV, and provides an easy-to-use distillation framework, which allows users to quickly experiment with state-of-the-art distillation methods to compress the model with a relatively small sacrifice in performance, increase the inference speed and reduce the memory usage.
+
+Paper: `TextBrewer: An Open-Source Knowledge Distillation Toolkit for Natural Language Processing <https://arxiv.org/abs/2002.12620>`_
+
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Getting Started
+
+   GettingStarted
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

@@ -76,6 +76,13 @@ class LayerNode:
 
 
 def display_parameters(model,max_level=None):
+    """
+    Display the numbers and memory usage of module parameters.
+
+    Args:
+        model (torch.nn.Module or dict): the model to be inspected.
+        max_level (int or None): The max level to display. If ``max_level==None``, show all the levels.
+    """
     if isinstance(model,torch.nn.Module):
         state_dict = model.state_dict()
     elif isinstance(model,dict):

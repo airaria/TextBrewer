@@ -1,71 +1,4 @@
- [**English**](README.md) | [**中文说明**](README_ZH.md)
-
-<p align="center">
-    <br>
-    <img src="./pics/banner.png" width="500"/>
-    <br>
-<p>
-<p align="center">
-    <a href="https://github.com/airaria/TextBrewer/blob/master/LICENSE">
-        <img alt="GitHub" src="https://img.shields.io/github/license/airaria/TextBrewer.svg?color=blue&style=flat-square">
-    </a>
-    <a href="https://textbrewer.readthedocs.io/">
-        <img alt="Documentation" src="https://img.shields.io/website?down_message=offline&label=Documentation&up_message=online&url=https%3A%2F%2Ftextbrewer.readthedocs.io">
-    </a>    
-    <a href="https://pypi.org/project/textbrewer">
-        <img alt="PyPI" src="https://img.shields.io/pypi/v/textbrewer">
-    </a>    
-    <a href="https://github.com/airaria/TextBrewer/releases">
-        <img alt="GitHub release" src="https://img.shields.io/github/v/release/airaria/TextBrewer?include_prereleases">
-    </a>
-</p>
-
-**TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. It includes various distilltion techniques from both NLP and CV, and provides an easy-to-use distillation framework, which allows users to quickly experiment with state-of-the-art distillation methods to compress the model with a relatively small sacrifice in performance, increase the inference speed and reduce the memory usage.
-
-Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
-
-[Full Documentation](https://textbrewer.readthedocs.io/)
-
-## Update
-
-**Mar 17, 2020**
-
-* Added CoNLL-2003 English NER distillation example, see [examples/conll2003_example](examples/conll2003_example).
-
-**Mar 11, 2020**
-
-* Updated version number to 0.1.8.
-
-**Mar 4，2020**
-
-* Set `TrainingConfig.log_dir` to `None` to disable tensorboard.
-* Add attribute `print_freq` to the distiller to control the frequency of logging.
-* Add new argument `num_steps` to the `train` method of the distiller. If `num_steps` is specified, distiller will ignore `num_epochs`, and dataloader can have an unkonwn size, i.e., has no `__len__` attribute.
-* Add new argument `batch_postprocessor` to the `train` method of the distiller to allow post-processing of batches.
-
-**Mar 2, 2020**
-
-* **Current version**: 0.1.7, the first public version.
-
-
-## Table of Contents
-
-<!-- TOC -->
-
-| Section | Contents |
-|-|-|
-| [Introduction](#introduction) | Introduction to TextBrewer |
-| [Installation](#installation) | How to install |
-| [Workflow](#workflow) | Two stages of TextBrewer workflow |
-| [Quickstart](#quickstart) | Example: distilling BERT-base to a 3-layer BERT |
-| [Experiments](#experiments) | Distillation experiments on typical English and Chinese datasets |
-| [Core Concepts](#core-concepts) | Brief explanations of the core concepts in TextBrewer |
-| [FAQ](#faq) | Frequently asked questions |
-| [Known Issues](#known-issues) | Known issues |
-| [Citation](#citation) | Citation to TextBrewer |
-| [Follow Us](#follow-us) | - |
-
-<!-- /TOC -->
+# Quickstart
 
 ## Introduction
 **Textbrewer** is designed for the knowledge distillation of NLP models. It provides various distillation methods and offers a distillation framework for quickly setting up experiments. 
@@ -239,7 +172,7 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 | T3-small | L3n_hidden_mse + L3_hidden_smmd                              |
 | T4-Tiny  | L4t_hidden_mse + L4_hidden_smmd                              |
 
-The definitions of matches are at [examples/matches/matches.py](examples/matches/matches.py).
+The definitions of matches are at [exmaple/matches/matches.py](exmaple/matches/matches.py). 
 
 We use GeneralDistiller in all the distillation experiments.
 
