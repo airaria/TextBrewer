@@ -1,5 +1,6 @@
 __pycache__/
 docs/build
+.vscode
 dist/
 *.egg-info/
 .ipynb_checkpoints
