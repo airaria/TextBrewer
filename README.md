@@ -24,7 +24,7 @@
 
 Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
-[Full Documentation](https://textbrewer.readthedocs.io/)
+[Full Documentatio (public version)](https://textbrewer.readthedocs.io/)
 
 ## Update
 
