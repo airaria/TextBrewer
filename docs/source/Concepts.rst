@@ -6,7 +6,7 @@ Conventions
 
 * ``Model_T`` an instance of :class:`torch.nn.Module`, the teacher model that to be distilled.
 
-* ``Model_S``: an instance of :class:`torch.nn.Module`, the student model, usually smaller than the teacher model for the purpose of model compression and faster inference speed.
+* ``Model_S``: an instance of :class:`torch.nn.Module`, the student model, usually smaller than the teacher model for model compression and faster inference speed.
 
 * ``optimizer``: an instance of :class:`torch.optim.Optimizer`.
 
@@ -121,7 +121,7 @@ In TextBrewer, there are two functions that should be implemented by users: :fun
           * **labels** is required if and only if  ``probability_shift==True``.
           * You shouldn't ignore all the keys, otherwise the training won't start :)
 
-          In most cases **logits** should be provided, unless you are doing multi-stage training or non-classfification tasks, etc.
+          In most cases **logits** should be provided, unless you are doing multi-stage training or non-classification tasks, etc.
 
     Example::
 

@@ -8,7 +8,7 @@ We have performed distillation experiments on several typical English and Chines
 * For English tasks, the teacher model is [**BERT-base-cased**](https://github.com/google-research/bert).
 * For Chinese tasks, the teacher model is [**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm) released by the Joint Laboratory of HIT and iFLYTEK Research.
 
-We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of the each specific task. 
+We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except for BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of each specific task. 
 
 | Model                 | \#Layers | Hidden_size | Feed-forward size | \#Params | Relative size |
 | :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
@@ -87,7 +87,7 @@ Our results:
 
 **Note**:
 
-1. The equivlent model architectures of public models are shown in the brackets after their names. 
+1. The equivalent model architectures of public models are shown in the brackets after their names. 
 2. When distilling to T4-tiny, NewsQA is used for data augmentation on SQuAD and HotpotQA is used for data augmentation on CoNLL-2003.
 
 

@@ -20,7 +20,7 @@
     </a>
 </p>
 
-**TextBrewer** is a PyTorch-based model distillation toolkit for natural language processing. It includes various distillation techniques from both NLP and CV field, and provides an easy-to-use distillation framework, which allows users to quickly experiment with the state-of-the-art distillation methods to compress the model with a relatively small sacrifice in the performance, increasing the inference speed and reducing the memory usage.
+**TextBrewer** is a PyTorch-based model distillation toolkit for natural language processing. It includes various distillation techniques from both NLP and CV field and provides an easy-to-use distillation framework, which allows users to quickly experiment with the state-of-the-art distillation methods to compress the model with a relatively small sacrifice in the performance, increasing the inference speed and reducing the memory usage.
 
 Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
@@ -124,8 +124,8 @@ See [API documentation](API.md) for detailed usages.
 
 * **Stage 1**: Preparation:
   1. Train the teacher model
-  2. Define and intialize the student model
-  3. Construct a dataloader, an optimizer and a learning rate scheduler
+  2. Define and initialize the student model
+  3. Construct a dataloader, an optimizer, and a learning rate scheduler
 
 * **Stage 2**: Distillation with TextBrewer:
   1. Construct a **TraningConfig** and a **DistillationConfig**, initialize a **distiller**
@@ -158,7 +158,7 @@ _ = textbrewer.utils.display_parameters(student_model,max_level=3)
 
 # Define an adaptor for translating the model inputs and outputs
 def simple_adaptor(batch, model_outputs):
-  	# The second and third elements of model outputs are the logits and hidden states
+      # The second and third elements of model outputs are the logits and hidden states
     return {'logits': model_outputs[1],
             'hidden': model_outputs[2]}
 
@@ -199,7 +199,7 @@ We have performed distillation experiments on several typical English and Chines
 * For English tasks, the teacher model is [**BERT-base-cased**](https://github.com/google-research/bert).
 * For Chinese tasks, the teacher model is [**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm) released by the Joint Laboratory of HIT and iFLYTEK Research.
 
-We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of the each specific task. 
+We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except for BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of each specific task. 
 
 | Model                 | \#Layers | Hidden_size | Feed-forward size | \#Params | Relative size |
 | :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
@@ -276,7 +276,7 @@ Our results:
 
 **Note**:
 
-1. The equivlent model architectures of public models are shown in the brackets. 
+1. The equivalent model architectures of public models are shown in the brackets. 
 2. When distilling to T4-tiny, NewsQA is used for data augmentation on SQuAD and HotpotQA is used for data augmentation on CoNLL-2003.
 
 
@@ -332,24 +332,24 @@ In TextBrewer, there are two functions that should be implemented by users: **ca
 
 ####  **Callback** 
 
-At each checkpoint, after saving the student model, the callback function will be called by the distiller. Callback can be used to evaluate the performance of the student model at each checkpoint.
+At each checkpoint, after saving the student model, the callback function will be called by the distiller. A callback can be used to evaluate the performance of the student model at each checkpoint.
 
 #### Adaptor
-It converts the model inputs and outputs to the specified format so that they could be recognized by the distiller, and distillation losses can be computed. At each training step, batch and model outputs will be passed to the adaptor; adaptor re-organize the data and returns a dictionary.
+It converts the model inputs and outputs to the specified format so that they could be recognized by the distiller, and distillation losses can be computed. At each training step, batch and model outputs will be passed to the adaptor; the adaptor re-organizes the data and returns a dictionary.
 
-Fore more details, see the explanations in [API documentation](API.md)
+For more details, see the explanations in [API documentation](API.md)
 
 ## FAQ
 
 **Q**: How to initialize the student model?
 
-**A**: The student model could be randomly initialized (i.e., with no prior knwledge) or be initialized by pre-trained weights.
+**A**: The student model could be randomly initialized (i.e., with no prior knowledge) or be initialized by pre-trained weights.
 For example, when distilling a BERT-base model to a 3-layer BERT, you could initialize the student model with [RBT3](#https://github.com/ymcui/Chinese-BERT-wwm) (for Chinese tasks) or the first three layers of BERT (for English tasks) to avoid cold start problem. 
-We recommend that users use pre-trained student models whenever possible to fully take the advantage of large-scale pre-training.
+We recommend that users use pre-trained student models whenever possible to fully take advantage of large-scale pre-training.
 
-**Q**: How to set training hyperparamters for the distillation experiments？
+**Q**: How to set training hyperparameters for the distillation experiments？
 
-**A**: Knowledge distillation usually requires more training epochs and larger learning rate than training on labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experiments, and you are advised to try on your own data**.
+**A**: Knowledge distillation usually requires more training epochs and larger learning rate than training on the labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experiments, and you are advised to try on your own data**.
 
 ## Known Issues
 

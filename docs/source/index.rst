@@ -12,7 +12,7 @@
 
 **TextBrewer** is a PyTorch-based toolkit for **distillation of NLP models**. 
 
-It includes various distilltion techniques from both NLP and CV, and provides an easy-to-use distillation framework, which allows users to quickly experiment with state-of-the-art distillation methods to compress the model with a relatively small sacrifice in performance, increase the inference speed and reduce the memory usage.
+It includes various distillation techniques from both NLP and CV, and provides an easy-to-use distillation framework, which allows users to quickly experiment with state-of-the-art distillation methods to compress the model with a relatively small sacrifice in performance, increase the inference speed and reduce the memory usage.
 
 Main features
 -------------

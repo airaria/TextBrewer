@@ -3,7 +3,7 @@
 Intermediate Losses
 ===================
 Here we list the definitions of pre-defined intermediate losses. 
-Usually users don't need to refer to these functions directly, but refer to them by the names in :obj:`MATCH_LOSS_MAP`.
+Usually, users don't need to refer to these functions directly, but refer to them by the names in :obj:`MATCH_LOSS_MAP`.
 
 attention_mse
 -------------
