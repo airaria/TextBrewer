@@ -13,18 +13,21 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../src'))
+
+from textbrewer import __version__
+
 # sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'TextBrewer'
-copyright = '2020, Ziqing Yang'
-author = 'Ziqing Yang'
+author = 'Joint Laboratory of HIT and iFLYTEK Research (HFL)'
+copyright = '2020, '+author
 
 # The full version, including alpha/beta/rc tags
-version = '0.1.8'
-release = '0.1.8'
+version = __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -56,7 +59,16 @@ exclude_patterns = []
 #html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 
+html_theme_options = {
+        'logo_only': True,
+        #'style_nav_header_background' :'#EEEEEE'
+        }
+html_logo = '../../pics/nav_banner.png'
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+def setup(app):
+    app.add_stylesheet('css/custom.css')
