@@ -5,6 +5,13 @@
 
 ### MNLI
 
+* Training without Distillation:
+
+| Model（ours)  | MNLI |
+| ------------- | ------------- |
+| **BERT-base-cased** | 83.7 / 84.0   |
+| T3                  | 76.1 / 76.5   |
+
 * Single-teacher distillation with `GeneralDistiller`:
 
 | Model (ours)         | MNLI           |
@@ -62,7 +69,7 @@
 
 * Training without Distillation:
 
-| Model（ours)  | SQuAD | 
+| Model（ours)  |  CoNLL-2003 |
 | ------------- | ----------- |
 | **BERT-base-cased** | 91.1  |
 | BiGRU               | 81.1  |
