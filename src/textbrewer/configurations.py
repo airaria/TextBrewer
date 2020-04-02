@@ -201,7 +201,8 @@ class DistillationConfig(Config):
                       kd_loss_weight=1,
                       kd_loss_weight_scheduler = 'none',
                       probability_shift = False,
-                      intermediate_matches:Optional[List[Dict]]=None):
+                      intermediate_matches:Optional[List[Dict]]=None,
+                      is_caching_logits = False):
         super(DistillationConfig, self).__init__()
 
         self.temperature = temperature
@@ -231,3 +232,5 @@ class DistillationConfig(Config):
         self.intermediate_matches:[List[IntermediateMatch]] = []
         if intermediate_matches:
             self.intermediate_matches = [IntermediateMatch.from_dict(im) for im in intermediate_matches]
+
+        self.is_caching_logits = is_caching_logits
