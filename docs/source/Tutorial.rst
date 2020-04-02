@@ -61,13 +61,13 @@ To start distillation, users need to provide
 * **Stage 1**: Preparation:
 
   #. Train the teacher model.
-  #. Define and intialize the student model.
-  #. Construct a dataloader, an optimizer and a learning rate scheduler.
+  #. Define and initialize the student model.
+  #. Construct a dataloader, an optimizer, and a learning rate scheduler.
 
 * **Stage 2**: Distillation with TextBrewer:
 
   #. Construct a ``TraningConfig`` and a ``DistillationConfig``, initialize a **distiller**.
-  #. Define an **adaptor** and a **callback**. The **adaptor** is used for adaptation of model inputs and outputs. The **callback** is called by the distiller during training.
+  #. Define an **adaptor** and a **callback**. The **adaptor** is used for the adaptation of model inputs and outputs. The **callback** is called by the distiller during training.
   #. Call the :``train`` method of the **distiller**.
 
 
@@ -127,23 +127,23 @@ Examples
 
 Examples can be found in the `examples <https://github.com/airaria/TextBrewer/tree/master/examples>`_ directory of the repo:
 
-* `examples/random_token_example <https://github.com/airaria/TextBrewer/tree/master/examples/random_tokens_example>`_ : a simple runable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
+* `examples/random_token_example <https://github.com/airaria/TextBrewer/tree/master/examples/random_tokens_example>`_ : a simple runnable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
 * `examples/cmrc2018\_example <https://github.com/airaria/TextBrewer/tree/master/examples/cmrc2018_example>`_ (Chinese): distillation on CMRC2018, a Chinese MRC task, using DRCD as data augmentation.
 * `examples/mnli\_example <https://github.com/airaria/TextBrewer/tree/master/examples/mnli_example>`_ (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
-* `examples/conll2003_example <https://github.com/airaria/TextBrewer/tree/master/examples/conll2003_example>`_ (English): distillation on CoNLL-2003 English NER task, which is in form of sequence labeling.
+* `examples/conll2003_example <https://github.com/airaria/TextBrewer/tree/master/examples/conll2003_example>`_ (English): distillation on CoNLL-2003 English NER task, which is in the form of sequence labeling.
 
 FAQ
 ===
 
 **Q**: How to initialize the student model?
 
-**A**: The student model could be randomly initialized (i.e., with no prior knwledge) or be initialized by pre-trained weights.
+**A**: The student model could be randomly initialized (i.e., with no prior knowledge) or be initialized by pre-trained weights.
 For example, when distilling a BERT-base model to a 3-layer BERT, you could initialize the student model with `RBT3 <https://github.com/ymcui/Chinese-BERT-wwm>`_ (for Chinese tasks) or the first three layers of BERT (for English tasks) to avoid cold start problem. 
-We recommend that users use pre-trained student models whenever possible to fully take the advantage of large-scale pre-training.
+We recommend that users use pre-trained student models whenever possible to fully take advantage of large-scale pre-training.
 
-**Q**: How to set training hyperparamters for the distillation experiments？
+**Q**: How to set training hyperparameters for the distillation experiments？
 
-**A**: Knowledge distillation usually requires more training epochs and larger learning rate than training on labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experiments, and you are advised to try on your own data**.
+**A**: Knowledge distillation usually requires more training epochs and a larger learning rate than training on the labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experiments, and you are advised to try on your own data**.
 
 Known Issues
 ============

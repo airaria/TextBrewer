@@ -8,7 +8,7 @@ We have performed distillation experiments on several typical English and Chines
 * For English tasks, the teacher model is [**BERT-base-cased**](https://github.com/google-research/bert).
 * For Chinese tasks, the teacher model is [**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm) released by the Joint Laboratory of HIT and iFLYTEK Research.
 
-We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of the each specific task. 
+We have tested different student models. To compare with public results, the student models are built with standard transformer blocks except for BiGRU which is a single-layer bidirectional GRU. The architectures are listed below. Note that the number of parameters includes the embedding layer but does not include the output layer of each specific task. 
 
 | Model                 | \#Layers | Hidden_size | Feed-forward size | \#Params | Relative size |
 | :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
@@ -74,7 +74,7 @@ Public results:
   | BERT<sub>3</sub>-PKD (T3)     | 76.7 / 76.3     | -             | -|
   | TinyBERT (T4-tiny) | 82.8 / 82.9                | 72.7 / 82.1   | -|
 
-Our results:
+Our results (see [Experimental Results](ExperimentResults.md) for details):
 
 | Model (ours) | MNLI  | SQuAD  | CoNLL-2003 |
 | :-------------  | --------------- | ------------- | --------------- |
@@ -87,7 +87,7 @@ Our results:
 
 **Note**:
 
-1. The equivlent model architectures of public models are shown in the brackets after their names. 
+1. The equivalent model architectures of public models are shown in the brackets after their names. 
 2. When distilling to T4-tiny, NewsQA is used for data augmentation on SQuAD and HotpotQA is used for data augmentation on CoNLL-2003.
 
 
@@ -104,7 +104,7 @@ We experiment on the following typical Chinese datasets:
 | [**CMRC 2018**](https://github.com/ymcui/cmrc2018) | reading comprehension | EM/F1 | 10K | 3.4K | span-extraction machine reading comprehension |
 | [**DRCD**](https://github.com/DRCKnowledgeTeam/DRCD) | reading comprehension | EM/F1 | 27K | 3.5K | span-extraction machine reading comprehension (Traditional Chinese) |
 
-The results are listed below.
+The results are listed below (see [Experimental Results](ExperimentResults.md) for details).
 
 | Model           | XNLI | LCQMC | CMRC 2018 | DRCD |
 | :--------------- | ---------- | ----------- | ---------------- | ------------ |
@@ -117,4 +117,4 @@ The results are listed below.
 **Note**:
 
 1. On CMRC2018 and DRCD, learning rates are 1.5e-4 and 7e-5 respectively and there is no learning rate decay.
-2. CMRC2018 and DRCD take each other as the augmentation dataset In the experiments. 
+2. CMRC2018 and DRCD take each other as the augmentation dataset In the experiments.

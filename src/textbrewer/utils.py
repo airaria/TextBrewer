@@ -82,6 +82,8 @@ def display_parameters(model,max_level=None):
     Args:
         model (torch.nn.Module or dict): the model to be inspected.
         max_level (int or None): The max level to display. If ``max_level==None``, show all the levels.
+    Returns:
+        A formatted string and a :class:`~textbrewer.utils.LayerNode` object representing the model.
     """
     if isinstance(model,torch.nn.Module):
         state_dict = model.state_dict()

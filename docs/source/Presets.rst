@@ -54,4 +54,4 @@ then used in :class:`~textbrewer.DistillationConfig`::
     intermediate_matches = [{'layer_T':0, 'layer_S':0, 'feature':'hidden','loss': 'my_L1_loss', 'weight' : 1}]
     ...)
 
-Refer to the source code for more details on inputs and outputs conventions (will be explained in more details in a later version of the documentation).
+Refer to the source code for more details on inputs and outputs conventions (will be explained in detail in a later version of the documentation).
