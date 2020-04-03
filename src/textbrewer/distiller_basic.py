@@ -63,6 +63,8 @@ class BasicDistiller(AbstractDistiller):
 
         """
         if num_steps is not None:
+            if self.d_config.is_caching_logits is True:
+                logger.warning("is_caching_logits is True, but num_steps is not None!")
             total_global_steps = num_steps
             ckpt_steps =self.t_config.ckpt_steps
             print_every = ckpt_steps // self.print_freq
