@@ -14,7 +14,10 @@ class DynamicKeyDict:
         else:
             name = key[0]
             args = key[1:]
-            return self.store[name](*args)
+            if len(args)==1 and isinstance(args[0],dict):
+                return self.store[name](**(args[0]))
+            else:
+                return self.store[name](*args)
     def __setitem__(self, key, value):
         self.store[key] = value
     def __contains__(self, key):
