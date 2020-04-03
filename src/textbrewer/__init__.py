@@ -1,10 +1,11 @@
 __version__ = "0.1.8"
 
-from .distillation import BasicTrainer
-from .distillation import BasicDistiller
-from .distillation import GeneralDistiller
-from .distillation import MultiTeacherDistiller
-from .distillation import MultiTaskDistiller
+from .distillers import BasicTrainer
+from .distillers import BasicDistiller
+from .distillers import GeneralDistiller
+from .distillers import MultiTaskDistiller
+from .distillers import MultiTeacherDistiller
+
 
 from .configurations import TrainingConfig, DistillationConfig
 

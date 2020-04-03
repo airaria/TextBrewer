@@ -276,10 +276,10 @@ class BasicDistiller(AbstractDistiller):
 
         if 'logits_mask' in results_S:
             masks_list_S = results_S['logits_mask']
-            logits_list_S = _select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
+            logits_list_S = select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
         if 'logits_mask' in results_T:
             masks_list_T = results_T['logits_mask']
-            logits_list_T = _select_logits_with_mask(logits_list_T,masks_list_T)  #(mask_sum, num_of_class)
+            logits_list_T = select_logits_with_mask(logits_list_T,masks_list_T)  #(mask_sum, num_of_class)
 
         if self.d_config.probability_shift is True:
             labels_list = results_S['labels']
@@ -380,10 +380,10 @@ class MultiTeacherDistiller(BasicDistiller):
 
         if 'logits_mask' in results_S:
             masks_list_S = results_S['logits_mask']
-            logits_list_S = _select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
+            logits_list_S = select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
         if 'logits_mask' in results_T[0]:
             masks_list_T = results_T[0]['logits_mask']
-            logits_list_T = [_select_logits_with_mask(logits_list_t,masks_list_T)
+            logits_list_T = [select_logits_with_mask(logits_list_t,masks_list_T)
                              for logits_list_t in logits_list_T] #(mask_sum, num_of_class)
 
         if self.d_config.probability_shift is True:
@@ -524,10 +524,10 @@ class GeneralDistiller(BasicDistiller):
 
             if 'logits_mask' in results_S:
                 masks_list_S = results_S['logits_mask']
-                logits_list_S = _select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
+                logits_list_S = select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
             if 'logits_mask' in results_T:
                 masks_list_T = results_T['logits_mask']
-                logits_list_T = _select_logits_with_mask(logits_list_T,masks_list_T)  #(mask_sum, num_of_class)
+                logits_list_T = select_logits_with_mask(logits_list_T,masks_list_T)  #(mask_sum, num_of_class)
 
             if self.d_config.probability_shift is True:
                 labels_list = results_S['labels']
@@ -762,10 +762,10 @@ class MultiTaskDistiller(BasicDistiller):
 
         if 'logits_mask' in results_S[taskname]:
             masks_list_S = results_S[taskname]['logits_mask']
-            logits_list_S = _select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
+            logits_list_S = select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
         if 'logits_mask' in results_T: #TODO
             masks_list_T = results_T['logits_mask']
-            logits_list_T = _select_logits_with_mask(logits_list_T,masks_list_T)
+            logits_list_T = select_logits_with_mask(logits_list_T,masks_list_T)
 
         if self.d_config.probability_shift is True:
             labels_list = results_S['labels']
@@ -793,7 +793,7 @@ class MultiTaskDistiller(BasicDistiller):
         return total_loss
 
 
-def _select_logits_with_mask(logits_list, masks_list):
+def select_logits_with_mask(logits_list, masks_list):
     output_logits = []
     if len(masks_list)==len(logits_list):
         for logits,mask in zip(logits_list,masks_list):

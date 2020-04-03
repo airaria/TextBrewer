@@ -28,6 +28,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Apr 7, 2020**
+
+* 为蒸馏配置(`DistillationConfig`)增加了`is_caching_logits`选项。若`is_caching_logits`设为True，disitiller将缓存数据集的每一个batch和教师模型在每个batch上的logits输出，以避免重复计算，可以为蒸馏过程提速。**仅适用于**`BasicDistiller`和`MultiTaskDistiller`。因为会将logits和batches存入内存，请避免在大数据集上开启此选项。
+
 **Mar 17, 2020**
 
 * examples中添加了CoNLL-2003英文NER任务上的蒸馏的示例代码，见 [examples/conll2003_example](examples/conll2003_example)。

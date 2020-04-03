@@ -29,6 +29,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
+**Apr 7, 2020**
+
+* Added an option `is_caching_logits` to `DistillationConfig`. If `is_caching_logits` is True, the distiller will cache the batches and the output logits of the teacher model, so that those logits will only be calcuated once. It will speed up the distillation process. This feature is **only available** for `BasicDistiller` and `MultiTeacherDistiller`. **Be caution of setting it to True on large datasets, since it will store the batches and logits into memory.**
+
 **Mar 17, 2020**
 
 * Added CoNLL-2003 English NER distillation example, see [examples/conll2003_example](examples/conll2003_example).
