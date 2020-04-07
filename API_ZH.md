@@ -194,6 +194,8 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
   
 * **probability_shift** (`bool`): 是否启用probabliity shift 策略：交换教师模型预测的概率最高标签的logit和ground-truth标签的logit，使得ground-truth标签的logit总是最高。需要adaptor提供'labels'。
 
+* **is_caching_logits** (`bool`): 若设为True，disitiller将缓存数据集的每一个batch和教师模型在每个batch上的logits输出，以避免重复计算，可以为蒸馏过程提速。**仅适用于**`BasicDistiller`和`MultiTaskDistiller`，且仅当调用distiller的train方法时设`num_steps=None`有效，即按epcohs数训练而不是按steps数训练。因为会将logits和batches存入内存，请避免在大数据集上开启此选项。
+
 * **intermediate_matches** (`List[Dict]` or `None`) : 可选，模型中间层匹配损失的配置，list的每一个元素为一个字典，表示一对匹配配置。字典的key和value如下：
   
   * 'layer_T': layer_T (`int`):  选取教师的第layer_T层

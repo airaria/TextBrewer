@@ -30,7 +30,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Apr 7, 2020**
 
-* 为蒸馏配置(`DistillationConfig`)增加了`is_caching_logits`选项。若`is_caching_logits`设为True，disitiller将缓存数据集的每一个batch和教师模型在每个batch上的logits输出，以避免重复计算，可以为蒸馏过程提速。**仅适用于**`BasicDistiller`和`MultiTaskDistiller`。因为会将logits和batches存入内存，请避免在大数据集上开启此选项。
+* 为蒸馏配置(`DistillationConfig`)增加了`is_caching_logits`选项。若`is_caching_logits`设为True，disitiller将缓存数据集的每一个batch和教师模型在每个batch上的logits输出，以避免重复计算，可以为蒸馏过程提速。**仅适用于**`BasicDistiller`和`MultiTaskDistiller`。因为会将logits和batches存入内存，请避免在大数据集上开启此选项。感谢王栋(dongwang4)提出此项建议！
 
 **Mar 17, 2020**
 
@@ -42,10 +42,11 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 **Mar 4，2020**
 
-* 允许TrainingConfig中的log_dir=None，将不启用tensorboard。
 * 为distiller添加了print_freq属性，控制打印信息的频率。
+* 允许TrainingConfig中的log_dir=None，将不启用tensorboard。
 * 为distiller的train方法增加num_steps参数，允许指定训练步数而不是训练轮数；指定训练步数时，不要求dataloader有__len__属性，适用于数据集大小不可知的情形。
 * 为distiller的train方法增加了batch_postprocessor参数，方便对dataloader生成的batch做后处理。
+* 感谢李涛(taoli5)提出以上3项建议！
 
 **Mar 2, 2020**
 
