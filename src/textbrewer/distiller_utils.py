@@ -59,6 +59,8 @@ class DistillationContext:
                 model_t.eval()
         elif isinstance(self.model_T,dict):
             self.model_T_is_training = {name:model.training for name,model in self.model_T.items()}
+            for name in self.model_T:
+                self.model_T[name].eval()
         else:
             self.model_T_is_training = self.model_T.training
             self.model_T.eval()

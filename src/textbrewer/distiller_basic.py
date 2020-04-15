@@ -44,24 +44,39 @@ class BasicDistiller(AbstractDistiller):
         #    self.tb_writer.add_scalar(f"scalar/{name}", cpu_loss, writer_step)
 
 
-    def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+    def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
         """
         trains the student model.
 
         Args:
             optimizer: optimizer.
-            scheduler: used to adjust learning rate, optional, can be None.
             dataloader: dataset iterator.
             num_epochs (int): number of training epochs.
             num_steps (int): number of training steps. If it is not None, distiller will ignore `num_epochs` and trains for `num_steps`, and dataloader can have an unkonwn size, i.e., has no `__len__` attribute. Dataloader will be cycled automatically after iterating over the whole dataset.
             callback (Callable): function called after each epoch, can be None. It is called as ``callback(model=self.model_S, step = global_step)``. It can be used to evaluate the model at each checkpoint.
             batch_postprocessor (Callable): a function for post-processing batches. It should take a batch and return a batch. Its output is fed to the models and adaptors.
+            scheduler_class (class): the class of the scheduler to be constructed.
+            scheduler_args (dict): arguments passed to the `scheduler_class` to construct the scheduler object.
+            scheduler (deprecated): used to adjust learning rate, optional, can be None.
+            max_grad_norm (float): Maximum norm for the gradients (-1 means no clipping). Default: -1.0
             **args: additional arguments fed to the model.
         Note:
             * If the batch is a list or tuple, model is called as: ``model(*batch, **args)``. Make sure the order of elements in the batch matches their order in ``model.forward``.
             * If the batch is a dict, model is called as: ``model(**batch,**args)``. Make sure the keys of the batch match the arguments of the ``model.forward``.
+        Note:
+            If you want to provide a lr scheduler, DON'T USE `scheduler` , use `scheduler_class` and `scheduler_args` instead. Example:
 
+            .. code-block::
+
+                from transformers import get_linear_schedule_with_warmup
+                distiller.train(optimizer, scheduler_class = get_linear_schedule_with_warmup, scheduler_args= {'num_warmup_steps': 100, 'num_training_steps': 1000})
         """
+
+        # update scheduler
+        if scheduler_class is not None:
+            # overwrite scheduler
+            scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
+
         if num_steps is not None:
             if self.d_config.is_caching_logits is True:
                 logger.warning("is_caching_logits is True, but num_steps is not None!")
@@ -87,10 +102,12 @@ class BasicDistiller(AbstractDistiller):
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                    if max_grad_norm > 0:
+                        torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
-                    self.model_S.zero_grad()
+                    optimizer.zero_grad()
                     global_step += 1
                     if self.d_config.kd_loss_weight_scheduler is not None:
                         self.d_config.kd_loss_weight = \
@@ -126,7 +143,7 @@ class BasicDistiller(AbstractDistiller):
 
         for current_epoch in tqdm(range(int(num_epochs)),disable=None):
             logger.info(f"Epoch {current_epoch+1}")
-            self.model_S.zero_grad()
+            optimizer.zero_grad()
             if self.d_config.is_caching_logits:
                 random.shuffle(self.logits_cache)
                 dataloader = self.logits_cache
@@ -142,10 +159,12 @@ class BasicDistiller(AbstractDistiller):
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                    if max_grad_norm > 0:
+                        torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
-                    self.model_S.zero_grad()
+                    optimizer.zero_grad()
                     global_step += 1
                     if self.d_config.kd_loss_weight_scheduler is not None:
                         self.d_config.kd_loss_weight = \
@@ -156,6 +175,7 @@ class BasicDistiller(AbstractDistiller):
 
                     if (global_step) % print_every == 0:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
+                        #logger.info(f"lrs:{[g['lr'] for g in optimizer.param_groups]}")
                     if (global_step%train_steps_per_epoch in checkpoints) \
                             and ((current_epoch+1)%self.t_config.ckpt_epoch_frequency==0 or current_epoch+1==num_epochs):
                         self.save_and_callback(global_step, step, current_epoch, callback)

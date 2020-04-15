@@ -68,7 +68,7 @@ class GeneralDistiller(BasicDistiller):
             self.model_S._forward_hooks = handles_S  # restore hooks
             self.model_T._forward_hooks = handles_T
 
-    def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+    def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = 1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
         """
         trains the student model. See :meth:`BasicDistiller.train`.
         """
@@ -85,11 +85,9 @@ class GeneralDistiller(BasicDistiller):
                     optimizer.add_param_group({**{'params':proj_func.parameters()},**proj_group})
 
         logger.debug("Optimizer param group: ")
-        for group in optimizer.param_groups:
-            for k,v in group.items():
-                logger.debug(f"{k}:{v}")
+        logger.debug(f"{[[s.shape for s in g['params']] for g in optimizer.param_groups]}")
 
-        super(GeneralDistiller, self).train(optimizer, scheduler, dataloader, num_epochs, num_steps, callback, batch_postprocessor, **args)
+        super(GeneralDistiller, self).train(optimizer, dataloader, num_epochs,  scheduler_class, scheduler_args, scheduler, max_grad_norm, num_steps, callback, batch_postprocessor, **args)
 
     def train_on_batch(self, batch, args):
         if type(batch) is dict:
