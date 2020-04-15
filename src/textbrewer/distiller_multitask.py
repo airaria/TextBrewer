@@ -33,20 +33,29 @@ class MultiTaskDistiller(BasicDistiller):
 
         self.d_config.is_caching_logits = False
 
-    def train(self, optimizer, scheduler, dataloaders, num_steps, tau=1, callback=None, batch_postprocessors=None, **args):
+    def train(self, optimizer, dataloaders, num_steps, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, tau=1, callback=None, batch_postprocessors=None, **args):
         """
         trains the student model.
 
         Args:
             optimizer: optimizer.
-            scheduler: used to adjust learning rate, optional, can be None.
             dataloaders (dict): dict of dataset iterator. Keys are tasknames, values are corresponding dataloaders.
             num_steps (int): number of training steps.
+            scheduler_class (class): the class of the scheduler to be constructed.
+            scheduler_args (dict): arguments passed to the `scheduler_class` to construct the scheduler object.
+            scheduler (deprecated): used to adjust learning rate, optional, can be None.
+            max_grad_norm (float): Maximum norm for the gradients (-1 means no clipping). Default: -1.0
             tau (float): the probability of sampling an example from task `d` is proportional to \|d\|^{tau}, where \|d\| is the size of `d`'s training set. If the size of any dataset is unknown, ignores tau and samples examples unifromly from each dataset.
             callback (Callable): function called after each epoch, can be None. It is called as ``callback(model=self.model_S, step = global_step)``. It can be used to do evaluation of the model at each checkpoint.
             batch_postprocessors (dict): a dict of batch_postprocessors. Keys are tasknames, values are corresponding batch_postprocessors. Each batch_postprocessor should take a batch and return a batch.
             **args: additional arguments fed to the model.
         """
+
+        # update scheduler
+        if scheduler_class is not None:
+            # overwrite scheduler
+            scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
+
         total_global_steps = num_steps
         ckpt_steps =self.t_config.ckpt_steps
         print_every = ckpt_steps // self.print_freq
@@ -71,7 +80,7 @@ class MultiTaskDistiller(BasicDistiller):
             
         global_step = 0
         writer_step = 0
-        self.model_S.zero_grad()
+        optimizer.zero_grad()
         while global_step < num_steps:
             global_step += 1
             for _ in range(self.t_config.gradient_accumulation_steps):
@@ -85,13 +94,16 @@ class MultiTaskDistiller(BasicDistiller):
                 total_loss = self.train_on_batch(batch_taskname, args)
                 total_loss /= self.t_config.gradient_accumulation_steps
                 total_loss.backward()
+
                 scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
                 self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
                 writer_step += 1
+            if max_grad_norm > 0:
+                torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm) 
             optimizer.step()
             if scheduler is not None:
                 scheduler.step()
-            self.model_S.zero_grad()
+            optimizer.zero_grad()
 
             if self.d_config.kd_loss_weight_scheduler is not None:
                 self.d_config.kd_loss_weight = \

@@ -32,10 +32,15 @@ class BasicTrainer:
             self.tb_writer = no_op
         self.print_freq = 20
 
-    def train(self, optimizer, scheduler, dataloader, num_epochs, num_steps=None, callback=None, batch_postprocessor=None, **args):
+    def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
         """
         trains the model. See :meth:`BasicDistiller.train`.
         """
+        # update scheduler
+        if scheduler_class is not None:
+            # overwrite scheduler
+            scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
+
         if num_steps is not None:
             total_global_steps = num_steps
             ckpt_steps =self.t_config.ckpt_steps
@@ -60,10 +65,12 @@ class BasicTrainer:
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                    if max_grad_norm > 0:
+                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm) 
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
-                    self.model.zero_grad()
+                    optimizer.zero_grad()
                     global_step += 1
                     if (global_step) % print_every == 0:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
@@ -92,7 +99,7 @@ class BasicTrainer:
         writer_step = 0
         for current_epoch in tqdm(range(int(num_epochs)),disable=None):
             logger.info(f"Epoch {current_epoch+1}")
-            self.model.zero_grad()
+            optimizer.zero_grad()
             logger.info(f"Length of current epoch in forward batch: {len(dataloader)}")
             for step, batch in tqdm(enumerate(dataloader),disable=None):
                 if batch_postprocessor is not None:
@@ -106,10 +113,12 @@ class BasicTrainer:
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                    if max_grad_norm > 0:
+                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm)
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
-                    self.model.zero_grad()
+                    optimizer.zero_grad()
                     global_step += 1
                     if (global_step) % print_every == 0:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
