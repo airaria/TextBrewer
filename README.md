@@ -29,6 +29,12 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
+**Apr 16, 2020**
+
+* Fixed wrong call of zero_grad().
+* Added new argument `max_grad_norm` to distillers' `train` method. It sets the gradient clipping. Default -1, i.e., no gradient clipping.
+* Added new arguments `scheduler_class` and `scheduler_args` to distillers' `train` method. The old `scheduler` may affect convergence is deprecated in favor of `scheduler_class` and `scheduler_args`. See the documentation for details.
+
 **Apr 7, 2020**
 
 * Added an option `is_caching_logits` to `DistillationConfig`. If `is_caching_logits` is True, the distiller will cache the batches and the output logits of the teacher model, so that those logits will only be calcuated once. It will speed up the distillation process. This feature is **only available** for `BasicDistiller` and `MultiTeacherDistiller`. **Be caution of setting it to True on large datasets, since it will store the batches and logits into memory.**

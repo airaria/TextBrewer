@@ -28,6 +28,12 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Apr 16, 2020**
+
+* 修复了zero_grad问题。
+* distiller的train方法中增加了max_grad_norm参数用以控制梯度裁剪。默认值-1，不开启梯度裁剪。
+* distiller的train方法中增加了scheduler_class和scheduler_args两个参数，建议做学习率调整时使传递这两个参数而不是之前的scheduler；之前的scheduler可能会导致收敛上的问题。详细区别见API文档。
+
 **Apr 7, 2020**
 
 * 为蒸馏配置(`DistillationConfig`)增加了`is_caching_logits`选项。若`is_caching_logits`设为True，disitiller将缓存数据集的每一个batch和教师模型在每个batch上的logits输出，以避免重复计算，可以为蒸馏过程提速。**仅适用于**`BasicDistiller`和`MultiTaskDistiller`。因为会将logits和batches存入内存，请避免在大数据集上开启此选项。感谢王栋(dongwang4)提出此项建议！
