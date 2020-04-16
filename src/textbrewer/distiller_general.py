@@ -68,7 +68,7 @@ class GeneralDistiller(BasicDistiller):
             self.model_S._forward_hooks = handles_S  # restore hooks
             self.model_T._forward_hooks = handles_T
 
-    def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = 1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
+    def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
         """
         trains the student model. See :meth:`BasicDistiller.train`.
         """

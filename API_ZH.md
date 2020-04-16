@@ -288,11 +288,18 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
     为适配不同模型的输入与输出，adaptor需要由用户提供。Adaptor接受两个输入，分别为batch(dataloader的输出)和model_outputs(模型的输出)，返回一个字典。
   * custom_matches (`List`) : 支持更灵活的特征匹配 (测试功能)
 
-* **textbrewer.GeneralDistiller.train** (**optimizer**, **schduler**, **dataloader**, **num_epochs**, **num_steps**=None, **callback**=None, **batch_postprocessor**=None, **\*\*args**)
+* **textbrewer.GeneralDistiller.train** (**optimizer**, **dataloader**, **num_epochs**, **scheduler_class**=None, **scheduler_args**=None, **scheduler**=None, **max_grad_norm** = -1.0, **num_steps**=None, **callback**=None, **batch_postprocessor**=None, **\*\*args**)
   * optimizer: 优化器
-  * schduler: 调整学习率，可以为None
   * dataloader: 数据集迭代器
   * num_epochs (`int`): 训练的轮数
+  * scheduler_class (`Callable`): 构建scheduler的函数或类。
+  * scheduler_args (`dict`): 传递给 scheduler_class用于构造scheduler的参数字典。
+    ```
+    from transformers import get_linear_schedule_with_warmup
+      distiller.train(optimizer, scheduler_class = get_linear_schedule_with_warmup, scheduler_args= {'num_warmup_steps': 100, 'num_training_steps': 1000})
+    ```
+  * schduler (deprecated): 调整学习率，可以为None。使用此参数可能会导致收敛变慢，建议使用scheduler_class和scheduler_args。
+  * max_grad_norm (`float`): 梯度裁剪大小(设为-1不启用裁剪)，默认 -1.0。
   * num_steps  (`int`): 指定训练的步数。当num_steps不为None时，distiller将忽略num_epochs而按num_steps设定的步数训练。此时不要求dataloader具有__len__属性，适用于数据集大小未知的情形。每当完成一次遍历，dataloader将被自动循环。
   * callback (`Callable`): 回调函数，可选。在每个checkpoint会被distiller调用，调用方式为callback(model=self.model_S, step = global_step)。可用于在每个checkpoint做evaluation。
   * batch_postprocessor (`Callable`): 函数，用于对batch做后处理，接受batch作为参数，返回处理后的batch。在distiller内部以如下方式调用：
@@ -360,11 +367,18 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
   * adaptor_T (`Dict[str,Callable]`)：教师模型的adaptor字典，key为任务名，value为对应的adaptor
   * adaptor_S (`Dict[str,Callable]`)：学生模型的adaptor字典，key为任务名，value为对应的adaptor
 
-* **textbrewer.MultiTaskDistiller.train** (**optimizer**, **schduler**, **dataloaders**, **num_steps**, **tau**=1, **callback**=None, **batch_postprocessors**=None, **\*\*args**)
+* **textbrewer.MultiTaskDistiller.train** (**optimizer**, **dataloaders**, **num_steps**, **scheduler_class**=None, **scheduler_args**=None, **scheduler**=None, **max_grad_norm** = -1.0, **tau**=1, **callback**=None, **batch_postprocessors**=None, **\*\*args**)
   * optimizer: 优化器
-  * schduler: 调整学习率，可以为None
   * dataloaders : 数据集迭代器字典，key为任务名，value为对应数据的dataloader
   * num_steps (`int`): 训练步数。每当完成一次遍历，dataloader将被自动循环。
+  * scheduler_class (`Callable`): 构建scheduler的函数或类。
+  * scheduler_args (`dict`): 传递给 scheduler_class用于构造scheduler的参数字典。
+    ```
+    from transformers import get_linear_schedule_with_warmup
+      distiller.train(optimizer, scheduler_class = get_linear_schedule_with_warmup, scheduler_args= {'num_warmup_steps': 100, 'num_training_steps': 1000})
+    ```
+  * schduler (deprecated): 调整学习率，可以为None。使用此参数可能会导致收敛变慢，建议使用scheduler_class和scheduler_args。
+  * max_grad_norm (`float`): 梯度裁剪大小(设为-1不启用裁剪)，默认 -1.0。
   * tau (`float`): 训练样本来自任务d的的概率正比如|d|的tau次方，|d|是任务d的训练集大小。如果某一个dataloader的长度未知，那么tau无效，即以等概率从各个任务采样。
   * callback (`Callable`): 回调函数，可以为None。在每个checkpoint会被distiller调用，调用方式为callback(model=self.model_S, step = global_step)。可用于在每个checkpoint做evaluation
   * batch_postprocessors (`Dict[Callable]`):  batch_postprocessors的字典，key为任务名，value为对应任务数据的batch_postprocessor。用于对batch做后处理，每个batch_postprocessor接受batch作为参数，返回处理后的batch。在distiller内部以如下方式调用：
