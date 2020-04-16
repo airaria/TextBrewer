@@ -57,7 +57,7 @@ class BasicDistiller(AbstractDistiller):
             batch_postprocessor (Callable): a function for post-processing batches. It should take a batch and return a batch. Its output is fed to the models and adaptors.
             scheduler_class (class): the class of the scheduler to be constructed.
             scheduler_args (dict): arguments passed to the `scheduler_class` to construct the scheduler object.
-            scheduler (deprecated): used to adjust learning rate, optional, can be None.
+            scheduler (deprecated): used to adjust learning rate, optional, can be None, is deprecated in favor of `scheduler_class` and `scheduler_args`.
             max_grad_norm (float): Maximum norm for the gradients (-1 means no clipping). Default: -1.0
             **args: additional arguments fed to the model.
         Note:

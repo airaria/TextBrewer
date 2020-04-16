@@ -43,7 +43,7 @@ class MultiTaskDistiller(BasicDistiller):
             num_steps (int): number of training steps.
             scheduler_class (class): the class of the scheduler to be constructed.
             scheduler_args (dict): arguments passed to the `scheduler_class` to construct the scheduler object.
-            scheduler (deprecated): used to adjust learning rate, optional, can be None.
+            scheduler (deprecated): used to adjust learning rate, optional, can be None, is deprecated in favor of `scheduler_class` and `scheduler_args`.
             max_grad_norm (float): Maximum norm for the gradients (-1 means no clipping). Default: -1.0
             tau (float): the probability of sampling an example from task `d` is proportional to \|d\|^{tau}, where \|d\| is the size of `d`'s training set. If the size of any dataset is unknown, ignores tau and samples examples unifromly from each dataset.
             callback (Callable): function called after each epoch, can be None. It is called as ``callback(model=self.model_S, step = global_step)``. It can be used to do evaluation of the model at each checkpoint.
