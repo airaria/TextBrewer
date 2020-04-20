@@ -27,6 +27,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Apr 22, 2020**
+
+* **版本更新至 0.1.9**，增加了为蒸馏过程提速的cache功能，修复了若干bug。细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9)。
+
 **Apr 16, 2020**
 
 * 修复了错误调用zero_grad的问题。

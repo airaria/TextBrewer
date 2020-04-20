@@ -28,6 +28,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
+**Apr 22, 2020**
+
+* Updated to 0.1.9 (added cache option which speeds up distillation; fixed some bugs). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9).
+
 **Apr 16, 2020**
 
 * Fixed wrong call of zero_grad().
