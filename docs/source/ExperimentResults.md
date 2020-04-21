@@ -1,7 +1,7 @@
 # Experimental Results
 
 
-## Results on English Datasets
+## English Datasets
 
 ### MNLI
 
@@ -91,7 +91,7 @@
 
 **Note**: HotpotQA is used for data augmentation on CoNLL-2003.
 
-## Results on Chinese Datasets
+## Chinese Datasets (RoBERTa-wwm-ext as the teacher)
 
 ### XNLI
 
@@ -123,4 +123,23 @@
 | T4-tiny (student)             | -                | -            |
 | &nbsp;&nbsp;+  DA             | 61.8 / 81.8      | 73.3 / 83.5  |
 
-**Note**: CMRC2018 and DRCD take each other as the augmentation dataset In the experiments. 
+**Note**: CMRC2018 and DRCD take each other as the augmentation dataset on the experiments. 
+
+## Chinese Datasets (Electra-base as the teacher)
+
+* Training without Distillation:
+
+| Model                                | XNLI       | LCQMC       | CMRC 2018       | DRCD         |
+| :------------------------------------|------------|-------------| ----------------| -------------|
+| **Electra-base** (teacher)           | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  |
+| Electra-small (initialized with pretrained weights) | 72.5 | 86.3 | 62.9 / 80.2   | 79.4 / 86.4  |
+
+* Single-teacher distillation with `GeneralDistiller`:
+
+| Model                                | XNLI       | LCQMC       | CMRC 2018       | DRCD         |
+| :------------------------------------|------------|-------------|-----------------| -------------|
+| **Electra-base** (teacher)           | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  |
+| Electra-small (random initialized)   | 77.2       | 89.0        | 66.5 / 84.9     | 84.8 / 91.0  |
+| Electra-small (initialized with pretrained weights) | 77.7 | 89.3 | 66.5 / 84.9   | 85.5 / 91.3  |
+
+**Note**: A good initialization of the student (Electra-small) improves the performance.
