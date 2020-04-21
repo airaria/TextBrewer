@@ -114,6 +114,6 @@ def display_parameters(model,max_level=None):
         current = model_node
 
     result = model_node.format(max_level=max_level)
-    print (result)
+    #print (result)
     return result, model_node
 

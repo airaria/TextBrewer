@@ -27,6 +27,22 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Apr 22, 2020**
+
+* **版本更新至 0.1.9**，增加了为蒸馏过程提速的cache功能，修复了若干bug。细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9)。
+
+* 增加中文任务上了从Electra-base蒸馏到Electra-small的实验结果。
+
+**Apr 16, 2020**
+
+* 修复了错误调用zero_grad的问题。
+* distiller的`train`方法中增加了`max_grad_norm`参数用以控制梯度裁剪。默认值-1，不开启梯度裁剪。
+* distiller的`train`方法中增加了`scheduler_class`和`scheduler_args`两个参数。建议做学习率调整时传递这两个参数而不是`scheduler`；使用`scheduler`可能会导致收敛上的问题。详细区别见API文档。
+
+**Apr 7, 2020**
+
+* 为蒸馏配置(`DistillationConfig`)增加了`is_caching_logits`选项。若`is_caching_logits`设为True，disitiller将缓存数据集的每一个batch和教师模型在每个batch上的logits输出，以避免重复计算，可以为蒸馏过程提速。**仅适用于**`BasicDistiller`和`MultiTaskDistiller`。因为会将logits和batches存入内存，请避免在大数据集上开启此选项。
+
 **Mar 17, 2020**
 
 * examples中添加了CoNLL-2003英文NER任务上的蒸馏的示例代码，见 [examples/conll2003_example](examples/conll2003_example)。
@@ -195,19 +211,31 @@ with distiller:
 ### 模型
 
 * 对于英文任务，教师模型为[**BERT-base-cased**](https://github.com/google-research/bert)
-* 对于中文任务，教师模型为HFL发布的[**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm)
+* 对于中文任务，教师模型为HFL发布的[**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm) 与 [**Electra-base**](https://github.com/ymcui/Chinese-ELECTRA)
 
 我们测试了不同的学生模型，为了与已有公开结果相比较，除了BiGRU都是和BERT一样的多层Transformer结构。模型的参数如下表所示。需要注意的是，参数量的统计包括了embedding层，但不包括最终适配各个任务的输出层。
+
+#### 英文模型
 
 | Model                 | \#Layers | Hidden size | Feed-forward size | \#Params | Relative size |
 | :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
 | BERT-base-cased (教师) | 12        | 768         | 3072              | 108M     | 100%          |
-| RoBERTa-wwm-ext (教师) | 12        | 768         | 3072              | 108M     | 100%          |
-| T6 (学生)  | 6         | 768         | 3072              | 65M      | 60%           |
-| T3 (学生)            | 3         | 768         | 3072              | 44M      | 41%           |
+| T6 (学生)              | 6         | 768         | 3072              | 65M      | 60%           |
+| T3 (学生)              | 3         | 768         | 3072              | 44M      | 41%           |
 | T3-small (学生)        | 3         | 384         | 1536              | 17M      | 16%           |
-| T4-Tiny (学生)  | 4         | 312         | 1200              | 14M      | 13%           |
+| T4-Tiny (学生)         | 4         | 312         | 1200              | 14M      | 13%           |
 | BiGRU (学生)           | -         | 768         | -                 | 31M      | 29%           |
+
+#### 中文模型
+
+| Model                 | \#Layers | Hidden size | Feed-forward size | \#Params | Relative size   |
+| :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
+| RoBERTa-wwm-ext (教师) | 12        | 768         | 3072              | 102M      | 100%          |
+| Electra-base (教师)    | 12        | 768         | 3072              | 102M      | 100%          |
+| T3 (学生)              | 3         | 768         | 3072              | 38M       | 37%           |
+| T3-small (学生)        | 3         | 384         | 1536              | 14M       | 14%           |
+| T4-Tiny (学生)         | 4         | 312         | 1200              | 11M       | 11%           |
+| Electra-small (学生)   | 12        | 256         | 1024              | 12M       | 12%           |
 
 * T6的结构与[DistilBERT<sup>[1]</sup>](https://arxiv.org/abs/1910.01108), [BERT<sub>6</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355), [BERT-of-Theseus<sup>[3]</sup>](https://arxiv.org/abs/2002.02925) 相同。
 * T4-tiny的结构与 [TinyBERT<sup>[4]</sup>](https://arxiv.org/abs/1909.10351) 相同。
@@ -222,13 +250,14 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 
 不同的模型用的`matches`我们采用了以下配置：
 
-| Model    | matches                                                      |
-| :-------- | ------------------------------------------------------------ |
-| BiGRU    | None                                                         |
-| T6       | L6_hidden_mse + L6_hidden_smmd                               |
-| T3       | L3_hidden_mse + L3_hidden_smmd                               |
-| T3-small | L3n_hidden_mse + L3_hidden_smmd                              |
-| T4-Tiny  | L4t_hidden_mse + L4_hidden_smmd                              |
+| Model        | matches                                             |
+| :--------    | --------------------------------------------------- |
+| BiGRU        | None                                                |
+| T6           | L6_hidden_mse + L6_hidden_smmd                      |
+| T3           | L3_hidden_mse + L3_hidden_smmd                      |
+| T3-small     | L3n_hidden_mse + L3_hidden_smmd                     |
+| T4-Tiny      | L4t_hidden_mse + L4_hidden_smmd                     |
+|Electra-small | small_hidden_mse + small_hidden_smmd                |
 
 各种matches的定义在[examples/matches/matches.py](examples/matches/matches.py)中。均使用GeneralDistiller进行蒸馏。
 
@@ -262,7 +291,7 @@ Our results:
 
 | Model (ours) | MNLI | SQuAD | CoNLL-2003 |
 | :-------------  | --------------- | ------------- | --------------- |
-| **BERT-base-cased**  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
+| **BERT-base-cased** (教师) | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 80.8 / 88.1   | 90.7            |
 | T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
@@ -290,16 +319,22 @@ Our results:
 
 | Model           | XNLI | LCQMC | CMRC 2018 | DRCD |
 | :--------------- | ---------- | ----------- | ---------------- | ------------ |
-| **RoBERTa-wwm-ext** | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
+| **RoBERTa-wwm-ext** (教师) | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
 | T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
 | T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 73.3 / 83.5  |
 
+| Model                  | XNLI       | LCQMC       | CMRC 2018        | DRCD         |
+| :---------------       | ---------- | ----------- | ---------------- | ------------ |
+| **Electra-base** (教师) | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  |
+| Electra-small          | 77.7       | 89.3        | 66.5 / 84.9     | 85.5 / 91.3  |
+
 说明：
 
-1. 蒸馏CMRC2018和DRCD上时学习率分别为1.5e-4和7e-5，并且不采用学习率衰减
-2. CMRC2018和DRCD两个任务上他们互作为增强数据
-
+1. 以RoBERTa-wwm-ext为教师模型蒸馏CMRC2018和DRCD时，学习率分别为1.5e-4和7e-5，并且不采用学习率衰减
+2. CMRC2018和DRCD两个任务上蒸馏时他们互作为增强数据
+3. Electra-base的教师模型训练设置参考自[**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA)
+4. Electra-small学生模型采用[预训练权重](https://github.com/ymcui/Chinese-ELECTRA)初始化
 
 
 ## 核心概念
