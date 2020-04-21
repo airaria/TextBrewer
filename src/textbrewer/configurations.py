@@ -131,7 +131,7 @@ class DistillationConfig(Config):
         * intermediate_losses is defined via `intermediate_matches`.
     
     Args:
-        temperature (float) :temperature for the distillation. The teacher and student models' logits will be divided by the temperature before computing the KD loss.
+        temperature (float) :temperature for the distillation. The teacher and student models' logits will be divided by the temperature in computing the KD loss. The temperature typicially ranges from 1 to 10. We found that temperature higher than 1 usually leads to better performance.
         temperature_scheduler: dynamically adjusts temperature. See :data:`~textbrewer.presets.TEMPERATURE_SCHEDULER` for all available options.
         kd_loss_type (str): KD loss function for the ``logits`` term returned by the adaptor, can be ``'ce'`` or ``'mse'``. See :data:`~textbrewer.presets.KD_LOSS_MAP`.
         kd_loss_weight (float): the weight for the KD loss.

@@ -42,7 +42,7 @@ class MultiTaskDistiller(BasicDistiller):
             dataloaders (dict): dict of dataset iterator. Keys are tasknames, values are corresponding dataloaders.
             num_steps (int): number of training steps.
             scheduler_class (class): the class of the scheduler to be constructed.
-            scheduler_args (dict): arguments passed to the `scheduler_class` to construct the scheduler object.
+            scheduler_args (dict): arguments (excluding `optimizer`) passed to the `scheduler_class` to construct the scheduler object.
             scheduler (deprecated): used to adjust learning rate, optional, can be None, is deprecated in favor of `scheduler_class` and `scheduler_args`.
             max_grad_norm (float): Maximum norm for the gradients (-1 means no clipping). Default: -1.0
             tau (float): the probability of sampling an example from task `d` is proportional to \|d\|^{tau}, where \|d\| is the size of `d`'s training set. If the size of any dataset is unknown, ignores tau and samples examples unifromly from each dataset.

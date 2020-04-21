@@ -31,18 +31,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 **Apr 22, 2020**
 
 * Updated to 0.1.9 (added cache option which speeds up distillation; fixed some bugs). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9).
-
 * Added experimential results for distilling Electra-base to Electra-small on Chinese tasks.
-
-**Apr 16, 2020**
-
-* Fixed wrong call of zero_grad().
-* Added new argument `max_grad_norm` to distillers' `train` method. It sets strength of gradient clipping. Default -1, i.e., no gradient clipping.
-* Added new arguments `scheduler_class` and `scheduler_args` to distillers' `train` method. The old `scheduler` may cause convergence problem and is deprecated in favor of `scheduler_class` and `scheduler_args`. See the documentation for details.
-
-**Apr 7, 2020**
-
-* Added an option `is_caching_logits` to `DistillationConfig`. If `is_caching_logits` is True, the distiller will cache the batches and the output logits of the teacher model, so that those logits will only be calcuated once. It will speed up the distillation process. This feature is **only available** for `BasicDistiller` and `MultiTeacherDistiller`. **Be caution of setting it to True on large datasets, since it will store the batches and logits into memory.**
 
 **Mar 17, 2020**
 
@@ -167,10 +156,12 @@ from textbrewer import TrainingConfig, DistillationConfig
 
 # Show the statistics of model parameters
 print("\nteacher_model's parametrers:")
-_ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+print (result)
 
 print("student_model's parametrers:")
-_ = textbrewer.utils.display_parameters(student_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+print (result)
 
 # Define an adaptor for translating the model inputs and outputs
 def simple_adaptor(batch, model_outputs):
@@ -195,7 +186,7 @@ distiller = GeneralDistiller(
 
 # Start!
 with distiller:
-    distiller.train(optimizer, scheduler, dataloader, num_epochs=1, callback=None)
+    distiller.train(optimizer, dataloader, num_epochs=1, scheduler=scheduler ,callback=None)
 ```
 
 **Examples can be found in the `examples` directory :**

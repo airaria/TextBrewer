@@ -30,18 +30,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 **Apr 22, 2020**
 
 * **版本更新至 0.1.9**，增加了为蒸馏过程提速的cache功能，修复了若干bug。细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9)。
-
 * 增加中文任务上了从Electra-base蒸馏到Electra-small的实验结果。
-
-**Apr 16, 2020**
-
-* 修复了错误调用zero_grad的问题。
-* distiller的`train`方法中增加了`max_grad_norm`参数用以控制梯度裁剪。默认值-1，不开启梯度裁剪。
-* distiller的`train`方法中增加了`scheduler_class`和`scheduler_args`两个参数。建议做学习率调整时传递这两个参数而不是`scheduler`；使用`scheduler`可能会导致收敛上的问题。详细区别见API文档。
-
-**Apr 7, 2020**
-
-* 为蒸馏配置(`DistillationConfig`)增加了`is_caching_logits`选项。若`is_caching_logits`设为True，disitiller将缓存数据集的每一个batch和教师模型在每个batch上的logits输出，以避免重复计算，可以为蒸馏过程提速。**仅适用于**`BasicDistiller`和`MultiTaskDistiller`。因为会将logits和batches存入内存，请避免在大数据集上开启此选项。
 
 **Mar 17, 2020**
 
@@ -168,10 +157,12 @@ from textbrewer import TrainingConfig, DistillationConfig
 
 # 展示模型参数量的统计
 print("\nteacher_model's parametrers:")
-_ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+print (result)
 
 print("student_model's parametrers:")
-_ = textbrewer.utils.display_parameters(student_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+print (result)
 
 # 定义adaptor用于解释模型的输出
 def simple_adaptor(batch, model_outputs):
@@ -194,7 +185,7 @@ distiller = GeneralDistiller(
 
 # 开始蒸馏
 with distiller:
-    distiller.train(optimizer, scheduler, dataloader, num_epochs=1, callback=None)
+    distiller.train(optimizer, dataloader, num_epochs=1, scheduler=scheduler ,callback=None)
 ```
 
 **更多的示例可参见`examples`文件夹：**

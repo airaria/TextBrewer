@@ -91,10 +91,12 @@ Distill with TextBrewer:
 
   # Show the statistics of model parameters
   print("\nteacher_model's parametrers:")
-  _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+  result, _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+  print (result)
 
   print("student_model's parametrers:")
-  _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+  result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+  print (result)
 
   # Define an adaptor for translating the model inputs and outputs
   def simple_adaptor(batch, model_outputs):
@@ -120,7 +122,7 @@ Distill with TextBrewer:
 
   # Start!
   with distiller:
-      distiller.train(optimizer, scheduler, dataloader, num_epochs=1, callback=None)
+      distiller.train(optimizer, dataloader, num_epochs=1, scheduler=scheduler, callback=None)
 
 Examples
 ========

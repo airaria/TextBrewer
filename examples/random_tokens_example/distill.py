@@ -53,14 +53,18 @@ dataloader = DataLoader(dataset,batch_size=32)
 # Optimizer and learning rate scheduler
 optimizer = AdamW(student_model.parameters(), lr=1e-4)
 scheduler = None
+scheduler_class = None
+scheduler_args = None
 
 
 # display model parameters statistics
 print("\nteacher_model's parametrers:")
-_ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+print (result)
 
 print("student_model's parametrers:")
-_ = textbrewer.utils.display_parameters(student_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+print (result)
 
 def simple_adaptor(batch, model_outputs):
     # The second element of model_outputs is the logits before softmax
@@ -128,4 +132,5 @@ distiller = GeneralDistiller(
 
 # Start distilling
 with distiller:
-    distiller.train(optimizer, scheduler, dataloader, num_epochs=1, callback=callback_fun)
+    distiller.train(optimizer,dataloader, num_epochs=1, 
+    scheduler_class=scheduler_class, scheduler_args = scheduler_args, callback=callback_fun)
