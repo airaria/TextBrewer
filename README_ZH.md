@@ -30,7 +30,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 **Apr 22, 2020**
 
 * **版本更新至 0.1.9**，增加了为蒸馏过程提速的cache功能，修复了若干bug。细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9)。
-* 增加中文任务上了从Electra-base蒸馏到Electra-small的实验结果。
+* 增加了中文任务上从Electra-base蒸馏到Electra-small的实验结果。
 * TextBrewer被[ACL 2020](http://acl2020.org)录用为demo paper，欢迎在您的工作中使用我们新的[引用](#引用)。
 
 **Mar 17, 2020**

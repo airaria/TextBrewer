@@ -162,9 +162,10 @@ If you find TextBrewer is helpful, please cite `our paper <https://arxiv.org/abs
 
 .. code-block:: none
 
-  @article{textbrewer,
-    title={TextBrewer: An Open-Source Knowledge Distillation Toolkit for Natural Language Processing},
-    author={Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping},
-    journal={arXiv preprint arXiv:2002.12620},
-   year={2020}
+  @InProceedings{textbrewer-acl2020-demo,
+    author =  "Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping",
+    title =   "{T}ext{B}rewer: {A}n {O}pen-{S}ource {K}nowledge {D}istillation {T}oolkit for {N}atural {L}anguage {P}rocessing",
+    booktitle =   "Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics: System Demonstrations",
+    year =  "2020",
+    publisher =   "Association for Computational Linguistics"
   }
