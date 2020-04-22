@@ -31,6 +31,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 * **版本更新至 0.1.9**，增加了为蒸馏过程提速的cache功能，修复了若干bug。细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9)。
 * 增加中文任务上了从Electra-base蒸馏到Electra-small的实验结果。
+* TextBrewer被[ACL 2020](http://acl2020.org)录用为demo paper，欢迎在您的工作中使用我们新的[引用](#引用)。
 
 **Mar 17, 2020**
 
@@ -378,12 +379,13 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 如果TextBrewer工具包对你的研究工作有所帮助，请在文献中引用下述[技术报告](https://arxiv.org/abs/2002.12620)：
 
 ```
- @article{textbrewer,
-   title={TextBrewer: An Open-Source Knowledge Distillation Toolkit for Natural Language Processing},
-   author={Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping},
-   journal={arXiv preprint arXiv:2002.2002.12620},
-   year={2020}
-  }
+@InProceedings{textbrewer-acl2020-demo,
+  author =  "Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping",
+  title =   "{T}ext{B}rewer: {A}n {O}pen-{S}ource {K}nowledge {D}istillation {T}oolkit for {N}atural {L}anguage {P}rocessing",
+  booktitle =   "Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics: System Demonstrations",
+  year =  "2020",
+  publisher =   "Association for Computational Linguistics"
+}
  ```
 
 ## 关注我们
