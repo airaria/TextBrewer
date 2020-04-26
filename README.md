@@ -199,7 +199,7 @@ with distiller:
 **Examples can be found in the `examples` directory :**
 
 * [examples/random_token_example](examples/random_token_example) : a simple runable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
-* [examples/cmrc2018\_example](examples/cmrc2018_example) (Chinese): distillation on CMRC2018, a Chinese MRC task, using DRCD as data augmentation.
+* [examples/cmrc2018\_example](examples/cmrc2018_example) (Chinese): distillation on CMRC 2018, a Chinese MRC task, using DRCD as data augmentation.
 * [examples/mnli\_example](examples/mnli_example) (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
 * [examples/conll2003_example](examples/conll2003_example) (English): distillation on CoNLL-2003 English NER task, which is in form of sequence labeling.
 
@@ -342,8 +342,8 @@ The results are listed below.
 
 **Note**:
 
-1. Learning rate decay is not used in distillation on CMRC2018 and DRCD.
-2. CMRC2018 and DRCD take each other as the augmentation dataset in the distillation.
+1. Learning rate decay is not used in distillation on CMRC 2018 and DRCD.
+2. CMRC 2018 and DRCD take each other as the augmentation dataset in the distillation.
 3. The settings of training Electra-base teacher model can be found at [**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA).
 4. Electra-small student model is intialized with the [pretrained weights](https://github.com/ymcui/Chinese-ELECTRA).
 

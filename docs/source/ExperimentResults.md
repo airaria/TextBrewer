@@ -115,9 +115,9 @@
 | T3-small (student)            | 88.1        |
 | T4-tiny (student)             | 88.4        |
 
-### CMRC2018 and DRCD
+### CMRC 2018 and DRCD
 
-| Model           | CMRC2018 | DRCD |
+| Model           | CMRC 2018 | DRCD |
 | --------------- | ---------------- | ------------ |
 | **RoBERTa-wwm-ext** (teacher) | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3 (student)                  | 63.4 / 82.4      | 76.7 / 85.2  |
@@ -127,7 +127,7 @@
 | T4-tiny (student)             | 54.3 / 76.8      | 75.5 / 84.9  |
 | &nbsp;&nbsp;+  DA             | 61.8 / 81.8      | 77.3 / 86.1  |
 
-**Note**: CMRC2018 and DRCD take each other as the augmentation dataset on the experiments. 
+**Note**: CMRC 2018 and DRCD take each other as the augmentation dataset on the experiments. 
 
 ## Chinese Datasets (Electra-base as the teacher)
 
