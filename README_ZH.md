@@ -27,6 +27,12 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Apr 26, 2020**
+
+* 增加了中文NER任务(MSRA NER)上的实验结果。
+* 英文数据集上增加了蒸馏到T12-nano的实验结果。T12-nano的的结构与ELectra-small相似。
+* 更新了CoNLL-2003、CMRC 2018 和 DRCD 上的部分实验结果。
+
 **Apr 22, 2020**
 
 * **版本更新至 0.1.9**，增加了为蒸馏过程提速的cache功能，修复了若干bug。细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9)。

@@ -28,6 +28,12 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
+**Apr 26, 2020**
+
+* Added Chinese NER task (MSRA NER) results.
+* Added results for distilling to T12-nano model, which has a similar strcuture to Electra-small.
+* Updated some results of CoNLL-2003, CMRC 2018 and DRCD.
+
 **Apr 22, 2020**
 
 * Updated to 0.1.9 (added cache option which speeds up distillation; fixed some bugs). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9).
