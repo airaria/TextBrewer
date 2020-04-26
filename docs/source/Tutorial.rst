@@ -130,7 +130,7 @@ Examples
 Examples can be found in the `examples <https://github.com/airaria/TextBrewer/tree/master/examples>`_ directory of the repo:
 
 * `examples/random_token_example <https://github.com/airaria/TextBrewer/tree/master/examples/random_tokens_example>`_ : a simple runnable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
-* `examples/cmrc2018\_example <https://github.com/airaria/TextBrewer/tree/master/examples/cmrc2018_example>`_ (Chinese): distillation on CMRC2018, a Chinese MRC task, using DRCD as data augmentation.
+* `examples/cmrc2018\_example <https://github.com/airaria/TextBrewer/tree/master/examples/cmrc2018_example>`_ (Chinese): distillation on CMRC 2018, a Chinese MRC task, using DRCD as data augmentation.
 * `examples/mnli\_example <https://github.com/airaria/TextBrewer/tree/master/examples/mnli_example>`_ (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
 * `examples/conll2003_example <https://github.com/airaria/TextBrewer/tree/master/examples/conll2003_example>`_ (English): distillation on CoNLL-2003 English NER task, which is in the form of sequence labeling.
 

@@ -139,7 +139,7 @@ The results are listed below (see [Experimental Results](ExperimentResults.md) f
 
 **Note**:
 
-1. Learning rate decay is not used in distillation on CMRC2018 and DRCD.
-2. CMRC2018 and DRCD take each other as the augmentation dataset in the distillation.
+1. Learning rate decay is not used in distillation on CMRC 2018 and DRCD.
+2. CMRC 2018 and DRCD take each other as the augmentation dataset in the distillation.
 3. The settings of training Electra-base teacher model can be found at [**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA).
 4. Electra-small student model is intialized with the [pretrained weights](https://github.com/ymcui/Chinese-ELECTRA).

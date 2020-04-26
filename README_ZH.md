@@ -198,7 +198,7 @@ with distiller:
 **更多的示例可参见`examples`文件夹：**
 
 * [examples/random_token_example](examples/random_token_example): 一个可运行的简单示例，在文本分类任务上以随机文本为输入，演示TextBrewer用法。
-* [examples/cmrc2018\_example](examples/cmrc2018_example) (中文): CMRC2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。
+* [examples/cmrc2018\_example](examples/cmrc2018_example) (中文): CMRC 2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。
 * [examples/mnli\_example](examples/mnli_example) (英文): MNLI任务上的英文句对分类任务蒸馏，并展示如何使用多教师蒸馏。
 * [examples/conll2003_example](examples/conll2003_example) (英文): CoNLL-2003英文实体识别任务上的序列标注任务蒸馏。
 
@@ -333,8 +333,8 @@ Our results:
 
 说明：
 
-1. 以RoBERTa-wwm-ext为教师模型蒸馏CMRC2018和DRCD时，不采用学习率衰减
-2. CMRC2018和DRCD两个任务上蒸馏时他们互作为增强数据
+1. 以RoBERTa-wwm-ext为教师模型蒸馏CMRC 2018和DRCD时，不采用学习率衰减
+2. CMRC 2018和DRCD两个任务上蒸馏时他们互作为增强数据
 3. Electra-base的教师模型训练设置参考自[**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA)
 4. Electra-small学生模型采用[预训练权重](https://github.com/ymcui/Chinese-ELECTRA)初始化
 
