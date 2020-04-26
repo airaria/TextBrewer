@@ -218,6 +218,7 @@ We have tested different student models. To compare with public results, the stu
 | T3 (student)              | 3         | 768         | 3072              | 44M      | 41%           |
 | T3-small (student)        | 3         | 384         | 1536              | 17M      | 16%           |
 | T4-Tiny (student)         | 4         | 312         | 1200              | 14M      | 13%           |
+| T12-nano (student)        | 12        | 256         | 1024              | 17M      | 16%           |
 | BiGRU (student)           | -         | 768         | -                 | 31M      | 29%           |
 
 #### Chinese models
@@ -251,7 +252,8 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 | T3           | L3_hidden_mse + L3_hidden_smmd                      |
 | T3-small     | L3n_hidden_mse + L3_hidden_smmd                     |
 | T4-Tiny      | L4t_hidden_mse + L4_hidden_smmd                     |
-|Electra-small | small_hidden_mse + small_hidden_smmd                |
+| T12-nano     | small_hidden_mse + small_hidden_smmd                |
+| Electra-small| small_hidden_mse + small_hidden_smmd                |
 
 The definitions of matches are at [examples/matches/matches.py](examples/matches/matches.py).
 
@@ -292,13 +294,15 @@ Our results:
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 80.8 / 88.1   | 90.7            |
 | T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
-| T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 57.4            |
-| T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 79.6            |
+| T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 78.6            |
+| T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 89.1            |
+| T12-nano       | 83.2 / 83.9     | 79.0 / 86.6   | 89.6            |
 
 **Note**:
 
-1. The equivalent model architectures of public models are shown in the brackets. 
+1. The equivalent model structures of public models are shown in the brackets after their names. 
 2. When distilling to T4-tiny, NewsQA is used for data augmentation on SQuAD and HotpotQA is used for data augmentation on CoNLL-2003.
+3. When distilling to T12-nano, HotpotQA is used for data augmentation on CoNLL-2003.
 
 
 
@@ -313,6 +317,7 @@ We experiment on the following typical Chinese datasets:
 | [**LCQMC**](http://icrc.hitsz.edu.cn/info/1037/1146.htm) | text classification | Acc | 239K | 8.8K | sentence-pair matching, binary classification |
 | [**CMRC 2018**](https://github.com/ymcui/cmrc2018) | reading comprehension | EM/F1 | 10K | 3.4K | span-extraction machine reading comprehension |
 | [**DRCD**](https://github.com/DRCKnowledgeTeam/DRCD) | reading comprehension | EM/F1 | 27K | 3.5K | span-extraction machine reading comprehension (Traditional Chinese) |
+| [**MSRA NER**](https://faculty.washington.edu/levow/papers/sighan06.pdf) | sequence labeling | F1 | 45K | 3.4K (#Test) | Chinese named entity recognition |
 
 The results are listed below.
 
@@ -320,18 +325,18 @@ The results are listed below.
 | :--------------- | ---------- | ----------- | ---------------- | ------------ |
 | **RoBERTa-wwm-ext** (teacher) | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
-| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
-| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 73.3 / 83.5  |
+| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 75.8 / 84.8  |
+| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 77.3 / 86.1  |
 
-| Model                      | XNLI       | LCQMC       | CMRC 2018        | DRCD         |
-| :---------------           | ---------- | ----------- | ---------------- | ------------ |
-| **Electra-base** (teacher) | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  |
-| Electra-small              | 77.7       | 89.3        | 66.5 / 84.9     | 85.5 / 91.3  |
+| Model                       | XNLI       | LCQMC       | CMRC 2018        | DRCD        | MSRA NER |
+| :---------------------------| ---------- | ----------- | ---------------- | ------------|----------|
+| **Electra-base** (teacher)) | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  | 95.14    |
+| Electra-small               | 77.7       | 89.3        | 66.5 / 84.9     | 85.5 / 91.3  | 93.48    |
 
 
 **Note**:
 
-1. When distillatoin from RoBERTa-wwm-ext, on CMRC2018 and DRCD, learning rates are 1.5e-4 and 7e-5 respectively and there is no learning rate decay.
+1. Learning rate decay is not used in distillation on CMRC2018 and DRCD.
 2. CMRC2018 and DRCD take each other as the augmentation dataset in the distillation.
 3. The settings of training Electra-base teacher model can be found at [**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA).
 4. Electra-small student model is intialized with the [pretrained weights](https://github.com/ymcui/Chinese-ELECTRA).

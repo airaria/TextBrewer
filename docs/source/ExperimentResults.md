@@ -21,6 +21,7 @@
 | T3  (student)                  | 81.8 / 82.7    |
 | T3-small (student)             | 81.3 / 81.7    |
 | T4-tiny (student)              | 82.0 / 82.6    |
+| T12-nano (student)             | 83.2 / 83.9    |
 
 * Multi-teacher distillation with `MultiTeacherDistiller`:
 
@@ -51,7 +52,8 @@
 | T3 (student)            | 76.4 / 84.9   |
 | T3-small (student)      | 72.3 / 81.4   |
 | T4-tiny (student)       | 73.7 / 82.5   |
-| &nbsp;&nbsp;+ DA                 | 75.2 / 84.0   |
+| &nbsp;&nbsp;+ DA        | 75.2 / 84.0   |
+| T12-nano (student)      | 79.0 / 86.6   |
 
 **Note**: When distilling to T4-tiny, NewsQA is used for data augmentation on SQuAD.
 
@@ -84,10 +86,12 @@
 | T6 (student)            | 90.7 |
 | T3 (student)            | 87.5 |
 | &nbsp;&nbsp;+ DA        | 90.0 |
-| T3-small (student)      | 57.4 |
-| &nbsp;&nbsp;+ DA        | 76.5 |
-| T4-tiny (student)       | 54.7 |
-| &nbsp;&nbsp;+ DA        | 79.6 |
+| T3-small (student)      | 78.6 |
+| &nbsp;&nbsp;+ DA        | -    |
+| T4-tiny (student)       | 77.5 |
+| &nbsp;&nbsp;+ DA        | 89.1 |
+| T12-nano (student)      | 78.8 |
+| &nbsp;&nbsp;+ DA        | 89.6 |
 
 **Note**: HotpotQA is used for data augmentation on CoNLL-2003.
 
@@ -118,10 +122,10 @@
 | **RoBERTa-wwm-ext** (teacher) | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3 (student)                  | 63.4 / 82.4      | 76.7 / 85.2  |
 | &nbsp;&nbsp;+ DA              | 66.4 / 84.2      | 78.2 / 86.4  |
-| T3-small (student)            | 24.4 / 48.1      | 42.2 / 63.2  |
-| &nbsp;&nbsp;+  DA             | 58.0 / 79.3      | 65.5 / 78.6  |
-| T4-tiny (student)             | -                | -            |
-| &nbsp;&nbsp;+  DA             | 61.8 / 81.8      | 73.3 / 83.5  |
+| T3-small (student)            | 46.1 / 71.0      | 71.4 / 82.2  |
+| &nbsp;&nbsp;+  DA             | 58.0 / 79.3      | 75.8 / 84.8  |
+| T4-tiny (student)             | 54.3 / 76.8      | 75.5 / 84.9  |
+| &nbsp;&nbsp;+  DA             | 61.8 / 81.8      | 77.3 / 86.1  |
 
 **Note**: CMRC2018 and DRCD take each other as the augmentation dataset on the experiments. 
 
@@ -129,17 +133,22 @@
 
 * Training without Distillation:
 
-| Model                                | XNLI       | LCQMC       | CMRC 2018       | DRCD         |
-| :------------------------------------|------------|-------------| ----------------| -------------|
-| **Electra-base** (teacher)           | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  |
-| Electra-small (initialized with pretrained weights) | 72.5 | 86.3 | 62.9 / 80.2   | 79.4 / 86.4  |
+| Model                      | XNLI       | LCQMC  | CMRC 2018     | DRCD         | MSRA NER|
+|:---------------------------|------------|--------| --------------| -------------|---------|
+| **Electra-base** (teacher) | 77.8       | 89.8   | 65.6 / 84.7   | 86.9 / 92.3  | 95.14   |
+| Electra-small (pretrained) | 72.5       | 86.3   | 62.9 / 80.2   | 79.4 / 86.4  |         |
 
 * Single-teacher distillation with `GeneralDistiller`:
 
-| Model                                | XNLI       | LCQMC       | CMRC 2018       | DRCD         |
-| :------------------------------------|------------|-------------|-----------------| -------------|
-| **Electra-base** (teacher)           | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  |
-| Electra-small (random initialized)   | 77.2       | 89.0        | 66.5 / 84.9     | 84.8 / 91.0  |
-| Electra-small (initialized with pretrained weights) | 77.7 | 89.3 | 66.5 / 84.9   | 85.5 / 91.3  |
+| Model                       | XNLI       | LCQMC       | CMRC 2018       | DRCD         | MSRA NER |
+| :---------------------------|------------|-------------|-----------------| -------------|----------|
+| **Electra-base** (teacher)  | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  | 95.14    |
+| Electra-small (random)      | 77.2       | 89.0        | 66.5 / 84.9     | 84.8 / 91.0  |          |
+| Electra-small (pretrained)  | 77.7       | 89.3        | 66.5 / 84.9     | 85.5 / 91.3  |93.48     |
 
-**Note**: A good initialization of the student (Electra-small) improves the performance.
+**Note**: 
+
+1. Random: randomly initialized
+2. Pretrained: initialized with pretrained weights
+
+A good initialization of the student (Electra-small) improves the performance.

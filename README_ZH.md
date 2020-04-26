@@ -216,6 +216,7 @@ with distiller:
 | T3 (学生)              | 3         | 768         | 3072              | 44M      | 41%           |
 | T3-small (学生)        | 3         | 384         | 1536              | 17M      | 16%           |
 | T4-Tiny (学生)         | 4         | 312         | 1200              | 14M      | 13%           |
+| T12-nano (学生)        | 12        | 256         | 1024              | 17M      | 16%           |
 | BiGRU (学生)           | -         | 768         | -                 | 31M      | 29%           |
 
 #### 中文模型
@@ -249,7 +250,8 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 | T3           | L3_hidden_mse + L3_hidden_smmd                      |
 | T3-small     | L3n_hidden_mse + L3_hidden_smmd                     |
 | T4-Tiny      | L4t_hidden_mse + L4_hidden_smmd                     |
-|Electra-small | small_hidden_mse + small_hidden_smmd                |
+| T12-nano     | small_hidden_mse + small_hidden_smmd                |
+| Electra-small| small_hidden_mse + small_hidden_smmd                |
 
 各种matches的定义在[examples/matches/matches.py](examples/matches/matches.py)中。均使用GeneralDistiller进行蒸馏。
 
@@ -287,18 +289,19 @@ Our results:
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 80.8 / 88.1   | 90.7            |
 | T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
-| T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 57.4            |
-| T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 79.6            |
+| T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 78.6            |
+| T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 89.1            |
+| T12-nano       | 83.2 / 83.9     | 79.0 / 86.6   | 89.6            |
 
 说明：
 
 1. 公开模型的名称后括号内是其等价的模型结构
-2. 蒸馏到T4-tiny的实验中，SQuAD任务上用的是NewsQA作为增强数据；CoNLL-2003上用的是HotpotQA的篇章作为增强数据
-
+2. 蒸馏到T4-tiny的实验中，SQuAD任务上使用了NewsQA作为增强数据；CoNLL-2003上使用了HotpotQA的篇章作为增强数据
+3. 蒸馏到T12-nano的实验中，CoNLL-2003上使用了HotpotQA的篇章作为增强数据
 
 ### 中文实验结果
 
-在中文实验中，我们使用了如下四个典型数据集。
+在中文实验中，我们使用了如下典型数据集。
 
 | Dataset | Task type | Metrics | \#Train | \#Dev | Note |
 | :------- | ---- | ------- | ------- | ---- | ---- |
@@ -306,6 +309,7 @@ Our results:
 | [**LCQMC**](http://icrc.hitsz.edu.cn/info/1037/1146.htm) | 文本分类 | Acc | 239K | 8.8K | 句对二分类任务，判断两个句子的语义是否相同 |
 | [**CMRC 2018**](https://github.com/ymcui/cmrc2018) | 阅读理解 | EM/F1 | 10K | 3.4K | 篇章片段抽取型阅读理解 |
 | [**DRCD**](https://github.com/DRCKnowledgeTeam/DRCD) | 阅读理解 | EM/F1 | 27K | 3.5K | 繁体中文篇章片段抽取型阅读理解 |
+| [**MSRA NER**](https://faculty.washington.edu/levow/papers/sighan06.pdf) | 序列标注 | F1 | 45K | 3.4K (测试集) | 中文命名实体识别 |
 
 实验结果如下表所示。
 
@@ -313,17 +317,17 @@ Our results:
 | :--------------- | ---------- | ----------- | ---------------- | ------------ |
 | **RoBERTa-wwm-ext** (教师) | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
-| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
-| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 73.3 / 83.5  |
+| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 75.8 / 84.8  |
+| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 77.3 / 86.1  |
 
-| Model                  | XNLI       | LCQMC       | CMRC 2018        | DRCD         |
-| :---------------       | ---------- | ----------- | ---------------- | ------------ |
-| **Electra-base** (教师) | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  |
-| Electra-small          | 77.7       | 89.3        | 66.5 / 84.9     | 85.5 / 91.3  |
+| Model                  | XNLI       | LCQMC       | CMRC 2018        | DRCD        | MSRA NER |
+| :----------------------| ---------- | ----------- | ---------------- | ------------|----------|
+| **Electra-base** (教师) | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  | 95.14    |
+| Electra-small          | 77.7       | 89.3        | 66.5 / 84.9     | 85.5 / 91.3  | 93.48    |
 
 说明：
 
-1. 以RoBERTa-wwm-ext为教师模型蒸馏CMRC2018和DRCD时，学习率分别为1.5e-4和7e-5，并且不采用学习率衰减
+1. 以RoBERTa-wwm-ext为教师模型蒸馏CMRC2018和DRCD时，不采用学习率衰减
 2. CMRC2018和DRCD两个任务上蒸馏时他们互作为增强数据
 3. Electra-base的教师模型训练设置参考自[**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA)
 4. Electra-small学生模型采用[预训练权重](https://github.com/ymcui/Chinese-ELECTRA)初始化
