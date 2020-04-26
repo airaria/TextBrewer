@@ -79,7 +79,7 @@ Here we show the usage of TextBrewer by distilling BERT-base to a 3-layer BERT.
 Before distillation, we assume users have provided:
 
 * A trained teacher model ``teacher_model`` (BERT-base) and a to-be-trained student model ``student_model`` (3-layer BERT).
-* a ``dataloader`` of the dataset, an ``optimizer`` and a learning rate ``scheduler``.
+* a ``dataloader`` of the dataset, an ``optimizer`` and a learning rate builder or class ``scheduler_class`` and its args dict ``scheduler_dict``.
 
 Distill with TextBrewer:
 
@@ -122,7 +122,7 @@ Distill with TextBrewer:
 
   # Start!
   with distiller:
-      distiller.train(optimizer, dataloader, num_epochs=1, scheduler=scheduler, callback=None)
+      distiller.train(optimizer, dataloader, num_epochs=1, scheduler_class=scheduler_class, scheduler_args=scheduler_args, callback=None)
 
 Examples
 ========

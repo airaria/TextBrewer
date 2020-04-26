@@ -94,7 +94,8 @@ def train(args, train_dataset,model_T, model, tokenizer, labels, pad_token_label
         {"params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], "weight_decay": 0.0}
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
-    scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=int(args.warmup_steps*t_total), num_training_steps=t_total)
+    scheduler_class = get_linear_schedule_with_warmup
+    scheduler_args = {'num_warmup_steps':int(args.warmup_steps*t_total), 'num_training_steps':t_total}
     if args.fp16:
         try:
             from apex import amp
@@ -137,7 +138,9 @@ def train(args, train_dataset,model_T, model, tokenizer, labels, pad_token_label
                     'logits_mask':(batch['attention_mask'],)}
 
         distiller=GeneralDistiller(train_config,distill_config,model_T,model,adaptor_T,adaptor_S,)
-        distiller.train(optimizer,scheduler,train_dataloader,args.num_train_epochs,callback=predict_callback)
+        distiller.train(optimizer,train_dataloader,,args.num_train_epochs,
+                        scheduler_class=scheduler_class, scheduler_args=scheduler_args,
+                        max_grad_norm=1.0, callback=predict_callback)
         return
 
 

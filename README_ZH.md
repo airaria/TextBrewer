@@ -153,7 +153,7 @@ pip install ./textbrewer
 在开始蒸馏之前准备：
 
 - 训练好的教师模型`teacher_model` (BERT-base)，待训练学生模型`student_model` (3-layer BERT)
-- 数据集`dataloader`，优化器`optimizer`，学习率调节器`scheduler`
+- 数据集`dataloader`，优化器`optimizer`，学习率调节器类或者构造函数`scheduler_class` 和构造用的参数字典 `scheduler_args`
 
 使用TextBrewer蒸馏:
 
@@ -192,7 +192,7 @@ distiller = GeneralDistiller(
 
 # 开始蒸馏
 with distiller:
-    distiller.train(optimizer, dataloader, num_epochs=1, scheduler=scheduler ,callback=None)
+    distiller.train(optimizer, dataloader, num_epochs=1, scheduler_class=scheduler_class, scheduler_args = scheduler_args, callback=None)
 ```
 
 **更多的示例可参见`examples`文件夹：**
