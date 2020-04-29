@@ -79,7 +79,7 @@ Here we show the usage of TextBrewer by distilling BERT-base to a 3-layer BERT.
 Before distillation, we assume users have provided:
 
 * A trained teacher model ``teacher_model`` (BERT-base) and a to-be-trained student model ``student_model`` (3-layer BERT).
-* a ``dataloader`` of the dataset, an ``optimizer`` and a learning rate ``scheduler``.
+* a ``dataloader`` of the dataset, an ``optimizer`` and a learning rate builder or class ``scheduler_class`` and its args dict ``scheduler_dict``.
 
 Distill with TextBrewer:
 
@@ -91,10 +91,12 @@ Distill with TextBrewer:
 
   # Show the statistics of model parameters
   print("\nteacher_model's parametrers:")
-  _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+  result, _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+  print (result)
 
   print("student_model's parametrers:")
-  _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+  result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+  print (result)
 
   # Define an adaptor for translating the model inputs and outputs
   def simple_adaptor(batch, model_outputs):
@@ -120,7 +122,7 @@ Distill with TextBrewer:
 
   # Start!
   with distiller:
-      distiller.train(optimizer, scheduler, dataloader, num_epochs=1, callback=None)
+      distiller.train(optimizer, dataloader, num_epochs=1, scheduler_class=scheduler_class, scheduler_args=scheduler_args, callback=None)
 
 Examples
 ========
@@ -128,7 +130,7 @@ Examples
 Examples can be found in the `examples <https://github.com/airaria/TextBrewer/tree/master/examples>`_ directory of the repo:
 
 * `examples/random_token_example <https://github.com/airaria/TextBrewer/tree/master/examples/random_tokens_example>`_ : a simple runnable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
-* `examples/cmrc2018\_example <https://github.com/airaria/TextBrewer/tree/master/examples/cmrc2018_example>`_ (Chinese): distillation on CMRC2018, a Chinese MRC task, using DRCD as data augmentation.
+* `examples/cmrc2018\_example <https://github.com/airaria/TextBrewer/tree/master/examples/cmrc2018_example>`_ (Chinese): distillation on CMRC 2018, a Chinese MRC task, using DRCD as data augmentation.
 * `examples/mnli\_example <https://github.com/airaria/TextBrewer/tree/master/examples/mnli_example>`_ (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
 * `examples/conll2003_example <https://github.com/airaria/TextBrewer/tree/master/examples/conll2003_example>`_ (English): distillation on CoNLL-2003 English NER task, which is in the form of sequence labeling.
 
@@ -160,9 +162,10 @@ If you find TextBrewer is helpful, please cite `our paper <https://arxiv.org/abs
 
 .. code-block:: none
 
-  @article{textbrewer,
-    title={TextBrewer: An Open-Source Knowledge Distillation Toolkit for Natural Language Processing},
-    author={Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping},
-    journal={arXiv preprint arXiv:2002.12620},
-   year={2020}
+  @InProceedings{textbrewer-acl2020-demo,
+    author =  "Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping",
+    title =   "{T}ext{B}rewer: {A}n {O}pen-{S}ource {K}nowledge {D}istillation {T}oolkit for {N}atural {L}anguage {P}rocessing",
+    booktitle =   "Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics: System Demonstrations",
+    year =  "2020",
+    publisher =   "Association for Computational Linguistics"
   }

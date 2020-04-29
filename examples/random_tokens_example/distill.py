@@ -2,6 +2,7 @@ import textbrewer
 from textbrewer import GeneralDistiller
 from textbrewer import TrainingConfig, DistillationConfig
 from transformers import BertForSequenceClassification, BertConfig, AdamW
+from transformers import get_linear_schedule_with_warmup
 import torch
 from torch.utils.data import Dataset,DataLoader
 import numpy as np
@@ -49,18 +50,24 @@ all_labels = torch.randint(low=0,high=2,size=(100,))
 dataset = DictDataset(all_input_ids, all_attention_mask, all_labels)
 eval_dataset = DictDataset(all_input_ids, all_attention_mask, all_labels)
 dataloader = DataLoader(dataset,batch_size=32)
-
+num_epochs = 10
+num_training_steps = len(dataloader) * num_epochs
 # Optimizer and learning rate scheduler
 optimizer = AdamW(student_model.parameters(), lr=1e-4)
-scheduler = None
+
+scheduler_class = get_linear_schedule_with_warmup
+# arguments dict except 'optimizer'
+scheduler_args = {'num_warmup_steps':int(0.1*num_training_steps), 'num_training_steps':num_training_steps}
 
 
 # display model parameters statistics
 print("\nteacher_model's parametrers:")
-_ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+print (result)
 
 print("student_model's parametrers:")
-_ = textbrewer.utils.display_parameters(student_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+print (result)
 
 def simple_adaptor(batch, model_outputs):
     # The second element of model_outputs is the logits before softmax
@@ -128,4 +135,5 @@ distiller = GeneralDistiller(
 
 # Start distilling
 with distiller:
-    distiller.train(optimizer, scheduler, dataloader, num_epochs=1, callback=callback_fun)
+    distiller.train(optimizer,dataloader, num_epochs=num_epochs, 
+    scheduler_class=scheduler_class, scheduler_args = scheduler_args, callback=callback_fun)

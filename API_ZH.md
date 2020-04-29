@@ -293,7 +293,7 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
   * dataloader: 数据集迭代器
   * num_epochs (`int`): 训练的轮数
   * scheduler_class (`Callable`): 构建scheduler的函数或类。
-  * scheduler_args (`dict`): 传递给 scheduler_class用于构造scheduler的参数字典。
+  * scheduler_args (`dict`): 传递给scheduler_class用于构造scheduler的参数字典，字典中包含除了optimizer的其他参数。
     ```
     from transformers import get_linear_schedule_with_warmup
       distiller.train(optimizer, scheduler_class = get_linear_schedule_with_warmup, scheduler_args= {'num_warmup_steps': 100, 'num_training_steps': 1000})
@@ -372,7 +372,7 @@ class **textbrewer.DistillationConfig** (**temperature** = 4, **temperature_sche
   * dataloaders : 数据集迭代器字典，key为任务名，value为对应数据的dataloader
   * num_steps (`int`): 训练步数。每当完成一次遍历，dataloader将被自动循环。
   * scheduler_class (`Callable`): 构建scheduler的函数或类。
-  * scheduler_args (`dict`): 传递给 scheduler_class用于构造scheduler的参数字典。
+  * scheduler_args (`dict`): 传递给 scheduler_class用于构造scheduler的参数字典，字典中包含除了optimizer的其他参数。
     ```
     from transformers import get_linear_schedule_with_warmup
       distiller.train(optimizer, scheduler_class = get_linear_schedule_with_warmup, scheduler_args= {'num_warmup_steps': 100, 'num_training_steps': 1000})

@@ -28,6 +28,18 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Apr 26, 2020**
+
+* 增加了中文NER任务(MSRA NER)上的实验结果。
+* 英文数据集上增加了蒸馏到T12-nano的实验结果。T12-nano的的结构与ELectra-small相似。
+* 更新了CoNLL-2003、CMRC 2018 和 DRCD 上的部分实验结果。
+
+**Apr 22, 2020**
+
+* **版本号更新至 0.1.9**。
+* 增加了中文任务上从Electra-base蒸馏到Electra-small的实验结果。
+* TextBrewer被[ACL 2020](http://acl2020.org)录用为demo paper，欢迎在您的工作中使用我们新的[引用](#引用)。
+
 **Apr 16, 2020**
 
 * 修复了zero_grad问题。
@@ -174,7 +186,7 @@ pip install ./textbrewer
 在开始蒸馏之前准备：
 
 - 训练好的教师模型`teacher_model` (BERT-base)，待训练学生模型`student_model` (3-layer BERT)
-- 数据集`dataloader`，优化器`optimizer`，学习率调节器`scheduler`
+- 数据集`dataloader`，优化器`optimizer`，学习率调节器类或者构造函数`scheduler_class` 和构造用的参数字典 `scheduler_args`
 
 使用TextBrewer蒸馏:
 
@@ -185,10 +197,12 @@ from textbrewer import TrainingConfig, DistillationConfig
 
 # 展示模型参数量的统计
 print("\nteacher_model's parametrers:")
-_ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(teacher_model,max_level=3)
+print (result)
 
 print("student_model's parametrers:")
-_ = textbrewer.utils.display_parameters(student_model,max_level=3)
+result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
+print (result)
 
 # 定义adaptor用于解释模型的输出
 def simple_adaptor(batch, model_outputs):
@@ -211,13 +225,13 @@ distiller = GeneralDistiller(
 
 # 开始蒸馏
 with distiller:
-    distiller.train(optimizer, scheduler, dataloader, num_epochs=1, callback=None)
+    distiller.train(optimizer, dataloader, num_epochs=1, scheduler_class=scheduler_class, scheduler_args = scheduler_args, callback=None)
 ```
 
 **更多的示例可参见`examples`文件夹：**
 
 * [examples/random_token_example](examples/random_token_example): 一个可运行的简单示例，在文本分类任务上以随机文本为输入，演示TextBrewer用法。
-* [examples/cmrc2018\_example](examples/cmrc2018_example) (中文): CMRC2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。
+* [examples/cmrc2018\_example](examples/cmrc2018_example) (中文): CMRC 2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。
 * [examples/mnli\_example](examples/mnli_example) (英文): MNLI任务上的英文句对分类任务蒸馏，并展示如何使用多教师蒸馏。
 * [examples/conll2003_example](examples/conll2003_example) (英文): CoNLL-2003英文实体识别任务上的序列标注任务蒸馏。
 
@@ -228,19 +242,32 @@ with distiller:
 ### 模型
 
 * 对于英文任务，教师模型为[**BERT-base-cased**](https://github.com/google-research/bert)
-* 对于中文任务，教师模型为HFL发布的[**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm)
+* 对于中文任务，教师模型为HFL发布的[**RoBERTa-wwm-ext**](https://github.com/ymcui/Chinese-BERT-wwm) 与 [**Electra-base**](https://github.com/ymcui/Chinese-ELECTRA)
 
 我们测试了不同的学生模型，为了与已有公开结果相比较，除了BiGRU都是和BERT一样的多层Transformer结构。模型的参数如下表所示。需要注意的是，参数量的统计包括了embedding层，但不包括最终适配各个任务的输出层。
+
+#### 英文模型
 
 | Model                 | \#Layers | Hidden size | Feed-forward size | \#Params | Relative size |
 | :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
 | BERT-base-cased (教师) | 12        | 768         | 3072              | 108M     | 100%          |
-| RoBERTa-wwm-ext (教师) | 12        | 768         | 3072              | 108M     | 100%          |
-| T6 (学生)  | 6         | 768         | 3072              | 65M      | 60%           |
-| T3 (学生)            | 3         | 768         | 3072              | 44M      | 41%           |
+| T6 (学生)              | 6         | 768         | 3072              | 65M      | 60%           |
+| T3 (学生)              | 3         | 768         | 3072              | 44M      | 41%           |
 | T3-small (学生)        | 3         | 384         | 1536              | 17M      | 16%           |
-| T4-Tiny (学生)  | 4         | 312         | 1200              | 14M      | 13%           |
+| T4-Tiny (学生)         | 4         | 312         | 1200              | 14M      | 13%           |
+| T12-nano (学生)        | 12        | 256         | 1024              | 17M      | 16%           |
 | BiGRU (学生)           | -         | 768         | -                 | 31M      | 29%           |
+
+#### 中文模型
+
+| Model                 | \#Layers | Hidden size | Feed-forward size | \#Params | Relative size   |
+| :--------------------- | --------- | ----------- | ----------------- | -------- | ------------- |
+| RoBERTa-wwm-ext (教师) | 12        | 768         | 3072              | 102M      | 100%          |
+| Electra-base (教师)    | 12        | 768         | 3072              | 102M      | 100%          |
+| T3 (学生)              | 3         | 768         | 3072              | 38M       | 37%           |
+| T3-small (学生)        | 3         | 384         | 1536              | 14M       | 14%           |
+| T4-Tiny (学生)         | 4         | 312         | 1200              | 11M       | 11%           |
+| Electra-small (学生)   | 12        | 256         | 1024              | 12M       | 12%           |
 
 * T6的结构与[DistilBERT<sup>[1]</sup>](https://arxiv.org/abs/1910.01108), [BERT<sub>6</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355), [BERT-of-Theseus<sup>[3]</sup>](https://arxiv.org/abs/2002.02925) 相同。
 * T4-tiny的结构与 [TinyBERT<sup>[4]</sup>](https://arxiv.org/abs/1909.10351) 相同。
@@ -255,13 +282,15 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 
 不同的模型用的`matches`我们采用了以下配置：
 
-| Model    | matches                                                      |
-| :-------- | ------------------------------------------------------------ |
-| BiGRU    | None                                                         |
-| T6       | L6_hidden_mse + L6_hidden_smmd                               |
-| T3       | L3_hidden_mse + L3_hidden_smmd                               |
-| T3-small | L3n_hidden_mse + L3_hidden_smmd                              |
-| T4-Tiny  | L4t_hidden_mse + L4_hidden_smmd                              |
+| Model        | matches                                             |
+| :--------    | --------------------------------------------------- |
+| BiGRU        | None                                                |
+| T6           | L6_hidden_mse + L6_hidden_smmd                      |
+| T3           | L3_hidden_mse + L3_hidden_smmd                      |
+| T3-small     | L3n_hidden_mse + L3_hidden_smmd                     |
+| T4-Tiny      | L4t_hidden_mse + L4_hidden_smmd                     |
+| T12-nano     | small_hidden_mse + small_hidden_smmd                |
+| Electra-small| small_hidden_mse + small_hidden_smmd                |
 
 各种matches的定义在[examples/matches/matches.py](examples/matches/matches.py)中。均使用GeneralDistiller进行蒸馏。
 
@@ -295,22 +324,23 @@ Our results:
 
 | Model (ours) | MNLI | SQuAD | CoNLL-2003 |
 | :-------------  | --------------- | ------------- | --------------- |
-| **BERT-base-cased**  | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
+| **BERT-base-cased** (教师) | 83.7 / 84.0     | 81.5 / 88.6   | 91.1  |
 | BiGRU          | -               | -             | 85.3            |
 | T6             | 83.5 / 84.0     | 80.8 / 88.1   | 90.7            |
 | T3             | 81.8 / 82.7     | 76.4 / 84.9   | 87.5            |
-| T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 57.4            |
-| T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 79.6            |
+| T3-small       | 81.3 / 81.7     | 72.3 / 81.4   | 78.6            |
+| T4-tiny        | 82.0 / 82.6     | 75.2 / 84.0   | 89.1            |
+| T12-nano       | 83.2 / 83.9     | 79.0 / 86.6   | 89.6            |
 
 说明：
 
 1. 公开模型的名称后括号内是其等价的模型结构
-2. 蒸馏到T4-tiny的实验中，SQuAD任务上用的是NewsQA作为增强数据；CoNLL-2003上用的是HotpotQA的篇章作为增强数据
-
+2. 蒸馏到T4-tiny的实验中，SQuAD任务上使用了NewsQA作为增强数据；CoNLL-2003上使用了HotpotQA的篇章作为增强数据
+3. 蒸馏到T12-nano的实验中，CoNLL-2003上使用了HotpotQA的篇章作为增强数据
 
 ### 中文实验结果
 
-在中文实验中，我们使用了如下四个典型数据集。
+在中文实验中，我们使用了如下典型数据集。
 
 | Dataset | Task type | Metrics | \#Train | \#Dev | Note |
 | :------- | ---- | ------- | ------- | ---- | ---- |
@@ -318,21 +348,28 @@ Our results:
 | [**LCQMC**](http://icrc.hitsz.edu.cn/info/1037/1146.htm) | 文本分类 | Acc | 239K | 8.8K | 句对二分类任务，判断两个句子的语义是否相同 |
 | [**CMRC 2018**](https://github.com/ymcui/cmrc2018) | 阅读理解 | EM/F1 | 10K | 3.4K | 篇章片段抽取型阅读理解 |
 | [**DRCD**](https://github.com/DRCKnowledgeTeam/DRCD) | 阅读理解 | EM/F1 | 27K | 3.5K | 繁体中文篇章片段抽取型阅读理解 |
+| [**MSRA NER**](https://faculty.washington.edu/levow/papers/sighan06.pdf) | 序列标注 | F1 | 45K | 3.4K (测试集) | 中文命名实体识别 |
 
 实验结果如下表所示。
 
 | Model           | XNLI | LCQMC | CMRC 2018 | DRCD |
 | :--------------- | ---------- | ----------- | ---------------- | ------------ |
-| **RoBERTa-wwm-ext** | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
+| **RoBERTa-wwm-ext** (教师) | 79.9       | 89.4        | 68.8 / 86.4      | 86.5 / 92.5  |
 | T3          | 78.4       | 89.0        | 66.4 / 84.2      | 78.2 / 86.4  |
-| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 65.5 / 78.6  |
-| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 73.3 / 83.5  |
+| T3-small    | 76.0       | 88.1        | 58.0 / 79.3      | 75.8 / 84.8  |
+| T4-tiny     | 76.2       | 88.4        | 61.8 / 81.8      | 77.3 / 86.1  |
+
+| Model                  | XNLI       | LCQMC       | CMRC 2018        | DRCD        | MSRA NER |
+| :----------------------| ---------- | ----------- | ---------------- | ------------|----------|
+| **Electra-base** (教师) | 77.8       | 89.8        | 65.6 / 84.7     | 86.9 / 92.3  | 95.14    |
+| Electra-small          | 77.7       | 89.3        | 66.5 / 84.9     | 85.5 / 91.3  | 93.48    |
 
 说明：
 
-1. 蒸馏CMRC2018和DRCD上时学习率分别为1.5e-4和7e-5，并且不采用学习率衰减
-2. CMRC2018和DRCD两个任务上他们互作为增强数据
-
+1. 以RoBERTa-wwm-ext为教师模型蒸馏CMRC 2018和DRCD时，不采用学习率衰减
+2. CMRC 2018和DRCD两个任务上蒸馏时他们互作为增强数据
+3. Electra-base的教师模型训练设置参考自[**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA)
+4. Electra-small学生模型采用[预训练权重](https://github.com/ymcui/Chinese-ELECTRA)初始化
 
 
 ## 核心概念
@@ -385,12 +422,13 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 如果TextBrewer工具包对你的研究工作有所帮助，请在文献中引用下述[技术报告](https://arxiv.org/abs/2002.12620)：
 
 ```
- @article{textbrewer,
-   title={TextBrewer: An Open-Source Knowledge Distillation Toolkit for Natural Language Processing},
-   author={Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping},
-   journal={arXiv preprint arXiv:2002.2002.12620},
-   year={2020}
-  }
+@InProceedings{textbrewer-acl2020-demo,
+  author =  "Yang, Ziqing and Cui, Yiming and Chen, Zhipeng and Che, Wanxiang and Liu, Ting and Wang, Shijin and Hu, Guoping",
+  title =   "{T}ext{B}rewer: {A}n {O}pen-{S}ource {K}nowledge {D}istillation {T}oolkit for {N}atural {L}anguage {P}rocessing",
+  booktitle =   "Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics: System Demonstrations",
+  year =  "2020",
+  publisher =   "Association for Computational Linguistics"
+}
  ```
 
 ## 使用反馈

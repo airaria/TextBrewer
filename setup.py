@@ -29,7 +29,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="textbrewer",
-    version="0.1.8-1",
+    version="0.1.9",
     author="ziqingyang",
     author_email="zqyang5@iflytek.com",
     description="PyTorch-based knowledge distillation toolkit for natural language processing",

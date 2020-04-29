@@ -1,6 +1,6 @@
 [**中文说明**](README_ZH.md) | [**English**](README.md)
 
-这个例子展示CMRC2018阅读理解任务上的蒸馏，并使用DRCD数据集作为数据增强。
+这个例子展示CMRC 2018阅读理解任务上的蒸馏，并使用DRCD数据集作为数据增强。
 
 * run_cmrc2018_train.sh : 在cmrc2018数据集上训练教师模型(roberta-wwm-base)
 * run_cmrc2018_distill_T3.sh : 在cmrc2018和drcd数据集上蒸馏教师模型到T3
