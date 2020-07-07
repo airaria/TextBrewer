@@ -1,11 +1,10 @@
 import logging
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(name)s -  %(message)s',
+    datefmt='%Y/%m/%d %H:%M:%S',
+    level=logging.INFO,
+    )
 logger = logging.getLogger("Main")
-logger.setLevel(logging.INFO)
-handler_stream = logging.StreamHandler()
-handler_stream.setLevel(logging.INFO)
-formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(name)s -  %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
-handler_stream.setFormatter(formatter)
-logger.addHandler(handler_stream)
 
 import os,random
 import numpy as np

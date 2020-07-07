@@ -9,13 +9,7 @@ import numpy as np
 import math
 import config
 #from tokenization import spacy_parser
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler_stream = logging.StreamHandler()
-handler_stream.setLevel(logging.INFO)
-formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(name)s -  %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
-handler_stream.setFormatter(formatter)
-logger.addHandler(handler_stream)
+logger = logging.getLogger("processing")
 
 class SquadExample(object):
     """A single training/test example for simple sequence classification."""

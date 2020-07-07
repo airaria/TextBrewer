@@ -10,13 +10,7 @@ from cmrc2018_evaluate import evaluate
 import json
 import numpy as np
 
-logger = logging.getLogger("Train_eval")
-logger.setLevel(logging.INFO)
-handler_stream = logging.StreamHandler()
-handler_stream.setLevel(logging.INFO)
-formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(name)s -  %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
-handler_stream.setFormatter(formatter)
-logger.addHandler(handler_stream)
+logger = logging.getLogger("train_eval")
 
 
 def predict(model, eval_examples, eval_features, step, args):
