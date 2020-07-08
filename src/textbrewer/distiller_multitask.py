@@ -56,6 +56,15 @@ class MultiTaskDistiller(BasicDistiller):
             # overwrite scheduler
             scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
 
+        if self.t_config.fp16:
+            if not has_apex:
+                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
+            self.model_S, optimizer = amp.initialize(self.model_S, optimizer, opt_level=self.t_config.fp16_opt_level)
+        if self.t_config.data_parallel > 1:
+            self.model_S = torch.nn.DataParallel(self.model_S)
+            # self.model_T is a dictionary
+            self.model_T = {k:torch.nn.DataParallel(v) for k,v in self.model_T}
+
         total_global_steps = num_steps
         ckpt_steps =self.t_config.ckpt_steps
         print_every = ckpt_steps // self.print_freq
@@ -93,13 +102,19 @@ class MultiTaskDistiller(BasicDistiller):
                 batch_taskname = (batch, taskname)
                 total_loss = self.train_on_batch(batch_taskname, args)
                 total_loss /= self.t_config.gradient_accumulation_steps
-                total_loss.backward()
-
+                if self.t_config.fp16:
+                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
+                        scaled_loss.backward()
+                else:
+                    total_loss.backward()
                 scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
                 self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
                 writer_step += 1
             if max_grad_norm > 0:
-                torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm) 
+                if self.t_config.fp16:
+                    torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
+                else:
+                    torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
             optimizer.step()
             if scheduler is not None:
                 scheduler.step()

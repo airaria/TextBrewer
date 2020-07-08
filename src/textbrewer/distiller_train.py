@@ -41,6 +41,15 @@ class BasicTrainer:
             # overwrite scheduler
             scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
 
+        if self.t_config.fp16:
+            if not has_apex:
+                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
+            self.model, optimizer = amp.initialize(self.model, optimizer, opt_level=self.t_config.fp16_opt_level)
+
+        #dataparallel multi-gpu training
+        if self.t_config.data_parallel:
+            self.model = torch.nn.DataParallel(self.model)
+
         if num_steps is not None:
             total_global_steps = num_steps
             ckpt_steps =self.t_config.ckpt_steps
@@ -58,7 +67,11 @@ class BasicTrainer:
                     batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
                 total_loss /= self.t_config.gradient_accumulation_steps
-                total_loss.backward()
+                if self.t_config.fp16:
+                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
+                        scaled_loss.backward()
+                else:
+                    total_loss.backward()
 
                 scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
                 self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
@@ -66,7 +79,10 @@ class BasicTrainer:
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
                     if max_grad_norm > 0:
-                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm) 
+                        if self.t_config.fp16:
+                            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
+                        else:
+                            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm)
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
@@ -76,8 +92,7 @@ class BasicTrainer:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
                     if (global_step%ckpt_steps==0) or global_step==total_global_steps:
                         logger.info(f"Saving at global step {global_step}")
-                        coreModel = self.model.module if \
-                            'DataParallel' in self.model.__class__.__name__ else self.model
+                        coreModel = self.model.module if hasattr(self.model, "module") else self
                         state_dict = coreModel.state_dict()
                         torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
                         if callback is not None:
@@ -106,7 +121,11 @@ class BasicTrainer:
                     batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
                 total_loss /= self.t_config.gradient_accumulation_steps
-                total_loss.backward()
+                if self.t_config.fp16:
+                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
+                        scaled_loss.backward()
+                else:
+                    total_loss.backward()
 
                 scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
                 self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
@@ -114,7 +133,10 @@ class BasicTrainer:
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
                     if max_grad_norm > 0:
-                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm)
+                        if self.t_config.fp16:
+                            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
+                        else:
+                            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm) 
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
@@ -125,8 +147,7 @@ class BasicTrainer:
                     if (global_step%train_steps_per_epoch in checkpoints) \
                             and ((current_epoch+1)%self.t_config.ckpt_epoch_frequency==0 or current_epoch+1==num_epochs):
                         logger.info(f"Saving at global step {global_step}, epoch step {step+1} epoch {current_epoch+1}")
-                        coreModel = self.model.module if \
-                            'DataParallel' in self.model.__class__.__name__ else self.model
+                        coreModel = self.model.module if hasattr(self.model, "module") else self
                         state_dict = coreModel.state_dict()
                         torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
                         if callback is not None:

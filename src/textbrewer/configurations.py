@@ -64,7 +64,10 @@ class TrainingConfig(Config):
                  ckpt_steps = None,
                  log_dir = None,
                  output_dir = './saved_models',
-                 device = 'cuda'
+                 device = 'cuda',
+                 fp16 = False,
+                 fp16_opt_level = 'O1',
+                 data_parallel = False
                  ):
         super(TrainingConfig, self).__init__()
 
@@ -75,6 +78,9 @@ class TrainingConfig(Config):
         self.log_dir = log_dir
         self.output_dir = output_dir
         self.device = device
+        self.fp16 = fp16
+        self.fp16_opt_level = fp16_opt_level
+        self.data_parallel = data_parallel
 
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
