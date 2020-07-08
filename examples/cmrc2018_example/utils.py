@@ -3,7 +3,6 @@ import os
 import config
 import logging
 logger = logging.getLogger("utils")
-logger.setLevel(logging.INFO)
 
 def read_and_convert(fn,is_training,read_fn,convert_fn,do_lower_case):
     data_dirname, data_basename = os.path.split(fn)

@@ -16,13 +16,7 @@ from .configurations import TrainingConfig, DistillationConfig
 from .compatibility import mask_dtype
 
 logger = logging.getLogger("Distillation")
-logger.setLevel(logging.INFO)
-
-handler_stream = logging.StreamHandler()
-handler_stream.setLevel(logging.INFO)
-formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(name)s -  %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
-handler_stream.setFormatter(formatter)
-logger.addHandler(handler_stream)
+#logger.setLevel(logging.INFO)
 
 class CustomMatch:
     def __init__(self, module_T, module_S, weight, loss,
