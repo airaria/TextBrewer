@@ -92,7 +92,7 @@ class BasicTrainer:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
                     if (global_step%ckpt_steps==0) or global_step==total_global_steps:
                         logger.info(f"Saving at global step {global_step}")
-                        coreModel = self.model.module if hasattr(self.model, "module") else self
+                        coreModel = self.model.module if hasattr(self.model, "module") else self.model
                         state_dict = coreModel.state_dict()
                         torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
                         if callback is not None:
@@ -147,7 +147,7 @@ class BasicTrainer:
                     if (global_step%train_steps_per_epoch in checkpoints) \
                             and ((current_epoch+1)%self.t_config.ckpt_epoch_frequency==0 or current_epoch+1==num_epochs):
                         logger.info(f"Saving at global step {global_step}, epoch step {step+1} epoch {current_epoch+1}")
-                        coreModel = self.model.module if hasattr(self.model, "module") else self
+                        coreModel = self.model.module if hasattr(self.model, "module") else self.model
                         state_dict = coreModel.state_dict()
                         torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
                         if callback is not None:

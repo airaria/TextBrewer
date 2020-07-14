@@ -59,11 +59,14 @@ class MultiTaskDistiller(BasicDistiller):
         if self.t_config.fp16:
             if not has_apex:
                 raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
-            self.model_S, optimizer = amp.initialize(self.model_S, optimizer, opt_level=self.t_config.fp16_opt_level)
-        if self.t_config.data_parallel > 1:
+            tasknames, model_Ts = zip(*self.model_T.items())
+            models = [self.model_S] + list(model_Ts)
+            models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
+            self.model_S = models[0]
+            self.model_T = dict(zip(tasknames,models[1:]))
+        if self.t_config.data_parallel:
             self.model_S = torch.nn.DataParallel(self.model_S)
-            # self.model_T is a dictionary
-            self.model_T = {k:torch.nn.DataParallel(v) for k,v in self.model_T}
+            self.model_T = {k:torch.nn.DataParallel(v) for k,v in self.model_T.items()}
 
         total_global_steps = num_steps
         ckpt_steps =self.t_config.ckpt_steps

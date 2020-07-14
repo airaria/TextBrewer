@@ -25,7 +25,7 @@ class BasicDistiller(AbstractDistiller):
 
     def save_and_callback(self,global_step, step, epoch, callback):
         logger.info(f"Saving at global step {global_step}, epoch step {step + 1} epoch {epoch+1}")
-        coreModel = self.model_S.module if hasattr(self.model_S, "module") else self
+        coreModel = self.model_S.module if hasattr(self.model_S, "module") else self.model_S
         state_dict = coreModel.state_dict()
         torch.save(state_dict, os.path.join(self.t_config.output_dir, f"gs{global_step}.pkl"))
         if callback is not None:
@@ -79,7 +79,13 @@ class BasicDistiller(AbstractDistiller):
         if self.t_config.fp16:
             if not has_apex:
                 raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
-            self.model_S, optimizer = amp.initialize(self.model_S, optimizer, opt_level=self.t_config.fp16_opt_level)
+            if isinstance(self.model_T,(list,tuple)):
+                models = [self.model_S] + list(self.model_T)
+                models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
+                self.model_S = models[0]
+                self.model_T =models[1:]
+            else:
+                (self.model_S, self.model_T), optimizer = amp.initialize([self.model_S, self.model_T], optimizer, opt_level=self.t_config.fp16_opt_level)
         if self.t_config.data_parallel:
             self.model_S = torch.nn.DataParallel(self.model_S)
             if isinstance(self.model_T,(list,tuple)):
