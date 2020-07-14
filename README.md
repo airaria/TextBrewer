@@ -25,14 +25,14 @@
 
 Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
-[Full Documentatio (public version)](https://textbrewer.readthedocs.io/)
+[Full Documentation (public version)](https://textbrewer.readthedocs.io/)
 
 ## Update
 
 **Jul 14, 2020**
-* **Updated to 0.1.9**.
-* Now supports mixed precision training with Apex! Just set `fp16` to `True` in `TrainingConfig`. See the documentation of `TrainingConfig` for detail.
-* Added `data_parallel` option in `TrainingConfig` to enable data parallel training and mixed precision training work together.
+* **Updated to 0.1.10**:
+    * Now supports mixed precision training with Apex! Just set `fp16` to `True` in `TrainingConfig`. See the documentation of `TrainingConfig` for detail.
+    * Added `data_parallel` option in `TrainingConfig` to enable data parallel training and mixed precision training work together.
 
 **Apr 26, 2020**
 
