@@ -142,7 +142,7 @@ adatpor(batch: Union[Dict,Tuple], model_outputs: Tuple) -> Dict
 
 ### Configurations
 
-class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **ckpt_steps** = None, **log_dir** = None, **output_dir** = './saved_models', **device** = 'cuda')
+class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **ckpt_steps** = None, **log_dir** = None, **output_dir** = './saved_models', **device** = 'cuda', **fp16** = False, **fp16_opt_level** = 'O1', **data_parallel** = False)
 
 * **gradient_accumulation_steps** (`int`) : 梯度累加以节约显存。每计算 *gradient_accumulation_steps* 个batch的梯度，调用一次optimizer.step()。大于1时用于在大batch_size情况下节约显存。
 * **ckpt_frequency** (`int`) : 存储模型权重的频率。每训练一个epoch储存模型权重的次数。
@@ -155,6 +155,15 @@ class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt
 * **log_dir** (`str`) : 存放tensorboard日志的位置。如果为None，不启用tensorboard。
 * **output_dir** (`str`) : 储存模型权重的位置。
 * **device** (`str`, `torch.device`) : 在CPU或GPU上训练。
+* **fp16** (`bool`) : 是否启用Apex混合精度训练。
+* **fp16_opt_level** (`str`) : 混合精度优化等级，可以为 "O0"、"O1"、"O2"和"O3"。详细解释参见Apex文档。
+* **data_parallel** (`bool`) : 如果设为`True`, 将对模型调用`torch.nn.DataParallel`以启用数据并行。
+
+注意：
+
+  * 若要进行数据并行训练，既可以手动对模型调用`torch.nn.DataParallel`，之后将模型传入distiller；也可将裸模型传入distiller并设置TrainingConfig中的`data_parallel`为`True`。
+  * 若要同时进行数据并行和混合精度训练，设置`data_parallel`为`True`，并传入裸模型，**请勿**传入`torch.nn.DataParallel`包装后的模型。
+
 
 示例：
 

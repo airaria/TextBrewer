@@ -29,7 +29,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 ## 更新
 
 **Jul 14, 2020**
-
+* **版本号更新至0.1.10**。
 * 支持apex混合精度训练功能：可通过在`TrainingConfig`中设置`fp16=True`启用。详细设置参见`TraningConfig`的说明。
 * 在`TrainingConfig`中增加了`data_parallel`选项，使得数据并行与混合精度训练可同时启用。
 
