@@ -25,8 +25,7 @@ class BasicDistiller(AbstractDistiller):
 
     def save_and_callback(self,global_step, step, epoch, callback):
         logger.info(f"Saving at global step {global_step}, epoch step {step + 1} epoch {epoch+1}")
-        coreModel = self.model_S.module if \
-            'DataParallel' in self.model_S.__class__.__name__ else self.model_S
+        coreModel = self.model_S.module if hasattr(self.model_S, "module") else self.model_S
         state_dict = coreModel.state_dict()
         torch.save(state_dict, os.path.join(self.t_config.output_dir, f"gs{global_step}.pkl"))
         if callback is not None:
@@ -77,6 +76,23 @@ class BasicDistiller(AbstractDistiller):
             # overwrite scheduler
             scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
 
+        if self.t_config.fp16:
+            if not has_apex:
+                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
+            if isinstance(self.model_T,(list,tuple)):
+                models = [self.model_S] + list(self.model_T)
+                models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
+                self.model_S = models[0]
+                self.model_T =models[1:]
+            else:
+                (self.model_S, self.model_T), optimizer = amp.initialize([self.model_S, self.model_T], optimizer, opt_level=self.t_config.fp16_opt_level)
+        if self.t_config.data_parallel:
+            self.model_S = torch.nn.DataParallel(self.model_S)
+            if isinstance(self.model_T,(list,tuple)):
+                self.model_T = [torch.nn.DataParallel(model_t) for model_t in self.model_T]
+            else:
+                self.model_T = torch.nn.DataParallel(self.model_T)
+
         if num_steps is not None:
             if self.d_config.is_caching_logits is True:
                 logger.warning("is_caching_logits is True, but num_steps is not None!")
@@ -96,14 +112,21 @@ class BasicDistiller(AbstractDistiller):
                     batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
                 total_loss /= self.t_config.gradient_accumulation_steps
-                total_loss.backward()
+                if self.t_config.fp16:
+                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
+                        scaled_loss.backward()
+                else:
+                    total_loss.backward()
 
                 self.write_loss(total_loss, writer_step)
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
                     if max_grad_norm > 0:
-                        torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
+                        if self.t_config.fp16:
+                            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
+                        else:
+                            torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
@@ -153,14 +176,21 @@ class BasicDistiller(AbstractDistiller):
                         batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
                 total_loss /= self.t_config.gradient_accumulation_steps
-                total_loss.backward()
+                if self.t_config.fp16:
+                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
+                        scaled_loss.backward()
+                else:
+                    total_loss.backward()
 
                 self.write_loss(total_loss, writer_step)
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
                     if max_grad_norm > 0:
-                        torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
+                        if self.t_config.fp16:
+                            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
+                        else:
+                            torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm) 
                     optimizer.step()
                     if scheduler is not None:
                         scheduler.step()
