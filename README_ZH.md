@@ -27,6 +27,11 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## 更新
 
+**Jul 14, 2020**
+
+* 支持apex混合精度训练功能：可通过在`TrainingConfig`中设置`fp16=True`启用。详细设置参见`TraningConfig`的说明。
+* 在`TrainingConfig`中增加了`data_parallel`选项，使得数据并行与混合精度训练可同时启用。
+
 **Apr 26, 2020**
 
 * 增加了中文NER任务(MSRA NER)上的实验结果。
@@ -115,6 +120,7 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 * NumPy
 * tqdm
 * Transformers >= 2.0 (可选, Transformer相关示例需要用到)
+* Apex == 0.1.0 (可选，用于混合精度训练)
 
 ### 安装方式
 
@@ -381,7 +387,6 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 
 ## 已知问题
 
-* FP16精度训练的兼容性尚未测试。
 * 尚不支持DataParallel以外的多卡训练策略。
 
 ## 引用

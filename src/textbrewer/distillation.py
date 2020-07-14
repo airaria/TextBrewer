@@ -120,8 +120,7 @@ class BasicDistiller(AbstractDistiller):
 
     def save_and_callback(self,global_step, step, epoch, callback):
         logger.info(f"Saving at global step {global_step}, epoch step {step + 1} epoch {epoch+1}")
-        coreModel = self.model_S.module if \
-            'DataParallel' in self.model_S.__class__.__name__ else self.model_S
+        coreModel = self.model.module if hasattr(self.model, "module") else self
         state_dict = coreModel.state_dict()
         torch.save(state_dict, os.path.join(self.t_config.output_dir, f"gs{global_step}.pkl"))
         if callback is not None:

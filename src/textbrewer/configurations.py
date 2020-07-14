@@ -43,18 +43,24 @@ class TrainingConfig(Config):
         ckpt_steps (int):  if *num_steps* is passes to ``distiller.train()``, saves the model every **ckpt_steps**, meanwhile ignore `ckpt_frequency` and `ckpt_epoch_frequency` .
         log_dir (str): directory to save the tensorboard log file. Set it to ``None`` to disable tensorboard.
         output_dir (str): directory to save model weights.
-        device (str or torch.device) : training on CPU or GPU.
+        device (str or torch.device): training on CPU or GPU.
+        fp16 (bool): if ``True``, enables mixed precision training using Apex.
+        fp16_opt_level(str): Pure or mixed precision optimization level. Accepted values are "O0", "O1", "O2", and "O3". See Apex documenation for details.
+        data_parallel (bool): If ``True``, wraps the models with ``torch.nn.DataParallel``.
+    Note:
+        * To perform data parallel training, you could either wrap the models with ``torch.nn.DataParallel`` outside TextBrewer by yourself, or leave the work for TextBrewer by setting **data_parallel** to ``True``.
+        * To enable both data parallel training and mixed precision training, you should set **data_parallel** to ``True``, and DO NOT wrap the models by yourself.
 
     Example::
 
         # Usually just need to set log_dir and output_dir and leave others default
         train_config = TrainingConfig(log_dir=my_log_dir, output_dir=my_output_dir)
         
-        # Stores model at the end of each epoch
+        # Stores the model at the end of each epoch
         train_config = TrainingConfig(ckpt_frequency=1, ckpt_epoch_frequency=1)
-        # Stores model twice (at the middle and at the end) in each epoch
+        # Stores the model twice (at the middle and at the end) in each epoch
         train_config = TrainingConfig(ckpt_frequency=2, ckpt_epoch_frequency=1)
-        # Stores model once every two epochs
+        # Stores the model once every two epochs
         train_config = TrainingConfig(ckpt_frequency=1, ckpt_epoch_frequency=2)
 
     """
@@ -64,7 +70,10 @@ class TrainingConfig(Config):
                  ckpt_steps = None,
                  log_dir = None,
                  output_dir = './saved_models',
-                 device = 'cuda'
+                 device = 'cuda',
+                 fp16 = False,
+                 fp16_opt_level = 'O1',
+                 data_parallel = False
                  ):
         super(TrainingConfig, self).__init__()
 
@@ -75,6 +84,9 @@ class TrainingConfig(Config):
         self.log_dir = log_dir
         self.output_dir = output_dir
         self.device = device
+        self.fp16 = fp16
+        self.fp16_opt_level = fp16_opt_level
+        self.data_parallel = data_parallel
 
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
