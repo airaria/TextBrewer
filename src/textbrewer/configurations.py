@@ -50,7 +50,7 @@ class TrainingConfig(Config):
     Note:
         * To perform data parallel training, you could either wrap the models with ``torch.nn.DataParallel`` outside TextBrewer by yourself, or leave the work for TextBrewer by setting **data_parallel** to ``True``.
         * To enable both data parallel training and mixed precision training, you should set **data_parallel** to ``True``, and DO NOT wrap the models by yourself.
-
+        * In some experiments, we have observed the slowing down in the speed with ``torch.nn.DataParallel``. In the future we will move to DistributedDataParallel.
     Example::
 
         # Usually just need to set log_dir and output_dir and leave others default
