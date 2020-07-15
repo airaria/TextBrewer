@@ -163,6 +163,7 @@ class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt
 
   * 若要进行数据并行训练，既可以手动对模型调用`torch.nn.DataParallel`，之后将模型传入distiller；也可将裸模型传入distiller并设置TrainingConfig中的`data_parallel`为`True`。
   * 若要同时进行数据并行和混合精度训练，设置`data_parallel`为`True`，并传入裸模型，**请勿**传入`torch.nn.DataParallel`包装后的模型。
+  * 在一些实验中我们发现使用`torch.nn.DataParallel`并不会带来速度的提升，反而会显著降低速度。在之后的升级中我们将加入对DistributedDataParallel并行方式的支持。
 
 
 示例：
