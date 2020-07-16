@@ -13,7 +13,12 @@ from typing import Optional, Dict, Union
 from .presets import *
 from .configurations import TrainingConfig, DistillationConfig
 import random
-from .compatibility import mask_dtype
+from .compatibility import mask_dtype, is_apex_available
+
+has_apex = is_apex_available()
+if has_apex:
+    from apex import amp
+
 
 logger = logging.getLogger("Distillation")
 #logger.setLevel(logging.INFO)
