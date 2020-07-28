@@ -29,6 +29,10 @@ Paper: [https://arxiv.org/abs/2002.12620](https://arxiv.org/abs/2002.12620)
 
 ## Update
 
+**Jul 28, 2020**
+* **Updated to 0.2.0**:
+    * Added support for distributed data-parallel training with `DistributedDataParallel`: `TrainingConfig` now accpects the `local_rank` argument. See the documentation of `TrainingConfig` for detail.
+
 **Jul 14, 2020**
 * **Updated to 0.1.10**:
     * Now supports mixed precision training with Apex! Just set `fp16` to `True` in `TrainingConfig`. See the documentation of `TrainingConfig` for detail.
@@ -416,7 +420,7 @@ We recommend that users use pre-trained student models whenever possible to full
 
 ## Known Issues
 
-* Multi-GPU training support is only available through `DataParallel` currently.
+* ~~Multi-GPU training support is only available through `DataParallel` currently.~~
 
 ## Citation
 

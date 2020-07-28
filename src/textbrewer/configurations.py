@@ -47,10 +47,13 @@ class TrainingConfig(Config):
         fp16 (bool): if ``True``, enables mixed precision training using Apex.
         fp16_opt_level(str): Pure or mixed precision optimization level. Accepted values are "O0", "O1", "O2", and "O3". See Apex documenation for details.
         data_parallel (bool): If ``True``, wraps the models with ``torch.nn.DataParallel``.
+        local_rank (int): the local rank of the current processes. A non-nagative value means that we are in the distributed training mode with ``DistributedDataParallel``.  
     Note:
-        * To perform data parallel training, you could either wrap the models with ``torch.nn.DataParallel`` outside TextBrewer by yourself, or leave the work for TextBrewer by setting **data_parallel** to ``True``.
+        * To perform data parallel (DP) training, you could either wrap the models with ``torch.nn.DataParallel`` outside TextBrewer by yourself, or leave the work for TextBrewer by setting **data_parallel** to ``True``.
         * To enable both data parallel training and mixed precision training, you should set **data_parallel** to ``True``, and DO NOT wrap the models by yourself.
-        * In some experiments, we have observed the slowing down in the speed with ``torch.nn.DataParallel``. In the future we will move to DistributedDataParallel.
+        * In some experiments, we have observed slowing down in the speed with ``torch.nn.DataParallel``.
+        * To perform distributed data parallel (DDP) training, you should call ``torch.distributed.init_process_group`` before intializing a TrainingConfig; and pass the **raw** (unwrapped) model when initializing the distiller.
+        * DP and DDP are mutual exclusive.
     Example::
 
         # Usually just need to set log_dir and output_dir and leave others default
@@ -73,7 +76,8 @@ class TrainingConfig(Config):
                  device = 'cuda',
                  fp16 = False,
                  fp16_opt_level = 'O1',
-                 data_parallel = False
+                 data_parallel = False,
+                 local_rank = -1
                  ):
         super(TrainingConfig, self).__init__()
 
@@ -88,8 +92,10 @@ class TrainingConfig(Config):
         self.fp16_opt_level = fp16_opt_level
         self.data_parallel = data_parallel
 
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
+        self.local_rank = local_rank
+        if self.local_rank == -1 or torch.distributed.get_rank() == 0:
+            if not os.path.exists(self.output_dir):
+                os.makedirs(self.output_dir)
 
 
 class IntermediateMatch:
@@ -173,7 +179,7 @@ class DistillationConfig(Config):
         * '**weight**': `weight` (float) : weight for the loss.
         * '**proj**' : `proj` (*List*, optional) : if the teacher and the student have the same feature dimension, it is optional; otherwise it is required. It is the mapping function to match teacher and student intermediate feature dimension. It is a list, with these elements:
 
-            * **proj[0]** (*str*): mapping function, can be ``'linear'``, ``'relu'``, ``'tanh'``. See :data:`textbrewer.presets.PROJ_MAP`.
+            * **proj[0]** (*str*): mapping function, can be ``'linear'``, ``'relu'``, ``'tanh'``. See :data:`~textbrewer.presets.PROJ_MAP`.
             * **proj[1]** (*int*): feature dimension of student model.
             * **proj[2]** (*int*): feature dimension of teacher model.
             * **proj[3]** (*dict*): optional, provides configurations such as learning rate. If not provided, the learning rate and optimizer configurations will follow the default config of the optimizer, otherwise it will use the ones specified here.

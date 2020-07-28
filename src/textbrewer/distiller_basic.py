@@ -24,19 +24,25 @@ class BasicDistiller(AbstractDistiller):
         super(BasicDistiller, self).__init__(train_config, distill_config, model_T, model_S, adaptor_T, adaptor_S)
 
     def save_and_callback(self,global_step, step, epoch, callback):
-        logger.info(f"Saving at global step {global_step}, epoch step {step + 1} epoch {epoch+1}")
-        coreModel = self.model_S.module if hasattr(self.model_S, "module") else self.model_S
-        state_dict = coreModel.state_dict()
-        torch.save(state_dict, os.path.join(self.t_config.output_dir, f"gs{global_step}.pkl"))
+        if self.rank != 0:
+            torch.distributed.barrier()    # save and eval with single process
+        else:
+            logger.info(f"Saving at global step {global_step}, epoch step {step + 1} epoch {epoch+1}")
+            coreModel = self.model_S.module if hasattr(self.model_S, "module") else self.model_S
+            state_dict = coreModel.state_dict()
+            torch.save(state_dict, os.path.join(self.t_config.output_dir, f"gs{global_step}.pkl"))
+            if self.local_rank == 0:
+                torch.distributed.barrier()
         if callback is not None:
             logger.info("Running callback function...")
             callback(model=self.model_S, step=global_step)
             self.model_S.train()
 
-    def write_loss(self, total_loss, writer_step):
 
-        cpu_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
-        self.tb_writer.add_scalar('scalar/total_loss', cpu_total_loss, writer_step)
+    def write_loss(self, total_loss, writer_step):
+        if self.rank == 0:
+            cpu_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
+            self.tb_writer.add_scalar('scalar/total_loss', cpu_total_loss, writer_step)
 
         #for name, loss in losses_dict.items():
         #    cpu_loss = loss.cpu().item() * self.t_config.gradient_accumulation_steps
@@ -86,12 +92,31 @@ class BasicDistiller(AbstractDistiller):
                 self.model_T =models[1:]
             else:
                 (self.model_S, self.model_T), optimizer = amp.initialize([self.model_S, self.model_T], optimizer, opt_level=self.t_config.fp16_opt_level)
-        if self.t_config.data_parallel:
+        if self.local_rank != -1:
+            self.model_S = torch.nn.parallel.DistributedDataParallel(self.model_S,
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True)
+            if isinstance(self.model_T,(list,tuple)):
+                self.model_T = [torch.nn.parallel.DistributedDataParallel(model_t,
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True) for model_t in self.model_T]
+            else:
+                self.model_T = torch.nn.parallel.DistributedDataParallel(self.model_T,
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True)
+            if hasattr(self,'projs'):
+                for i,proj in enumerate(self.projs):
+                    if proj is not None:
+                        assert isinstance(proj,nn.Module)
+                        self.projs[i] = torch.nn.parallel.DistributedDataParallel(proj,
+                            device_ids = [self.local_rank], output_device = self.local_rank)
+        elif self.t_config.data_parallel:
             self.model_S = torch.nn.DataParallel(self.model_S)
             if isinstance(self.model_T,(list,tuple)):
                 self.model_T = [torch.nn.DataParallel(model_t) for model_t in self.model_T]
             else:
                 self.model_T = torch.nn.DataParallel(self.model_T)
+        tqdm_disable = None if self.rank == 0 else True
 
         if num_steps is not None:
             if self.d_config.is_caching_logits is True:
@@ -107,7 +132,7 @@ class BasicDistiller(AbstractDistiller):
 
             global_step = 0
             writer_step = 0
-            for step, batch in tqdm(enumerate(cycle(dataloader)),disable=None):
+            for step, batch in tqdm(enumerate(cycle(dataloader)),disable=tqdm_disable):
                 if batch_postprocessor is not None:
                     batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
@@ -161,17 +186,19 @@ class BasicDistiller(AbstractDistiller):
 
         if self.d_config.is_caching_logits is True:
             logger.info(f"Caching batches and teacher's logits...")
-            for step, batch in tqdm(enumerate(dataloader),disable=None):
+            for step, batch in tqdm(enumerate(dataloader),disable=tqdm_disable):
                 self.cache_logits(batch, args, batch_postprocessor)
 
-        for current_epoch in tqdm(range(int(num_epochs)),disable=None):
+        for current_epoch in tqdm(range(int(num_epochs)),disable=tqdm_disable):
+            if self.local_rank != -1 and hasattr(dataloader,'sampler'):
+                dataloader.sampler.set_epoch(current_epoch)  #In distributed mode, calling the set_epoch method is needed to make shuffling work;
             logger.info(f"Epoch {current_epoch+1}")
             optimizer.zero_grad()
             if self.d_config.is_caching_logits:
                 random.shuffle(self.logits_cache)
                 dataloader = self.logits_cache
             logger.info(f"Length of current epoch in forward batch: {len(dataloader)}")
-            for step, batch in tqdm(enumerate(dataloader),disable=None):
+            for step, batch in tqdm(enumerate(dataloader),disable=tqdm_disable):
                 if self.d_config.is_caching_logits is False and batch_postprocessor is not None:
                         batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
@@ -205,7 +232,6 @@ class BasicDistiller(AbstractDistiller):
 
                     if (global_step) % print_every == 0:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
-                        #logger.info(f"lrs:{[g['lr'] for g in optimizer.param_groups]}")
                     if (global_step%train_steps_per_epoch in checkpoints) \
                             and ((current_epoch+1)%self.t_config.ckpt_epoch_frequency==0 or current_epoch+1==num_epochs):
                         self.save_and_callback(global_step, step, current_epoch, callback)

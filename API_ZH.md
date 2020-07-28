@@ -142,7 +142,7 @@ adatpor(batch: Union[Dict,Tuple], model_outputs: Tuple) -> Dict
 
 ### Configurations
 
-class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **ckpt_steps** = None, **log_dir** = None, **output_dir** = './saved_models', **device** = 'cuda', **fp16** = False, **fp16_opt_level** = 'O1', **data_parallel** = False)
+class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt_frequency** = 1, **ckpt_epoch_frequency**=1, **ckpt_steps** = None, **log_dir** = None, **output_dir** = './saved_models', **device** = 'cuda', **fp16** = False, **fp16_opt_level** = 'O1', **data_parallel** = False, **local_rank** = -1)
 
 * **gradient_accumulation_steps** (`int`) : 梯度累加以节约显存。每计算 *gradient_accumulation_steps* 个batch的梯度，调用一次optimizer.step()。大于1时用于在大batch_size情况下节约显存。
 * **ckpt_frequency** (`int`) : 存储模型权重的频率。每训练一个epoch储存模型权重的次数。
@@ -158,13 +158,14 @@ class **textbrewer.TrainingConfig** (**gradient_accumulation_steps** = 1, **ckpt
 * **fp16** (`bool`) : 是否启用Apex混合精度训练。
 * **fp16_opt_level** (`str`) : 混合精度优化等级，可以为 "O0"、"O1"、"O2"和"O3"。详细解释参见Apex文档。
 * **data_parallel** (`bool`) : 如果设为`True`, 将对模型调用`torch.nn.DataParallel`以启用数据并行。
-
+* **local_rank** (`int`) : 分布式数据并行训练中当前进程的local_rank。如果非负，意味着当前处于分布式数据并行训练模式。详细解释参见PyTorch文档中关于``DistributedDataParallel``的说明。
 注意：
 
-  * 若要进行数据并行训练，既可以手动对模型调用`torch.nn.DataParallel`，之后将模型传入distiller；也可将裸模型传入distiller并设置TrainingConfig中的`data_parallel`为`True`。
+  * 若要进行数据并行(DataParallel, DP)训练，既可以手动对模型调用`torch.nn.DataParallel`，之后将模型传入distiller；也可将裸模型传入distiller并设置TrainingConfig中的`data_parallel`为`True`。
   * 若要同时进行数据并行和混合精度训练，设置`data_parallel`为`True`，并传入裸模型，**请勿**传入`torch.nn.DataParallel`包装后的模型。
-  * 在一些实验中我们发现使用`torch.nn.DataParallel`并不会带来速度的提升，反而会显著降低速度。在之后的升级中我们将加入对DistributedDataParallel并行方式的支持。
-
+  * 在一些实验中我们发现使用`torch.nn.DataParallel`并不会带来速度的提升，反而会显著降低速度。
+  * 若要进行分布式数据并行(DistributedDataParallel, DDP)训练，用户应确保在构造TrainingConfig前调用了``torch.distributed.init_process_group``，并且构造distiller时传入裸(unwrapped)模型。
+  * DDP训练和DP训练两种模式只可二选一。
 
 示例：
 
