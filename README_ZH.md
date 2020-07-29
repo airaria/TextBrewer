@@ -23,7 +23,7 @@
 
 可以通过[ACL Anthology](https://www.aclweb.org/anthology/2020.acl-demos.2/)或[arXiv pre-print](https://arxiv.org/abs/2002.12620)查看我们的论文。
 
-[完整文档](https://textbrewer.readthedocs.io/)
+### [TextBrewer完整文档](https://textbrewer.readthedocs.io/)
 
 ## 哈工大讯飞联合实验室（HFL）2021提前批校园招聘开始了！欢迎各位[投递简历](https://dwz.cn/u2EUhI6X)！
 
