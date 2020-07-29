@@ -25,6 +25,8 @@
 
 [完整文档](https://textbrewer.readthedocs.io/)
 
+## 哈工大讯飞联合实验室（HFL）2021提前批校园招聘开始了！欢迎各位[投递简历](https://dwz.cn/u2EUhI6X)！
+
 ## 更新
 
 **Jul 14, 2020**
