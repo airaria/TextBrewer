@@ -28,8 +28,14 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 ## Update
 
+**Jul 29, 2020**
+
+* **Updated to 0.2.0**:
+    * Added the support for distributed data-parallel training with `DistributedDataParallel`: `TrainingConfig` now accpects the `local_rank` argument. See the documentation of `TrainingConfig` for detail.
+* Added an example of distillation on the Chinese NER task to demonstrate distributed data-parallel training. See [examples/msra_ner_example](examples/msra_ner_example).
+
 **Jul 14, 2020**
-* Updated to 0.1.10:
+* **Updated to 0.1.10**:
     * Now supports mixed precision training with Apex! Just set `fp16` to `True` in `TrainingConfig`. See the documentation of `TrainingConfig` for detail.
     * Added `data_parallel` option in `TrainingConfig` to enable data parallel training and mixed precision training work together.
 
@@ -41,17 +47,17 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 **Apr 22, 2020**
 
-* Updated to 0.1.9 (added cache option which speeds up distillation; fixed some bugs). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9).
+* **Updated to 0.1.9** (added cache option which speeds up distillation; fixed some bugs). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.9).
 * Added experimential results for distilling Electra-base to Electra-small on Chinese tasks.
 * TextBrewer has been accepted by [ACL 2020](http://acl2020.org) as a demo paper, please use our new [bib entry](#Citation).
 
 **Mar 17, 2020**
 
-* Added CoNLL-2003 English NER distillation example, see [examples/conll2003_example](examples/conll2003_example).
+* Added CoNLL-2003 English NER distillation example. See [examples/conll2003_example](examples/conll2003_example).
 
 **Mar 11, 2020**
 
-* Updated to 0.1.8 (Improvements on TrainingConfig and train method). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.8).
+* **Updated to 0.1.8** (Improvements on TrainingConfig and train method). See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.8).
 
 **Mar 2, 2020**
 
@@ -398,7 +404,7 @@ We recommend that users use pre-trained student models whenever possible to full
 
 ## Known Issues
 
-* Multi-GPU training support is only available through `DataParallel` currently.
+* ~~Multi-GPU training support is only available through `DataParallel` currently.~~
 
 ## Citation
 

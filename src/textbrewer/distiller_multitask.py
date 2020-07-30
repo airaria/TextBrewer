@@ -64,7 +64,14 @@ class MultiTaskDistiller(BasicDistiller):
             models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
             self.model_S = models[0]
             self.model_T = dict(zip(tasknames,models[1:]))
-        if self.t_config.data_parallel:
+        if self.local_rank != -1:
+            self.model_S = torch.nn.parallel.DistributedDataParallel(self.model_S, 
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True)
+            self.model_T = {k:torch.nn.parallel.DistributedDataParallel(v, 
+                    device_ids = [self.local_rank], output_device = self.local_rank,
+                    find_unused_parameters = True) for k,v in self.model_T.items()}
+        elif self.t_config.data_parallel:
             self.model_S = torch.nn.DataParallel(self.model_S)
             self.model_T = {k:torch.nn.DataParallel(v) for k,v in self.model_T.items()}
 
@@ -110,8 +117,9 @@ class MultiTaskDistiller(BasicDistiller):
                         scaled_loss.backward()
                 else:
                     total_loss.backward()
-                scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
-                self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
+                if self.rank == 0:
+                    scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
+                    self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
                 writer_step += 1
             if max_grad_norm > 0:
                 if self.t_config.fp16:

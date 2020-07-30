@@ -6,7 +6,7 @@ This example demonstrates distilltion on MNLI task.
 * run_mnli_distill_T4tiny.sh : distills the teacher to T4tiny.
 * run_mnli_distill_multiteacher.sh : runs multi-teacher distillation，distilling several teacher models into a student model.
 
-Modify the following variables in the shell scripts before running:
+Set the following variables in the shell scripts before running:
 
 * BERT_DIR : where BERT-base-cased stores，including vocab.txt, pytorch_model.bin, bert_config.json
 * OUTPUT_ROOT_DIR : this directory stores logs and trained model weights

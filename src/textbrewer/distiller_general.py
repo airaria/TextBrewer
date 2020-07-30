@@ -87,7 +87,7 @@ class GeneralDistiller(BasicDistiller):
         logger.debug("Optimizer param group: ")
         logger.debug(f"{[[s.shape for s in g['params']] for g in optimizer.param_groups]}")
 
-        super(GeneralDistiller, self).train(optimizer, dataloader, num_epochs,  scheduler_class, scheduler_args, scheduler, max_grad_norm, num_steps, callback, batch_postprocessor, **args)
+        super(GeneralDistiller, self).train(optimizer, dataloader, num_epochs, scheduler_class, scheduler_args, scheduler, max_grad_norm, num_steps, callback, batch_postprocessor, **args)
 
     def train_on_batch(self, batch, args):
         if type(batch) is dict:

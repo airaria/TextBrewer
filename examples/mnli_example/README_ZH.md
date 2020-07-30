@@ -6,7 +6,7 @@
 * run_mnli_distill_T4tiny.sh : 在MNLI上蒸馏教师模型到T4Tiny
 * run_mnli_distill_multiteacher.sh : 执行多教师蒸馏，将多个教师模型压缩到一个学生模型
 
-运行脚本前，请根据自己的环境修改相应变量：
+运行脚本前，请根据自己的环境设置相应变量：
 
 * BERT_DIR : 存放BERT-base-cased模型的目录，包含vocab.txt, pytorch_model.bin, bert_config.json
 * OUTPUT_ROOT_DIR : 存放训练好的模型和日志

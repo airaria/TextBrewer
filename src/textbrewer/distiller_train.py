@@ -26,7 +26,11 @@ class BasicTrainer:
         self.t_config = train_config
         self.model = model
         self.adaptor = adaptor
-        if self.t_config.log_dir is not None:
+        self.local_rank = self.t_config.local_rank
+        self.rank = 0
+        if self.local_rank != -1:
+            self.rank = torch.distributed.get_rank()
+        if self.t_config.log_dir is not None and self.rank == 0:
             self.tb_writer = SummaryWriter(log_dir = self.t_config.log_dir)
         else:
             self.tb_writer = no_op
@@ -46,9 +50,14 @@ class BasicTrainer:
                 raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
             self.model, optimizer = amp.initialize(self.model, optimizer, opt_level=self.t_config.fp16_opt_level)
 
-        #dataparallel multi-gpu training
-        if self.t_config.data_parallel:
+        #Multi-gpu training
+        if self.local_rank != -1:
+            self.model = torch.nn.parallel.DistributedDataParallel(self.model, 
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True)
+        elif self.t_config.data_parallel:  # exclusive with DDP
             self.model = torch.nn.DataParallel(self.model)
+        tqdm_disable = None if self.rank == 0 else True
 
         if num_steps is not None:
             total_global_steps = num_steps
@@ -62,7 +71,7 @@ class BasicTrainer:
 
             global_step = 0
             writer_step = 0
-            for step, batch in tqdm(enumerate(cycle(dataloader)),disable=None):
+            for step, batch in tqdm(enumerate(cycle(dataloader)),disable=tqdm_disable):
                 if batch_postprocessor is not None:
                     batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
@@ -73,8 +82,9 @@ class BasicTrainer:
                 else:
                     total_loss.backward()
 
-                scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
-                self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
+                if self.rank == 0:
+                    scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
+                    self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
@@ -91,10 +101,15 @@ class BasicTrainer:
                     if (global_step) % print_every == 0:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
                     if (global_step%ckpt_steps==0) or global_step==total_global_steps:
-                        logger.info(f"Saving at global step {global_step}")
-                        coreModel = self.model.module if hasattr(self.model, "module") else self.model
-                        state_dict = coreModel.state_dict()
-                        torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
+                        if self.rank != 0:
+                            torch.distributed.barrier()    # save and eval with single process
+                        else:
+                            logger.info(f"Saving at global step {global_step}")
+                            coreModel = self.model.module if hasattr(self.model, "module") else self.model
+                            state_dict = coreModel.state_dict()
+                            torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
+                            if self.local_rank == 0: # DDP is enabled
+                                torch.distributed.barrier()
                         if callback is not None:
                             logger.info("Running callback function...")
                             callback(model=self.model, step=global_step)
@@ -112,11 +127,13 @@ class BasicTrainer:
 
         global_step = 0
         writer_step = 0
-        for current_epoch in tqdm(range(int(num_epochs)),disable=None):
+        for current_epoch in tqdm(range(int(num_epochs)),disable=tqdm_disable):
+            if self.local_rank != -1 and hasattr(dataloader,'sampler'):
+                dataloader.sampler.set_epoch(current_epoch)  #In distributed mode, calling the set_epoch method is needed to make shuffling work;
             logger.info(f"Epoch {current_epoch+1}")
             optimizer.zero_grad()
             logger.info(f"Length of current epoch in forward batch: {len(dataloader)}")
-            for step, batch in tqdm(enumerate(dataloader),disable=None):
+            for step, batch in tqdm(enumerate(dataloader),disable=tqdm_disable):
                 if batch_postprocessor is not None:
                     batch = batch_postprocessor(batch)
                 total_loss = self.train_on_batch(batch,args)
@@ -127,8 +144,9 @@ class BasicTrainer:
                 else:
                     total_loss.backward()
 
-                scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
-                self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
+                if self.rank == 0:
+                    scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
+                    self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
                 writer_step += 1
 
                 if (step+1)%self.t_config.gradient_accumulation_steps == 0:
@@ -146,10 +164,15 @@ class BasicTrainer:
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
                     if (global_step%train_steps_per_epoch in checkpoints) \
                             and ((current_epoch+1)%self.t_config.ckpt_epoch_frequency==0 or current_epoch+1==num_epochs):
-                        logger.info(f"Saving at global step {global_step}, epoch step {step+1} epoch {current_epoch+1}")
-                        coreModel = self.model.module if hasattr(self.model, "module") else self.model
-                        state_dict = coreModel.state_dict()
-                        torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
+                        if self.rank != 0:
+                            torch.distributed.barrier()    # save and eval with single process
+                        else:
+                            logger.info(f"Saving at global step {global_step}, epoch step {step+1} epoch {current_epoch+1}")
+                            coreModel = self.model.module if hasattr(self.model, "module") else self.model
+                            state_dict = coreModel.state_dict()
+                            torch.save(state_dict, os.path.join(self.t_config.output_dir,f"gs{global_step}.pkl"))
+                            if self.local_rank == 0: # DDP is enabled
+                                torch.distributed.barrier()
                         if callback is not None:
                             logger.info("Running callback function...")
                             callback(model=self.model, step=global_step)

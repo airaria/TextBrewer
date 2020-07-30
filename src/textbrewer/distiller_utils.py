@@ -101,7 +101,12 @@ class AbstractDistiller(DistillationContext):
         self.adaptor_T = adaptor_T
 
         self.kd_loss = KD_LOSS_MAP[self.d_config.kd_loss_type]
-        if self.t_config.log_dir is not None:
+
+        self.local_rank = self.t_config.local_rank
+        self.rank = 0
+        if self.local_rank != -1:
+            self.rank = torch.distributed.get_rank()
+        if self.t_config.log_dir is not None and self.rank == 0:
             self.tb_writer = SummaryWriter(log_dir = self.t_config.log_dir)
         else:
             self.tb_writer = no_op
