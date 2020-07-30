@@ -10,7 +10,7 @@
 * Transformers
 * seqeval
 
-运行脚本前，请根据自己的环境修改相应变量：
+运行脚本前，请根据自己的环境设置相应变量：
 
 * BERT_MODEL : 存放BERT-base模型的目录，包含vocab.txt, pytorch_model.bin, config.json
 * OUTPUT_DIR : 存放训练好的模型权重文件

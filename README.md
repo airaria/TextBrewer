@@ -29,8 +29,10 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 ## Update
 
 **Jul 29, 2020**
+
 * **Updated to 0.2.0**:
-    * Added support for distributed data-parallel training with `DistributedDataParallel`: `TrainingConfig` now accpects the `local_rank` argument. See the documentation of `TrainingConfig` for detail.
+    * Added the support for distributed data-parallel training with `DistributedDataParallel`: `TrainingConfig` now accpects the `local_rank` argument. See the documentation of `TrainingConfig` for detail.
+* Added an example of distillation on the Chinese NER task to demonstrate distributed data-parallel training. See [examples/msra_ner_example](examples/msra_ner_example).
 
 **Jul 14, 2020**
 * **Updated to 0.1.10**:
@@ -51,7 +53,7 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 **Mar 17, 2020**
 
-* Added CoNLL-2003 English NER distillation example, see [examples/conll2003_example](examples/conll2003_example).
+* Added CoNLL-2003 English NER distillation example. See [examples/conll2003_example](examples/conll2003_example).
 
 **Mar 11, 2020**
 
