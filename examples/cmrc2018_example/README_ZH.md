@@ -6,7 +6,7 @@
 * run_cmrc2018_distill_T3.sh : 在cmrc2018和drcd数据集上蒸馏教师模型到T3
 * run_cmrc2018_distill_T4tiny.sh : 在cmrc2018和drcd数据集上蒸馏教师模型到T4-tiny
 
-运行脚本前，请根据自己的环境修改相应变量：
+运行脚本前，请根据自己的环境设置相应变量：
 
 * BERT_DIR : 存放RoBERTa-wwm-base模型的目录，包含vocab.txt, pytorch_model.bin, bert_config.json
 * OUTPUT_ROOT_DIR : 存放训练好的模型权重文件和日志

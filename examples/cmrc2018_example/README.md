@@ -7,7 +7,7 @@ This example demonstrates distilltion on CMRC 2018 task, and using DRCD dataset 
 * run_cmrc2018_distill_T3.sh : distills the teacher to T3 with CMRC 2018 and DRCD datasets.
 * run_cmrc2018_distill_T4tiny.sh :  distills the teacher to T4tiny with CMRC 2018 and DRCD datasets.
 
-Modify the following variables in the shell scripts before running:
+Set the following variables in the shell scripts before running:
 
 * BERT_DIR :  where RoBERTa-wwm-base stores，including vocab.txt, pytorch_model.bin, bert_config.json
 * OUTPUT_ROOT_DIR : this directory stores logs and trained model weights
