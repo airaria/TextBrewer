@@ -25,7 +25,7 @@
 
 ### [TextBrewer完整文档](https://textbrewer.readthedocs.io/)
 
-## 哈工大讯飞联合实验室（HFL）2021提前批校园招聘开始了！欢迎各位[投递简历](https://dwz.cn/u2EUhI6X)！
+## 哈工大讯飞联合实验室（HFL）2021提前批校园招聘开始了！欢迎各位[投递简历](https://wj.qq.com/s2/6730642/762d)！
 
 ## 更新
 
