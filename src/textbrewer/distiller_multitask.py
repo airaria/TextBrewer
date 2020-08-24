@@ -28,8 +28,8 @@ class MultiTaskDistiller(BasicDistiller):
             adaptor_T, adaptor_S)
         if hasattr(self.adaptor_T,'__iter__'):
             assert len(self.adaptor_T)==len(self.model_T)==len(self.adaptor_S)
-        assert (self.d_config.kd_loss_weight_scheduler is None) and (self.d_config.hard_label_weight_scheduler is None),\
-                "BasicMultiTaskDistiller does not support WEIGHT_SCHEDULER in the current version."
+        #assert (self.d_config.kd_loss_weight_scheduler is None) and (self.d_config.hard_label_weight_scheduler is None),\
+        #        "BasicMultiTaskDistiller does not support WEIGHT_SCHEDULER in the current version."
 
         self.d_config.is_caching_logits = False
 
@@ -76,15 +76,18 @@ class MultiTaskDistiller(BasicDistiller):
             self.model_T = {k:torch.nn.DataParallel(v) for k,v in self.model_T.items()}
 
         total_global_steps = num_steps
-        ckpt_steps =self.t_config.ckpt_steps
+        ckpt_steps = int(self.t_config.ckpt_steps)
+        num_steps = int(num_steps)
         print_every = ckpt_steps // self.print_freq
         if print_every == 0:
             print_every = ckpt_steps
-        checkpoints = [ i * ckpt_steps for i in range(1,num_steps//ckpt_steps+1)] + [total_global_steps]
+        checkpoints = [ i * ckpt_steps for i in range(1,num_steps//ckpt_steps+1)] # + [total_global_steps]
+        if checkpoints[-1] != total_global_steps:
+            checkpoints.append(total_global_steps)
         logger.info(f"Total training steps: {total_global_steps}")
         logger.info(f"Checkpoints(step): {checkpoints}")
 
-        dataiters = {k:cycle(v) for k,v in dataloaders}
+        dataiters = {k:cycle(v) for k,v in dataloaders.items()}
         if all(hasattr(v,'__len__') for v in dataloaders.values()):
             dataloader_sizes = {k:len(v) for k,v in dataloaders.items()}
             total_size = sum(v for k,v in dataloader_sizes.items())//self.t_config.gradient_accumulation_steps
@@ -145,7 +148,6 @@ class MultiTaskDistiller(BasicDistiller):
         logger.info("Training finished")
 
     def train_on_batch(self, batch_taskname, args) -> torch.Tensor:
-        # Basic uses no cache
         batch, taskname = batch_taskname
         model_T = self.model_T[taskname]
         adaptor_T = self.adaptor_T[taskname]
@@ -169,11 +171,11 @@ class MultiTaskDistiller(BasicDistiller):
         results_S = post_adaptor(adaptor_S(batch,results_S))
 
         logits_list_T = results_T['logits']  # list of tensor
-        logits_list_S = results_S[taskname]['logits']  # list of tensor
+        logits_list_S = results_S['logits']  # list of tensor
         total_loss  = 0
 
-        if 'logits_mask' in results_S[taskname]:
-            masks_list_S = results_S[taskname]['logits_mask']
+        if 'logits_mask' in results_S:
+            masks_list_S = results_S['logits_mask']
             logits_list_S = select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
         if 'logits_mask' in results_T: #TODO
             masks_list_T = results_T['logits_mask']
@@ -198,7 +200,7 @@ class MultiTaskDistiller(BasicDistiller):
                 total_loss += self.kd_loss(l_S, l_T, temperature) * self.d_config.kd_loss_weight
 
         if 'losses' in results_S:
-            for loss in results_S[taskname]['losses']:
+            for loss in results_S['losses']:
                 # in case of multi-GPU
                 total_loss += loss.mean() * self.d_config.hard_label_weight
 
