@@ -61,7 +61,8 @@ class BasicTrainer:
 
         if num_steps is not None:
             total_global_steps = num_steps
-            ckpt_steps =self.t_config.ckpt_steps
+            ckpt_steps = int(self.t_config.ckpt_steps)
+            num_steps = int(num_steps)
             print_every = ckpt_steps // self.print_freq
             if print_every == 0:
                 print_every = ckpt_steps
@@ -114,8 +115,9 @@ class BasicTrainer:
                             logger.info("Running callback function...")
                             callback(model=self.model, step=global_step)
                             self.model.train()
-            logger.info("Training finished")
-            return
+                if global_step >= total_global_steps:
+                    logger.info("Training finished")
+                    return
 
         train_steps_per_epoch = len(dataloader)//self.t_config.gradient_accumulation_steps
         print_every = train_steps_per_epoch // self.print_freq

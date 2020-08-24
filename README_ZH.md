@@ -28,7 +28,13 @@
 
 ## 更新
 
-**Jul 28, 2020**
+**Aug 24, 2020**
+
+* **版本更新至0.2.0.1**:
+  * 修复了`MultiTaskDistiller`以及训练循环中的若干bug。
+
+**Jul 29, 2020**
+
 * **版本更新至0.2.0**:
     * 增加对分布式数据并行训练的支持：可通过在`TrainingConfig`中传入相应的`local_rank`以启用。详细设置参见`TraningConfig`的说明。
 * 增加了分布式数据并行训练的使用示例：中文命名实体识别任务上的ELECTRA-base模型的蒸馏，见[examples/msra_ner_example](examples/msra_ner_example)。

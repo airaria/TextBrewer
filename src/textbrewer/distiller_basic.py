@@ -122,7 +122,8 @@ class BasicDistiller(AbstractDistiller):
             if self.d_config.is_caching_logits is True:
                 logger.warning("is_caching_logits is True, but num_steps is not None!")
             total_global_steps = num_steps
-            ckpt_steps =self.t_config.ckpt_steps
+            ckpt_steps = int(self.t_config.ckpt_steps)
+            num_steps  = int(num_steps)
             print_every = ckpt_steps // self.print_freq
             if print_every == 0:
                 print_every = ckpt_steps
@@ -168,8 +169,9 @@ class BasicDistiller(AbstractDistiller):
                         logger.info(f"Global step: {global_step}, epoch step:{step+1}")
                     if (global_step%ckpt_steps==0) or global_step==total_global_steps:
                         self.save_and_callback(global_step, step, 0, callback)
-            logger.info("Training finished")
-            return
+                if global_step >= total_global_steps:
+                    logger.info("Training finished")
+                    return
 
 
         train_steps_per_epoch = len(dataloader)//self.t_config.gradient_accumulation_steps

@@ -28,6 +28,10 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 [Full Documentation (public version)](https://textbrewer.readthedocs.io/)
 
 ## Update
+**Aug 24, 2020**
+
+* **Updated to 0.2.0.1**:
+  * fixed bugs in `MultiTaskDistiller` and training loops.
 
 **Jul 29, 2020**
 
