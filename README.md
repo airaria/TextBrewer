@@ -26,7 +26,13 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 [Full Documentation](https://textbrewer.readthedocs.io/)
 
-## Update
+## News
+
+
+**August 27, 2020**
+
+**We are happy to announce that our model is on top of GLUE benchmark, check [leaderboard](https://gluebenchmark.com/leaderboard).**
+
 **Aug 24, 2020**
 
 * **Updated to 0.2.0.1**:
