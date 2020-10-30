@@ -1,5 +1,5 @@
 import torch
-from collections import OrderedDict
+from collections import OrderedDict,abc
 from tqdm import tqdm
 from torch import nn
 try:
@@ -207,3 +207,73 @@ class no_op:
     @staticmethod
     def add_scalar(*args, **kwargs):
         pass
+
+def move_to_device(batch, device):
+    r"""Puts each data field to the device"""
+    if isinstance(batch, torch.Tensor):
+        return batch.to(device)
+    elif isinstance(batch,(list,tuple)):
+        return tuple(move_to_device(item,device) for item in batch)
+    elif isinstance(batch, abc.Mapping):
+        return {key: move_to_device(value,device) for key, value in batch.items()}
+    else:
+        return batch
+
+def get_outputs_from_batch(batch, device, model_T, model_S, args, no_teacher_forward=False):
+    if type(batch) is dict:
+        if 'teacher' in batch and 'student' in batch:
+            teacher_batch = batch['teacher']
+            student_batch = batch['student']
+            teacher_batch = move_to_device(teacher_batch, device)
+            #teacher outputs
+            if no_teacher_forward is True:
+                results_T = None
+            else:
+                if 'teacher_cache' in batch:
+                    results_T = move_to_device(batch['teacher_cache'],device)
+                else:
+                    with torch.no_grad():
+                        results_T = auto_forward(model_T,teacher_batch,args)
+            #student outputs
+            student_batch = move_to_device(student_batch, device)
+            if type(student_batch) is dict:
+                results_S = model_S(**student_batch, **args)
+            else:
+                results_S = model_S(*student_batch, **args)
+        else:
+            batch = move_to_device(batch,device)
+            if no_teacher_forward is True:
+                results_T = None
+            else:
+                with torch.no_grad():
+                    results_T = auto_forward(model_T,batch,args)
+            results_S = model_S(**batch, **args)
+            teacher_batch = student_batch = batch
+    else:
+        batch = move_to_device(batch,device)
+        if no_teacher_forward is True:
+            results_T = None
+        else:
+            with torch.no_grad():
+                results_T = auto_forward(model_T,batch,args)
+        results_S = model_S(*batch, **args)
+        teacher_batch = student_batch = batch
+    
+    return (teacher_batch,results_T), (student_batch,results_S)
+
+def auto_forward(model,batch,args):
+    if type(batch) is dict:
+        if isinstance(model,(list,tuple)):
+            results = [v(**batch, **args) for v in model]
+        elif isinstance(model,dict):
+            results = {k:v(**batch, **args) for k,v in model.items()}
+        else:
+            results = model(**batch, **args)
+    else:
+        if isinstance(model,(list,tuple)):
+            results = [v(*batch, **args) for v in model]
+        elif isinstance(model,dict):
+            results = {k:v(*batch, **args) for k,v in model.items()}
+        else:
+            results = model(*batch, **args)
+    return results

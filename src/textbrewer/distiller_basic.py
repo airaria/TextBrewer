@@ -49,6 +49,78 @@ class BasicDistiller(AbstractDistiller):
         #    self.tb_writer.add_scalar(f"scalar/{name}", cpu_loss, writer_step)
 
 
+    def initialize_training(self, optimizer, scheduler_class, scheduler_args, scheduler):
+        # update optimizer for projection layer (used in GeneralDistiller)
+        if hasattr(self,'projs'):
+            for proj,proj_group in zip(self.projs, self.projs_group):
+                if proj is not None:
+                    assert isinstance(proj,nn.Module)
+                    optimizer.add_param_group({**{'params':proj.parameters()},**proj_group})
+
+        if hasattr(self,'has_custom_matches') and self.has_custom_matches:
+            for proj_func,proj_group in zip(self.custom_matches_cache['match_proj_funcs'],
+                                            self.custom_matches_cache['match_proj_groups']):
+                if isinstance(proj_func,nn.Module):
+                    optimizer.add_param_group({**{'params':proj_func.parameters()},**proj_group})
+
+        logger.debug("Optimizer param group: ")
+        logger.debug(f"{[[s.shape for s in g['params']] for g in optimizer.param_groups]}")
+
+        # update scheduler
+        if scheduler_class is not None:
+            # overwrite scheduler
+            scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
+
+        if self.t_config.fp16:
+            if not has_apex:
+                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
+            if isinstance(self.model_T,(list,tuple)):
+                models = [self.model_S] + list(self.model_T)
+                models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
+                self.model_S = models[0]
+                self.model_T =models[1:]
+            elif isinstance(self.model_T,dict):
+                tasknames, model_Ts = zip(*self.model_T.items())
+                models = [self.model_S] + list(model_Ts)
+                models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
+                self.model_S = models[0]
+                self.model_T = dict(zip(tasknames,models[1:]))
+            else:
+                (self.model_S, self.model_T), optimizer = amp.initialize([self.model_S, self.model_T], optimizer, opt_level=self.t_config.fp16_opt_level)
+        if self.local_rank != -1:
+            self.model_S = torch.nn.parallel.DistributedDataParallel(self.model_S,
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True)
+            if isinstance(self.model_T,(list,tuple)):
+                self.model_T = [torch.nn.parallel.DistributedDataParallel(model_t,
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True) for model_t in self.model_T]
+            elif isinstance(self.model_T,dict):
+                self.model_T = {k:torch.nn.parallel.DistributedDataParallel(v, 
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True) for k,v in self.model_T.items()}
+            else:
+                self.model_T = torch.nn.parallel.DistributedDataParallel(self.model_T,
+                        device_ids = [self.local_rank], output_device = self.local_rank,
+                        find_unused_parameters = True)
+            if hasattr(self,'projs'):
+                for i,proj in enumerate(self.projs):
+                    if proj is not None:
+                        assert isinstance(proj,nn.Module)
+                        self.projs[i] = torch.nn.parallel.DistributedDataParallel(proj,
+                            device_ids = [self.local_rank], output_device = self.local_rank)
+        elif self.t_config.data_parallel:
+            self.model_S = torch.nn.DataParallel(self.model_S)
+            if isinstance(self.model_T,(list,tuple)):
+                self.model_T = [torch.nn.DataParallel(model_t) for model_t in self.model_T]
+            elif isinstance(self.model_T,dict):
+                self.model_T = {k:torch.nn.DataParallel(v) for k,v in self.model_T.items()}
+            else:
+                self.model_T = torch.nn.DataParallel(self.model_T)
+        tqdm_disable = None if self.rank == 0 else True
+        return optimizer, scheduler, tqdm_disable
+
+
     def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
         """
         trains the student model.
@@ -76,54 +148,14 @@ class BasicDistiller(AbstractDistiller):
                 from transformers import get_linear_schedule_with_warmup
                 distiller.train(optimizer, scheduler_class = get_linear_schedule_with_warmup, scheduler_args= {'num_warmup_steps': 100, 'num_training_steps': 1000})
         """
-
-        # update scheduler
-        if scheduler_class is not None:
-            # overwrite scheduler
-            scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
-
-        if self.t_config.fp16:
-            if not has_apex:
-                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
-            if isinstance(self.model_T,(list,tuple)):
-                models = [self.model_S] + list(self.model_T)
-                models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
-                self.model_S = models[0]
-                self.model_T =models[1:]
-            else:
-                (self.model_S, self.model_T), optimizer = amp.initialize([self.model_S, self.model_T], optimizer, opt_level=self.t_config.fp16_opt_level)
-        if self.local_rank != -1:
-            self.model_S = torch.nn.parallel.DistributedDataParallel(self.model_S,
-                        device_ids = [self.local_rank], output_device = self.local_rank,
-                        find_unused_parameters = True)
-            if isinstance(self.model_T,(list,tuple)):
-                self.model_T = [torch.nn.parallel.DistributedDataParallel(model_t,
-                        device_ids = [self.local_rank], output_device = self.local_rank,
-                        find_unused_parameters = True) for model_t in self.model_T]
-            else:
-                self.model_T = torch.nn.parallel.DistributedDataParallel(self.model_T,
-                        device_ids = [self.local_rank], output_device = self.local_rank,
-                        find_unused_parameters = True)
-            if hasattr(self,'projs'):
-                for i,proj in enumerate(self.projs):
-                    if proj is not None:
-                        assert isinstance(proj,nn.Module)
-                        self.projs[i] = torch.nn.parallel.DistributedDataParallel(proj,
-                            device_ids = [self.local_rank], output_device = self.local_rank)
-        elif self.t_config.data_parallel:
-            self.model_S = torch.nn.DataParallel(self.model_S)
-            if isinstance(self.model_T,(list,tuple)):
-                self.model_T = [torch.nn.DataParallel(model_t) for model_t in self.model_T]
-            else:
-                self.model_T = torch.nn.DataParallel(self.model_T)
-        tqdm_disable = None if self.rank == 0 else True
+        optimizer, scheduler, tqdm_disable = self.initialize_training(optimizer, scheduler_class, scheduler_args, scheduler)
 
         if num_steps is not None:
             if self.d_config.is_caching_logits is True:
                 logger.warning("is_caching_logits is True, but num_steps is not None!")
             total_global_steps = num_steps
             ckpt_steps = int(self.t_config.ckpt_steps)
-            num_steps  = int(num_steps)
+            num_steps = int(num_steps)
             print_every = ckpt_steps // self.print_freq
             if print_every == 0:
                 print_every = ckpt_steps
@@ -242,44 +274,27 @@ class BasicDistiller(AbstractDistiller):
 
     def train_on_batch(self, batch, args):
         if self.d_config.is_caching_logits is False:
-            if type(batch) is dict:
-                for k,v in batch.items():
-                    if type(v) is torch.Tensor:
-                        batch[k] = v.to(self.t_config.device)
-                with torch.no_grad():
-                    results_T = self.model_T(**batch, **args)
-                results_S = self.model_S(**batch, **args)
-            else:
-                batch = tuple(item.to(self.t_config.device) if type(item) is torch.Tensor else item for item in batch)
-                with torch.no_grad():
-                    results_T = self.model_T(*batch, **args)
-                results_S = self.model_S(*batch, **args)
-            results_T = post_adaptor(self.adaptor_T(batch,results_T))
-            results_S = post_adaptor(self.adaptor_S(batch,results_S))
-
+            (teacher_batch, results_T), (student_batch, results_S) = get_outputs_from_batch(batch, self.t_config.device, self.model_T, self.model_S, args)
+            results_T = post_adaptor(self.adaptor_T(teacher_batch,results_T))
+            results_S = post_adaptor(self.adaptor_S(student_batch,results_S))
         else:
             batch, cached_logits = batch
-            if type(batch) is dict:
-                new_batch = {}
-                for k,v in batch.items():
-                    if type(v) is torch.Tensor:
-                        new_batch[k] = v.to(self.t_config.device)
-                    else:
-                        new_batch[k] = v
-                batch = new_batch
-                results_S = self.model_S(**batch, **args)
-            else:
-                batch = tuple(item.to(self.t_config.device) if type(item) is torch.Tensor else item for item in batch)
-                results_S = self.model_S(*batch, **args)
-            results_S = post_adaptor(self.adaptor_S(batch,results_S))
+            _, (student_batch, results_S) = get_outputs_from_batch(batch, self.t_config.device, self.model_T, self.model_S, args, no_teacher_forward=True)
 
+            results_S = post_adaptor(self.adaptor_S(student_batch,results_S))
             results_T = {'logits':[logits.to(self.t_config.device) for logits in cached_logits]}
+
             if 'logits_mask' in results_S:
                 results_T['logits_mask'] = results_S['logits_mask']
-    
+
+        total_loss = self.compute_loss(results_S,results_T)
+
+        return total_loss
+
+    def compute_loss(self, results_S, results_T):
+        total_loss  = 0
         logits_list_T = results_T['logits']  # list of tensor
         logits_list_S = results_S['logits']  # list of tensor
-        total_loss  = 0
 
         if 'logits_mask' in results_S:
             masks_list_S = results_S['logits_mask']
@@ -314,23 +329,16 @@ class BasicDistiller(AbstractDistiller):
 
         return total_loss
 
+
     def cache_logits(self, batch, args, batch_postprocessor):
             if batch_postprocessor is not None:
                 batch = batch_postprocessor(batch)
-
-            if type(batch) is dict:
-                new_batch = {}
-                for k,v in batch.items():
-                    if type(v) is torch.Tensor:
-                        new_batch[k] = v.to(self.t_config.device)
-                    else:
-                        new_batch[k] = v
-                with torch.no_grad():
-                    results_T = self.model_T(**new_batch, **args)
-            else:
-                new_batch = tuple(item.to(self.t_config.device) if type(item) is torch.Tensor else item for item in batch)
-                with torch.no_grad():
-                    results_T = self.model_T(*new_batch, **args)
+            batch = move_to_device(batch, self.t_config.device)
+            with torch.no_grad():
+                if type(batch) is dict:
+                    results_T = self.model_T(**batch,**args)
+                else:
+                    results_T = self.model_T(*batch, **args)
             results_T = post_adaptor(self.adaptor_T(batch,results_T))
 
             self.logits_cache.append([batch, [logits.to('cpu') for logits in results_T['logits']]])

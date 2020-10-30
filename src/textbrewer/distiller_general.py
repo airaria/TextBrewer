@@ -68,45 +68,20 @@ class GeneralDistiller(BasicDistiller):
             self.model_S._forward_hooks = handles_S  # restore hooks
             self.model_T._forward_hooks = handles_T
 
-    def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
-        """
-        trains the student model. See :meth:`BasicDistiller.train`.
-        """
-        # update optimizer for projection layer
-        for proj,proj_group in zip(self.projs, self.projs_group):
-            if proj is not None:
-                assert isinstance(proj,nn.Module)
-                optimizer.add_param_group({**{'params':proj.parameters()},**proj_group})
-
-        if self.has_custom_matches:
-            for proj_func,proj_group in zip(self.custom_matches_cache['match_proj_funcs'],
-                                                   self.custom_matches_cache['match_proj_groups']):
-                if isinstance(proj_func,nn.Module):
-                    optimizer.add_param_group({**{'params':proj_func.parameters()},**proj_group})
-
-        logger.debug("Optimizer param group: ")
-        logger.debug(f"{[[s.shape for s in g['params']] for g in optimizer.param_groups]}")
-
-        super(GeneralDistiller, self).train(optimizer, dataloader, num_epochs, scheduler_class, scheduler_args, scheduler, max_grad_norm, num_steps, callback, batch_postprocessor, **args)
 
     def train_on_batch(self, batch, args):
-        if type(batch) is dict:
-            for k,v in batch.items():
-                if type(v) is torch.Tensor:
-                    batch[k] = v.to(self.t_config.device)
-            with torch.no_grad():
-                results_T = self.model_T(**batch, **args)
-            results_S = self.model_S(**batch, **args)
-        else:
-            moved_batch = tuple(item.to(self.t_config.device) if type(item) is torch.Tensor else item for item in batch)
-            batch = moved_batch
-            with torch.no_grad():
-                results_T = self.model_T(*batch, **args)
-            results_S = self.model_S(*batch, **args)
 
-        results_T = post_adaptor(self.adaptor_T(batch,results_T))
-        results_S = post_adaptor(self.adaptor_S(batch,results_S))
+        (teacher_batch, results_T), (student_batch, results_S) = get_outputs_from_batch(batch, self.t_config.device, self.model_T, self.model_S, args)
 
+        results_T = post_adaptor(self.adaptor_T(teacher_batch,results_T))
+        results_S = post_adaptor(self.adaptor_S(student_batch,results_S))
+
+        total_loss = self.compute_loss(results_T, results_S)
+
+        return total_loss
+
+
+    def compute_loss(self,results_T,results_S):
         total_loss  = 0
         if 'logits' in results_T and 'logits' in results_S:
             logits_list_T = results_T['logits']  # list of tensor
@@ -164,7 +139,6 @@ class GeneralDistiller(BasicDistiller):
                     inter_S = self.projs[ith](inter_S)
             total_loss += match_loss(inter_S, inter_T, mask=inputs_mask_S) * match_weight
 
-
         if self.has_custom_matches:
             for hook_T, hook_S, match_weight, match_loss, proj_func  in \
                     zip(self.custom_matches_cache['hook_outputs_T'], self.custom_matches_cache['hook_outputs_S'],
@@ -180,8 +154,8 @@ class GeneralDistiller(BasicDistiller):
             for loss in results_S['losses']:
                 # in case of multi-GPU
                 total_loss += loss.mean() * self.d_config.hard_label_weight
-
         return total_loss
+
 
     def add_match(self,match: CustomMatch):
         if type(match.module_T) is str or type(match.module_S) is str:
@@ -194,7 +168,6 @@ class GeneralDistiller(BasicDistiller):
             proj_func = match.proj_func
             proj_group = match.proj_group
         self.add_match_by_module(module_T,module_S,proj_func,proj_group,weight,loss)
-
 
     def add_match_by_module(self,module_T : torch.nn.Module,
                                  module_S : torch.nn.Module,
