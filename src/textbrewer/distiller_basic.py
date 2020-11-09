@@ -122,7 +122,7 @@ class BasicDistiller(AbstractDistiller):
 
     def train_with_num_steps(self, optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_steps, callback, batch_postprocessor, **args):
         if self.d_config.is_caching_logits is True:
-            logger.warning("is_caching_logits is True, but num_steps is not None!")
+            raise AssertionError("You cannot set is_caching_logits to True with num_steps not None!")
         total_global_steps = num_steps
         ckpt_steps = int(self.t_config.ckpt_steps)
         num_steps = int(num_steps)
@@ -247,7 +247,7 @@ class BasicDistiller(AbstractDistiller):
 
             logger.info(f"Epoch {current_epoch+1} finished")
 
-    def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
+    def train(self, optimizer, dataloader, num_epochs=None, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
         """
         trains the student model.
 
@@ -275,11 +275,12 @@ class BasicDistiller(AbstractDistiller):
                 distiller.train(optimizer, scheduler_class = get_linear_schedule_with_warmup, scheduler_args= {'num_warmup_steps': 100, 'num_training_steps': 1000})
         """
         optimizer, scheduler, tqdm_disable = self.initialize_training(optimizer, scheduler_class, scheduler_args, scheduler)
-
+        
+        assert not (num_epochs is None and num_steps is None)
         if num_steps is not None:
-            self.train_with_num_steps(self, optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_steps, callback, batch_postprocessor, **args)
+            self.train_with_num_steps(optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_steps, callback, batch_postprocessor, **args)
         else:
-            self.train_with_num_steps(self, optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_epochs, callback, batch_postprocessor, **args)
+            self.train_with_num_epochs(optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_epochs, callback, batch_postprocessor, **args)
 
 
 

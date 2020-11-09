@@ -131,18 +131,22 @@ class GeneralDistiller(BasicDistiller):
             if type(layer_S) is list and type(layer_T) is list:
                 inter_S = [inters_S[feature][s] for s in layer_S]
                 inter_T = [inters_T[feature][t] for t in layer_T]
+                name_S = '-'.join(map(str,layer_S))
+                name_T = '-'.join(map(str,layer_T))
                 if self.projs[ith]:
                     #inter_T = [self.projs[ith](t) for t in inter_T]
                     inter_S = [self.projs[ith](s) for s in inter_S]
             else:
                 inter_S = inters_S[feature][layer_S]
                 inter_T = inters_T[feature][layer_T]
+                name_S = str(layer_S)
+                name_T = str(layer_T)
                 if self.projs[ith]:
                     #inter_T = self.projs[ith](inter_T)
                     inter_S = self.projs[ith](inter_S)
             intermediate_loss = match_loss(inter_S, inter_T, mask=inputs_mask_S)
             total_loss += intermediate_loss * match_weight
-            losses_dict[f'unweighted_{feature}_{loss_type}_{layer_S}_{layer_T}'] = intermediate_loss
+            losses_dict[f'unweighted_{feature}_{loss_type}_{name_S}_{name_T}'] = intermediate_loss
 
         if self.has_custom_matches:
             for hook_T, hook_S, match_weight, match_loss, proj_func  in \
