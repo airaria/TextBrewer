@@ -39,14 +39,14 @@ class BasicDistiller(AbstractDistiller):
             self.model_S.train()
 
 
-    def write_loss(self, total_loss, writer_step):
+    def write_loss(self, total_loss, writer_step, losses_dict=None):
         if self.rank == 0:
-            cpu_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
+            cpu_total_loss = total_loss.cpu().item()
             self.tb_writer.add_scalar('scalar/total_loss', cpu_total_loss, writer_step)
-
-        #for name, loss in losses_dict.items():
-        #    cpu_loss = loss.cpu().item() * self.t_config.gradient_accumulation_steps
-        #    self.tb_writer.add_scalar(f"scalar/{name}", cpu_loss, writer_step)
+            if losses_dict is not None:
+                for name, loss in losses_dict.items():
+                    cpu_loss = loss.cpu().item()
+                    self.tb_writer.add_scalar(f"scalar/{name}", cpu_loss, writer_step)
 
 
     def initialize_training(self, optimizer, scheduler_class, scheduler_args, scheduler):
@@ -120,6 +120,132 @@ class BasicDistiller(AbstractDistiller):
         tqdm_disable = None if self.rank == 0 else True
         return optimizer, scheduler, tqdm_disable
 
+    def train_with_num_steps(self, optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_steps, callback, batch_postprocessor, **args):
+        if self.d_config.is_caching_logits is True:
+            logger.warning("is_caching_logits is True, but num_steps is not None!")
+        total_global_steps = num_steps
+        ckpt_steps = int(self.t_config.ckpt_steps)
+        num_steps = int(num_steps)
+        print_every = ckpt_steps // self.print_freq
+        if print_every == 0:
+            print_every = ckpt_steps
+        checkpoints = [ i * ckpt_steps for i in range(1,num_steps//ckpt_steps+1)] + [total_global_steps]
+        logger.info(f"Total training steps: {total_global_steps}")
+        logger.info(f"Checkpoints(step): {checkpoints}")
+
+        global_step = 0
+        writer_step = 0
+        for step, batch in tqdm(enumerate(cycle(dataloader)),disable=tqdm_disable):
+            if batch_postprocessor is not None:
+                batch = batch_postprocessor(batch)
+            total_loss, losses_dict = self.train_on_batch(batch,args)
+
+            self.write_loss(total_loss, writer_step, losses_dict)
+            writer_step += 1
+    
+            total_loss /= self.t_config.gradient_accumulation_steps
+            if self.t_config.fp16:
+                with amp.scale_loss(total_loss,optimizer) as scaled_loss:
+                    scaled_loss.backward()
+            else:
+                total_loss.backward()
+
+
+
+            if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                if max_grad_norm > 0:
+                    if self.t_config.fp16:
+                        torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
+                    else:
+                        torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
+                optimizer.step()
+                if scheduler is not None:
+                    scheduler.step()
+                optimizer.zero_grad()
+                global_step += 1
+                if self.d_config.kd_loss_weight_scheduler is not None:
+                    self.d_config.kd_loss_weight = \
+                        self.d_config.kd_loss_weight_scheduler(global_step/total_global_steps)
+                if self.d_config.hard_label_weight_scheduler is not None:
+                    self.d_config.hard_label_weight = \
+                        self.d_config.hard_label_weight_scheduler(global_step/total_global_steps)
+
+                if (global_step) % print_every == 0:
+                    logger.info(f"Global step: {global_step}, epoch step:{step+1}")
+                if (global_step%ckpt_steps==0) or global_step==total_global_steps:
+                    self.save_and_callback(global_step, step, 0, callback)
+            if global_step >= total_global_steps:
+                logger.info("Training finished")
+                return
+
+    def train_with_num_epochs(self, optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_epochs, callback, batch_postprocessor, **args):
+
+        train_steps_per_epoch = len(dataloader)//self.t_config.gradient_accumulation_steps
+        total_global_steps = train_steps_per_epoch * num_epochs
+        print_every = train_steps_per_epoch // self.print_freq
+        if print_every == 0:
+            print_every = train_steps_per_epoch
+        checkpoints = [int(train_steps_per_epoch*ci/self.t_config.ckpt_frequency) for ci in range(self.t_config.ckpt_frequency)]
+        logger.info(f"Training steps per epoch: {train_steps_per_epoch}")
+        logger.info(f"Checkpoints(step): {checkpoints}")
+
+        global_step = 0
+        writer_step = 0
+
+        if self.d_config.is_caching_logits is True:
+            logger.info(f"Caching batches and teacher's logits...")
+            for step, batch in tqdm(enumerate(dataloader),disable=tqdm_disable):
+                self.cache_logits(batch, args, batch_postprocessor)
+
+        for current_epoch in tqdm(range(int(num_epochs)),disable=tqdm_disable):
+            if self.local_rank != -1 and hasattr(dataloader,'sampler'):
+                dataloader.sampler.set_epoch(current_epoch)  #In distributed mode, calling the set_epoch method is needed to make shuffling work;
+            logger.info(f"Epoch {current_epoch+1}")
+            optimizer.zero_grad()
+            if self.d_config.is_caching_logits:
+                random.shuffle(self.logits_cache)
+                dataloader = self.logits_cache
+            logger.info(f"Length of current epoch in forward batch: {len(dataloader)}")
+            for step, batch in tqdm(enumerate(dataloader),disable=tqdm_disable):
+                if self.d_config.is_caching_logits is False and batch_postprocessor is not None:
+                        batch = batch_postprocessor(batch)
+                total_loss, losses_dict = self.train_on_batch(batch,args)
+
+                self.write_loss(total_loss, writer_step, losses_dict)
+                writer_step += 1
+
+                total_loss /= self.t_config.gradient_accumulation_steps
+                if self.t_config.fp16:
+                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
+                        scaled_loss.backward()
+                else:
+                    total_loss.backward()
+
+                if (step+1)%self.t_config.gradient_accumulation_steps == 0:
+                    if max_grad_norm > 0:
+                        if self.t_config.fp16:
+                            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
+                        else:
+                            torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm) 
+                    optimizer.step()
+                    if scheduler is not None:
+                        scheduler.step()
+                    optimizer.zero_grad()
+                    global_step += 1
+                    if self.d_config.kd_loss_weight_scheduler is not None:
+                        self.d_config.kd_loss_weight = \
+                            self.d_config.kd_loss_weight_scheduler(global_step/total_global_steps)
+                    if self.d_config.hard_label_weight_scheduler is not None:
+                        self.d_config.hard_label_weight = \
+                            self.d_config.hard_label_weight_scheduler(global_step/total_global_steps)
+
+                    if (global_step) % print_every == 0:
+                        logger.info(f"Global step: {global_step}, epoch step:{step+1}")
+                    if (global_step%train_steps_per_epoch in checkpoints) \
+                            and ((current_epoch+1)%self.t_config.ckpt_epoch_frequency==0 or current_epoch+1==num_epochs):
+                        self.save_and_callback(global_step, step, current_epoch, callback)
+
+            logger.info(f"Epoch {current_epoch+1} finished")
 
     def train(self, optimizer, dataloader, num_epochs, scheduler_class=None, scheduler_args=None, scheduler=None, max_grad_norm = -1.0, num_steps=None, callback=None, batch_postprocessor=None, **args):
         """
@@ -151,126 +277,12 @@ class BasicDistiller(AbstractDistiller):
         optimizer, scheduler, tqdm_disable = self.initialize_training(optimizer, scheduler_class, scheduler_args, scheduler)
 
         if num_steps is not None:
-            if self.d_config.is_caching_logits is True:
-                logger.warning("is_caching_logits is True, but num_steps is not None!")
-            total_global_steps = num_steps
-            ckpt_steps = int(self.t_config.ckpt_steps)
-            num_steps = int(num_steps)
-            print_every = ckpt_steps // self.print_freq
-            if print_every == 0:
-                print_every = ckpt_steps
-            checkpoints = [ i * ckpt_steps for i in range(1,num_steps//ckpt_steps+1)] + [total_global_steps]
-            logger.info(f"Total training steps: {total_global_steps}")
-            logger.info(f"Checkpoints(step): {checkpoints}")
-
-            global_step = 0
-            writer_step = 0
-            for step, batch in tqdm(enumerate(cycle(dataloader)),disable=tqdm_disable):
-                if batch_postprocessor is not None:
-                    batch = batch_postprocessor(batch)
-                total_loss = self.train_on_batch(batch,args)
-                total_loss /= self.t_config.gradient_accumulation_steps
-                if self.t_config.fp16:
-                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
-                        scaled_loss.backward()
-                else:
-                    total_loss.backward()
-
-                self.write_loss(total_loss, writer_step)
-                writer_step += 1
-
-                if (step+1)%self.t_config.gradient_accumulation_steps == 0:
-                    if max_grad_norm > 0:
-                        if self.t_config.fp16:
-                            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
-                        else:
-                            torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm)
-                    optimizer.step()
-                    if scheduler is not None:
-                        scheduler.step()
-                    optimizer.zero_grad()
-                    global_step += 1
-                    if self.d_config.kd_loss_weight_scheduler is not None:
-                        self.d_config.kd_loss_weight = \
-                            self.d_config.kd_loss_weight_scheduler(global_step/total_global_steps)
-                    if self.d_config.hard_label_weight_scheduler is not None:
-                        self.d_config.hard_label_weight = \
-                            self.d_config.hard_label_weight_scheduler(global_step/total_global_steps)
-
-                    if (global_step) % print_every == 0:
-                        logger.info(f"Global step: {global_step}, epoch step:{step+1}")
-                    if (global_step%ckpt_steps==0) or global_step==total_global_steps:
-                        self.save_and_callback(global_step, step, 0, callback)
-                if global_step >= total_global_steps:
-                    logger.info("Training finished")
-                    return
+            self.train_with_num_steps(self, optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_steps, callback, batch_postprocessor, **args)
+        else:
+            self.train_with_num_steps(self, optimizer, scheduler, tqdm_disable, dataloader, max_grad_norm, num_epochs, callback, batch_postprocessor, **args)
 
 
-        train_steps_per_epoch = len(dataloader)//self.t_config.gradient_accumulation_steps
-        total_global_steps = train_steps_per_epoch * num_epochs
-        print_every = train_steps_per_epoch // self.print_freq
-        if print_every == 0:
-            print_every = train_steps_per_epoch
-        checkpoints = [int(train_steps_per_epoch*ci/self.t_config.ckpt_frequency) for ci in range(self.t_config.ckpt_frequency)]
-        logger.info(f"Training steps per epoch: {train_steps_per_epoch}")
-        logger.info(f"Checkpoints(step): {checkpoints}")
 
-        global_step = 0
-        writer_step = 0
-
-        if self.d_config.is_caching_logits is True:
-            logger.info(f"Caching batches and teacher's logits...")
-            for step, batch in tqdm(enumerate(dataloader),disable=tqdm_disable):
-                self.cache_logits(batch, args, batch_postprocessor)
-
-        for current_epoch in tqdm(range(int(num_epochs)),disable=tqdm_disable):
-            if self.local_rank != -1 and hasattr(dataloader,'sampler'):
-                dataloader.sampler.set_epoch(current_epoch)  #In distributed mode, calling the set_epoch method is needed to make shuffling work;
-            logger.info(f"Epoch {current_epoch+1}")
-            optimizer.zero_grad()
-            if self.d_config.is_caching_logits:
-                random.shuffle(self.logits_cache)
-                dataloader = self.logits_cache
-            logger.info(f"Length of current epoch in forward batch: {len(dataloader)}")
-            for step, batch in tqdm(enumerate(dataloader),disable=tqdm_disable):
-                if self.d_config.is_caching_logits is False and batch_postprocessor is not None:
-                        batch = batch_postprocessor(batch)
-                total_loss = self.train_on_batch(batch,args)
-                total_loss /= self.t_config.gradient_accumulation_steps
-                if self.t_config.fp16:
-                    with amp.scale_loss(total_loss,optimizer) as scaled_loss:
-                        scaled_loss.backward()
-                else:
-                    total_loss.backward()
-
-                self.write_loss(total_loss, writer_step)
-                writer_step += 1
-
-                if (step+1)%self.t_config.gradient_accumulation_steps == 0:
-                    if max_grad_norm > 0:
-                        if self.t_config.fp16:
-                            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
-                        else:
-                            torch.nn.utils.clip_grad_norm_(self.model_S.parameters(), max_grad_norm) 
-                    optimizer.step()
-                    if scheduler is not None:
-                        scheduler.step()
-                    optimizer.zero_grad()
-                    global_step += 1
-                    if self.d_config.kd_loss_weight_scheduler is not None:
-                        self.d_config.kd_loss_weight = \
-                            self.d_config.kd_loss_weight_scheduler(global_step/total_global_steps)
-                    if self.d_config.hard_label_weight_scheduler is not None:
-                        self.d_config.hard_label_weight = \
-                            self.d_config.hard_label_weight_scheduler(global_step/total_global_steps)
-
-                    if (global_step) % print_every == 0:
-                        logger.info(f"Global step: {global_step}, epoch step:{step+1}")
-                    if (global_step%train_steps_per_epoch in checkpoints) \
-                            and ((current_epoch+1)%self.t_config.ckpt_epoch_frequency==0 or current_epoch+1==num_epochs):
-                        self.save_and_callback(global_step, step, current_epoch, callback)
-
-            logger.info(f"Epoch {current_epoch+1} finished")
 
     def train_on_batch(self, batch, args):
         if self.d_config.is_caching_logits is False:
@@ -287,12 +299,13 @@ class BasicDistiller(AbstractDistiller):
             if 'logits_mask' in results_S:
                 results_T['logits_mask'] = results_S['logits_mask']
 
-        total_loss = self.compute_loss(results_S,results_T)
+        total_loss, losses_dict = self.compute_loss(results_S,results_T)
 
-        return total_loss
+        return total_loss, losses_dict
 
     def compute_loss(self, results_S, results_T):
         total_loss  = 0
+        losses_dict = dict()
         logits_list_T = results_T['logits']  # list of tensor
         logits_list_S = results_S['logits']  # list of tensor
 
@@ -303,6 +316,7 @@ class BasicDistiller(AbstractDistiller):
             masks_list_T = results_T['logits_mask']
             logits_list_T = select_logits_with_mask(logits_list_T,masks_list_T)  #(mask_sum, num_of_class)
 
+        total_kd_loss = 0
         if self.d_config.probability_shift is True:
             labels_list = results_S['labels']
             for l_T, l_S, labels in zip(logits_list_T, logits_list_S, labels_list):
@@ -311,23 +325,25 @@ class BasicDistiller(AbstractDistiller):
                     temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
                 else:
                     temperature = self.d_config.temperature
-                kd_loss = self.kd_loss(l_S, l_T, temperature) * self.d_config.kd_loss_weight
-                total_loss += kd_loss
+                total_kd_loss += self.kd_loss(l_S, l_T, temperature)
         else:
             for l_T,l_S in zip(logits_list_T,logits_list_S):
                 if self.d_config.temperature_scheduler is not None:
                     temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
                 else:
                     temperature = self.d_config.temperature
-                kd_loss = self.kd_loss(l_S, l_T, temperature) * self.d_config.kd_loss_weight
-                total_loss += kd_loss
+                total_kd_loss += self.kd_loss(l_S, l_T, temperature)
+        total_loss += total_kd_loss * self.d_config.kd_loss_weight
+        losses_dict['unweighted_kd_loss'] = total_kd_loss
 
         if 'losses' in results_S:
+            total_hl_loss = 0
             for loss in results_S['losses']:
                 # in case of multi-GPU
-                total_loss += loss.mean() * self.d_config.hard_label_weight
-
-        return total_loss
+                total_hl_loss += loss.mean() 
+            total_loss += total_hl_loss * self.d_config.hard_label_weight
+            losses_dict['unweighted_hard_label_loss'] = total_hl_loss
+        return total_loss, losses_dict
 
 
     def cache_logits(self, batch, args, batch_postprocessor):

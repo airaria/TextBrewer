@@ -76,17 +76,20 @@ class GeneralDistiller(BasicDistiller):
         results_T = post_adaptor(self.adaptor_T(teacher_batch,results_T))
         results_S = post_adaptor(self.adaptor_S(student_batch,results_S))
 
-        total_loss = self.compute_loss(results_T, results_S)
+        total_loss, losses_dict = self.compute_loss(results_S, results_T)
 
-        return total_loss
+        return total_loss, losses_dict
 
 
-    def compute_loss(self,results_T,results_S):
+    def compute_loss(self,results_S,results_T):
+
+        losses_dict = dict()
+
         total_loss  = 0
         if 'logits' in results_T and 'logits' in results_S:
             logits_list_T = results_T['logits']  # list of tensor
             logits_list_S = results_S['logits']  # list of tensor
-
+            total_kd_loss = 0
             if 'logits_mask' in results_S:
                 masks_list_S = results_S['logits_mask']
                 logits_list_S = select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
@@ -102,16 +105,16 @@ class GeneralDistiller(BasicDistiller):
                         temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
                     else:
                         temperature = self.d_config.temperature
-                    kd_loss = self.kd_loss(l_S, l_T, temperature) * self.d_config.kd_loss_weight
-                    total_loss += kd_loss
+                    total_kd_loss += self.kd_loss(l_S, l_T, temperature) 
             else:
                 for l_T,l_S in zip(logits_list_T,logits_list_S):
                     if self.d_config.temperature_scheduler is not None:
                         temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
                     else:
                         temperature = self.d_config.temperature
-                    kd_loss = self.kd_loss(l_S, l_T, temperature) * self.d_config.kd_loss_weight
-                    total_loss += kd_loss
+                    total_kd_loss = self.kd_loss(l_S, l_T, temperature) 
+            total_loss += total_kd_loss * self.d_config.kd_loss_weight
+            losses_dict['unweighted_kd_loss'] = total_kd_loss
 
         inters_T = {feature: results_T.get(feature,[]) for feature in FEATURES}
         inters_S = {feature: results_S.get(feature,[]) for feature in FEATURES}
@@ -137,7 +140,9 @@ class GeneralDistiller(BasicDistiller):
                 if self.projs[ith]:
                     #inter_T = self.projs[ith](inter_T)
                     inter_S = self.projs[ith](inter_S)
-            total_loss += match_loss(inter_S, inter_T, mask=inputs_mask_S) * match_weight
+            intermediate_loss = match_loss(inter_S, inter_T, mask=inputs_mask_S)
+            total_loss += intermediate_loss * match_weight
+            losses_dict[f'unweighted_{feature}_{loss_type}_{layer_S}_{layer_T}'] = intermediate_loss
 
         if self.has_custom_matches:
             for hook_T, hook_S, match_weight, match_loss, proj_func  in \
@@ -151,11 +156,13 @@ class GeneralDistiller(BasicDistiller):
             self.custom_matches_cache['hook_outputs_S'] = []
 
         if 'losses' in results_S:
+            total_hl_loss = 0
             for loss in results_S['losses']:
                 # in case of multi-GPU
-                total_loss += loss.mean() * self.d_config.hard_label_weight
-        return total_loss
-
+                total_hl_loss += loss.mean() 
+            total_loss += total_hl_loss * self.d_config.hard_label_weight
+            losses_dict['unweighted_hard_label_loss'] = total_hl_loss
+        return total_loss, losses_dict
 
     def add_match(self,match: CustomMatch):
         if type(match.module_T) is str or type(match.module_S) is str:

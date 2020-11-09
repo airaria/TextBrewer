@@ -14,7 +14,7 @@ class MultiTaskDistiller(GeneralDistiller):
         adaptor_S (dict): dict of student adaptors: {task1:adpt1, task2:adpt2, .... }. Keys are tasknames.
 
     """
-    
+
     def __init__(self, train_config,
                  distill_config,
                  model_T,
@@ -76,7 +76,7 @@ class MultiTaskDistiller(GeneralDistiller):
             tasknames = tuple(dataloaders.keys())
             sampling_weights = None
 
-            
+
         global_step = 0
         writer_step = 0
         optimizer.zero_grad()
@@ -90,17 +90,18 @@ class MultiTaskDistiller(GeneralDistiller):
                 if batch_postprocessors is not None:
                     batch = batch_postprocessors[taskname](batch)
                 batch_taskname = (batch, taskname)
-                total_loss = self.train_on_batch(batch_taskname, args)
+                total_loss, losses_dict = self.train_on_batch(batch_taskname, args)
+
+                self.write_loss(total_loss,writer_step,losses_dict)
+                writer_step += 1
+
                 total_loss /= self.t_config.gradient_accumulation_steps
                 if self.t_config.fp16:
                     with amp.scale_loss(total_loss,optimizer) as scaled_loss:
                         scaled_loss.backward()
                 else:
                     total_loss.backward()
-                if self.rank == 0:
-                    scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
-                    self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
-                writer_step += 1
+
             if max_grad_norm > 0:
                 if self.t_config.fp16:
                     torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
@@ -135,6 +136,6 @@ class MultiTaskDistiller(GeneralDistiller):
         results_T = post_adaptor(adaptor_T(teacher_batch,results_T))
         results_S = post_adaptor(adaptor_S(student_batch,results_S))
 
-        total_loss = self.compute_loss(results_T, results_S)
+        total_loss, losses_dict = self.compute_loss(results_S=results_S, results_T=results_T)
 
-        return total_loss
+        return total_loss, losses_dict

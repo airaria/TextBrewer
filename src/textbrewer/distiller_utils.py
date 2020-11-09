@@ -70,8 +70,17 @@ class DistillationContext:
             self.model_T_is_training = self.model_T.training
             self.model_T.eval()
 
-        self.model_S_is_training = self.model_S.training
-        self.model_S.train()
+        if isinstance(self.model_S,(list,tuple)):
+            self.model_S_is_training = [model_s.training for model_s in self.model_S]
+            for model_s in self.model_S:
+                model_s.eval()
+        elif isinstance(self.model_S,dict):
+            self.model_S_is_training = {name:model.training for name,model in self.model_S.items()}
+            for name in self.model_S:
+                self.model_S[name].eval()
+        else:
+            self.model_S_is_training = self.model_S.training
+            self.model_S.train()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         #Restore model status
@@ -84,7 +93,14 @@ class DistillationContext:
         else:
             self.model_T.train(self.model_T_is_training)
 
-        self.model_S.train(self.model_S_is_training)
+        if isinstance(self.model_S,(list,tuple)):
+            for i in range(len(self.model_S_is_training)):
+                self.model_S[i].train(self.model_S_is_training[i])
+        elif isinstance(self.model_S,dict):
+            for name,is_training  in self.model_S_is_training.items():
+                self.model_S[name].train(is_training)
+        else:
+            self.model_S.train(self.model_S_is_training)
 
 
 class AbstractDistiller(DistillationContext):

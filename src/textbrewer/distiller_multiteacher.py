@@ -50,6 +50,8 @@ class MultiTeacherDistiller(BasicDistiller):
         logits_list_T = [results_t['logits'] for results_t in results_T]  # list of tensor
         logits_list_S = results_S['logits']  # list of tensor
         total_loss  = 0
+        losses_dict = dict()
+        total_kd_loss = 0
 
         if 'logits_mask' in results_S:
             masks_list_S = results_S['logits_mask']
@@ -68,7 +70,7 @@ class MultiTeacherDistiller(BasicDistiller):
                     temperature = self.d_config.temperature_scheduler(l_S, mean_l_T, self.d_config.temperature)
                 else:
                     temperature = self.d_config.temperature
-                total_loss += self.kd_loss(l_S, mean_l_T, temperature) * self.d_config.kd_loss_weight
+                total_kd_loss += self.kd_loss(l_S, mean_l_T, temperature)
         else:
             for l_T, l_S in zip(zip(*logits_list_T),logits_list_S):
                 mean_l_T = sum(l_T)/len(l_T)
@@ -76,13 +78,19 @@ class MultiTeacherDistiller(BasicDistiller):
                     temperature = self.d_config.temperature_scheduler(l_S, mean_l_T, self.d_config.temperature)
                 else:
                     temperature = self.d_config.temperature
-                total_loss += self.kd_loss(l_S, mean_l_T, temperature) * self.d_config.kd_loss_weight
+                total_kd_loss += self.kd_loss(l_S, mean_l_T, temperature)
+        total_loss += total_kd_loss * self.d_config.kd_loss_weight
+        losses_dict['unweighted_kd_loss'] = total_kd_loss
 
         if 'losses' in results_S:
+            total_hl_loss = 0
             for loss in results_S['losses']:
                 # in case of multi-GPU
-                total_loss += loss.mean() * self.d_config.hard_label_weight
-        return total_loss
+                total_hl_loss += loss.mean() 
+            total_loss += total_hl_loss * self.d_config.hard_label_weight
+            losses_dict['unweighted_hard_label_loss'] = total_hl_loss
+
+        return total_loss, losses_dict
 
     def cache_logits(self, batch, args, batch_postprocessor):
         if batch_postprocessor is not None:
