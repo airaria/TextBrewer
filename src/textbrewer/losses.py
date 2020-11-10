@@ -170,6 +170,7 @@ def pkd_loss(state_S, state_T, mask=None):
     '''
     * Computes normalized vector mse loss at position 0 along `length` dimension. This is the loss used in BERT-PKD, see `Patient Knowledge Distillation for BERT Model Compression <https://arxiv.org/abs/1908.09355>`_.
     * If the hidden sizes of student and teacher are different, 'proj' option is required in `inetermediate_matches` to match the dimensions.
+    * If the input tensors are of shape (*batch_size*, *hidden_size*), it directly computes the loss between tensors without taking the hidden states at position 0.
 
     :param torch.Tensor state_S: tensor of shape  (*batch_size*, *length*, *hidden_size*) or (*batch_size*, *hidden_size*)
     :param torch.Tensor state_T: tensor of shape  (*batch_size*, *length*, *hidden_size*) or (*batch_size*, *hidden_size*)

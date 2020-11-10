@@ -3,7 +3,7 @@ from .distiller_general import GeneralDistiller
 
 class MultiTaskDistiller(GeneralDistiller):
     """
-    distills multiple teacher models (of different tasks) into a single student. **It doesn't support intermediate feature matching**.
+    distills multiple teacher models (of different tasks) into a single student. **It supports intermediate feature matching since 0.2.1**.
 
     Args:
         train_config (:class:`TrainingConfig`): training configuration.
