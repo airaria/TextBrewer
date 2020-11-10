@@ -22,10 +22,22 @@ Conventions
             # check batch datatype
             # passes batch to the model and adaptors
 
-    .. note:: 
-        1. During training, the distiller will check if the ``batch`` is a ``dict``, if so the model will be called as ``model(**batch, **args)``, otherwise the model is called as ``model(*batch, **args)``. Hence if the batch is not a dict, **users should make sure that the order of each element in the batch is the same as the order of the arguments of** ``model.forward``. ``args`` is used for passing additional parameters.
-        2. Users can define a ``batch_postprocessor`` function to post-process batches if needed. ``batch_postprocessor`` should take a batch and return a batch. See the explanation on ``train`` method of :ref:`distillers` for more details.
 
+Batch Format(important)
+-----------------------
+
+.. _forward-conventions:
+
+**Foward conventions**: each batch to be passed to the model should be a ``dict`` or ``tuple``:
+
+* if the batch is a ``dict``, the model will be called as ``model(**batch, **args)``;
+* if the batch is a ``tuple``, the model is called as ``model(*batch, **args)``. 
+
+Hence if the batch is not a dict, **users should make sure that the order of each element in the batch is the same as the order of the arguments of** ``model.forward``. ``args`` is used for passing additional parameters.
+
+Users can additionaly define a ``batch_postprocessor`` function to post-process batches if needed. ``batch_postprocessor`` should take a batch and return a batch. See the explanation on ``train`` method of :ref:`distillers` for more details.
+
+Since version 0.2.1, TextBrewer supports more flexible inputs scheme: users can **feed different batches to student and teacher**, or **feed the cached values** to save the forward pass time. See `Feed Different batches to Student and Teacher, Feed Cached Values`_.
 
 Configurations
 ==============
@@ -41,7 +53,7 @@ Distillers are in charge of conducting the actual experiments. The following dis
 * :class:`~textbrewer.BasicDistiller`: **single-teacher single-task** distillation, provides basic distillation strategies.
 * :class:`~textbrewer.GeneralDistiller` (Recommended): **single-teacher single-task** distillation, supports intermediate features matching. **Recommended most of the time**.
 * :class:`~textbrewer.MultiTeacherDistiller`: **multi-teacher** distillation, which distills multiple teacher models (of the same task) into a single student model. **This class doesn't support Intermediate features matching.**
-* :class:`~textbrewer.MultiTaskDistiller`: **multi-task** distillation, which distills multiple teacher models (of different tasks) into a single student. **This class doesn't support Intermediate features matching.**
+* :class:`~textbrewer.MultiTaskDistiller`: **multi-task** distillation, which distills multiple teacher models (of different tasks) into a single student.
 * :class:`~textbrewer.BasicTrainer`: Supervised training a single model on a labeled dataset, not for distillation. **It can be used to train a teacher model**.
 
 User-Defined Functions
@@ -145,3 +157,87 @@ In TextBrewer, there are two functions that should be implemented by users: :fun
         return {'logits': (model_outputs[0],),
             'hidden': model.outputs[1],
             'inputs_mask': batch[1]}
+
+.. _different_batches:
+
+Feed Different batches to Student and Teacher, Feed Cached Values
+=====================================================================
+
+Feed Different batches
+----------------------
+
+In some cases, student and teacher read different inputs. For example, if you distill a RoBERTa model to a BERT model, 
+they cannot share the inputs since they have different vocabularies.
+
+To solve this, one can build a dataset that returns a dict as the batch with keys ``'student'`` and ``'teacher'``.
+TextBrewer will unpack the dict, and feeds ``batch['student']`` to the student and its adaptor, feeds ``batch['teacher']`` to the teacher and its adaptor, following the :ref:`forward conventions <forward-conventions>`.
+
+Here is an example.
+
+    .. code-block:: python
+
+      import torch
+      from torch.utils.data import Dataset, TensorDataset, DataLoader
+
+      class TSDataset(Dataset):
+          def __init__(self, teacher_dataset, student_dataset):
+              # teacher_dataset and student_dataset are normal datasets 
+              # whose each element is a tuple or a dict.
+              assert len(teacher_dataset) == len(student_dataset), \
+                f"lengths of teacher_dataset {len(teacher_dataset)} and student_dataset {len(student_dataset)} are not the same!"
+
+              self.teacher_dataset = teacher_dataset
+              self.student_dataset = student_dataset
+
+          def __len__(self):
+              return len(self.teacher_dataset)
+
+          def __getitem__(self,i):
+              return {'teacher' : self.teacher_dataset[i], 'student' : self.student_dataset[i]}
+
+      teacher_dataset = TensorDataset(torch.randn(32,3),torch.randn(32,3))
+      student_dataset = TensorDataset(torch.randn(32,2),torch.randn(32,2))
+      tsdataset = TSDataset(teacher_dataset=teacher_dataset,student_dataset=student_dataset)
+      dataloader = DataLoader(dataset=tsdataset, ... )
+
+Feed Cached Values
+-------------------
+
+If you are ready to provide a dataset that returns dict with keys ``'student'`` and ``'teacher'`` like the one above, you can also add a another key ``'teacher_cache'``, which stores the pre-computed outputs from the teacher. Then TextBrewer will treat ``batch['teacher_cache']`` as the output from the teacher and feed it to the teacher's adaptor. No teacher's forward will be called.
+
+Here is an example.
+
+    .. code-block:: python
+
+      import torch
+      from torch.utils.data import Dataset, TensorDataset, DataLoader
+
+      class TSDataset(Dataset):
+          def __init__(self, teacher_dataset, student_dataset, teacher_cache):
+              # teacher_dataset and student_dataset are normal datasets 
+              # whose each element is a tuple or a dict.
+              # teacher_cache is a list of items; each item is the output from the teacher.
+              assert len(teacher_dataset) == len(student_dataset), \
+                f"lengths of teacher_dataset {len(teacher_dataset)} and student_dataset {len(student_dataset)} are not the same!"
+              assert len(teacher_dataset) == len(teacher_cache), \
+                f"lengths of teacher_dataset {len(teacher_dataset)} and teacher_cache {len(teacher_cache)} are not the same!"
+              self.teacher_dataset = teacher_dataset
+              self.student_dataset = student_dataset
+              self.teacher_cache = teacher_cache
+
+          def __len__(self):
+              return len(self.teacher_dataset)
+
+          def __getitem__(self,i):
+              return {'teacher' : self.teacher_dataset[i], 'student' : self.student_dataset[i], 'teacher_cache':self.teacher_cache[i]}
+
+      teacher_dataset = TensorDataset(torch.randn(32,3),torch.randn(32,3))
+      student_dataset = TensorDataset(torch.randn(32,2),torch.randn(32,2))
+
+      # We make some fake data and assume teacher model outputs are (logits, loss)
+      fake_logits = [torch.randn(3) for _ in range(32)]
+      fake_loss = [torch.randn(1)[0] for _ in range(32)]
+      teacher_cache = [(fake_logits[i],fake_loss[i]) for i in range(32)]
+
+      tsdataset = TSDataset(teacher_dataset=teacher_dataset,student_dataset=student_dataset, teacher_cache=teacher_cache)
+      dataloader = DataLoader(dataset=tsdataset, ... )
