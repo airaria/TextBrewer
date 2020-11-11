@@ -27,6 +27,19 @@
 
 ## 更新
 
+**Nov 12, 2020**
+
+* **版本更新至0.2.1**:
+  * **灵活性提升**：支持为教师模型和学生模型输入各自独立的batch，不再要求教师模型和学生模型的输入相同。可用于词表不同的模型之间（例如从RoBERTa到BERT）的蒸馏。
+  * **蒸馏加速**：支持用户自定义传入教师模型的输出缓存，避免教师模型的重复前向计算，加速蒸馏过程。
+  
+    以上特性的详细说明可参见 [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values)
+  
+  * 增加了`MultiTaskDistiller`对中间层匹配损失的支持。
+  * Tensorboard中记录更详细的损失函数(KD loss, hard label loss, matching losses...)。
+
+  更新细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.2.1)。
+
 **Aug 24, 2020**
 
 * **版本更新至0.2.0.1**:

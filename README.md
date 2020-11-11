@@ -27,6 +27,19 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 [Full Documentation](https://textbrewer.readthedocs.io/)
 
 ## Update
+**Nov 12, 2020**
+
+* **Updated to 0.2.1**:
+  * **More flexible distillation**: Supports feeding different batches to the student and teacher. It means the batches for the student and teacher no longer need to be the same. It can be used for distilling models with different vocabularies (e.g., from RoBERTa to BERT).
+  * **Faster distillation**: Users now can pre-compute and cache the teacher outputs, then feed the cache to the distiller to save teacher's forward pass time.
+  
+    See [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values) for details of the above features.
+  
+  * `MultiTaskDistiller` now supports intermediate feature matching loss.
+  * Tensorboard now records more detailed losses (KD loss, hard label loss, matching losses...).
+
+  See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.2.1).
+
 **Aug 24, 2020**
 
 * **Updated to 0.2.0.1**:
