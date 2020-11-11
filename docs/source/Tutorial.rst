@@ -21,6 +21,13 @@ Introduction
 2. **Configurations and presets**: Configuration classes for training and distillation, and predefined distillation loss functions and strategies. 
 3. **Utilities**: auxiliary tools such as model parameters analysis. 
 
+Architecture
+------------
+
+.. image:: ../../pics/arch.png
+      :width: 600px
+      :align: center
+
 Installation
 ============
 
@@ -51,6 +58,8 @@ Workflow
 ========
 
 .. image:: ../../pics/distillation_workflow_en.png
+
+.. image:: ../../pics/distillation_workflow2.png
 
 To start distillation, users need to provide
 
@@ -98,7 +107,7 @@ Distill with TextBrewer:
   result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
   print (result)
 
-  # Define an adaptor for translating the model inputs and outputs
+  # Define an adaptor for interpreting the model inputs and outputs
   def simple_adaptor(batch, model_outputs):
       # The second and third elements of model outputs are the logits and hidden states
       return {'logits': model_outputs[1],
@@ -133,6 +142,7 @@ Examples can be found in the `examples <https://github.com/airaria/TextBrewer/tr
 * `examples/cmrc2018\_example <https://github.com/airaria/TextBrewer/tree/master/examples/cmrc2018_example>`_ (Chinese): distillation on CMRC 2018, a Chinese MRC task, using DRCD as data augmentation.
 * `examples/mnli\_example <https://github.com/airaria/TextBrewer/tree/master/examples/mnli_example>`_ (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
 * `examples/conll2003_example <https://github.com/airaria/TextBrewer/tree/master/examples/conll2003_example>`_ (English): distillation on CoNLL-2003 English NER task, which is in the form of sequence labeling.
+* `examples/msra_ner_example <https://github.com/airaria/TextBrewer/tree/master/examples/msra_ner_example>`_ (Chinese): This example distills a Chinese-ELECTRA-base model on the MSRA NER task with distributed data-parallel training(single node, muliti-GPU).
 
 FAQ
 ===
@@ -147,11 +157,18 @@ We recommend that users use pre-trained student models whenever possible to full
 
 **A**: Knowledge distillation usually requires more training epochs and a larger learning rate than training on the labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experiments, and you are advised to try on your own data**.
 
+**Q**: My teacher model and student model take different inputs (they do not share vocabularies), so how can I distill?
+
+**A**: You need to feed different batches to the teacher and the student. See :ref:`Feed Different batches to Student and Teacher, Feed Cached Values <different_batches>`.
+
+**Q**: I have stored the logits from my teacher model. Can I use them in the distillation to save the forward pass time?
+
+**A**: Yes, see :ref:`Feed Different batches to Student and Teacher, Feed Cached Values <different_batches>`.
+
 Known Issues
 ============
 
-* Compatibility with FP16 training has not been tested.
-* Multi-GPU training support is only available through ``DataParallel`` currently.
+* Multi-label classification is not supported.
 
 Citation
 ========

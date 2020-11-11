@@ -25,9 +25,20 @@
 
 ### [TextBrewer完整文档](https://textbrewer.readthedocs.io/)
 
-## 哈工大讯飞联合实验室（HFL）2021提前批校园招聘开始了！欢迎各位[投递简历](https://wj.qq.com/s2/6730642/762d)！
-
 ## 新闻
+
+**Nov 11, 2020**
+
+* **版本更新至0.2.1**:
+  * **灵活性提升**：支持为教师模型和学生模型输入各自独立的batch，不再要求教师模型和学生模型的输入相同。可用于词表不同的模型之间（例如从RoBERTa到BERT）的蒸馏。
+  * **蒸馏加速**：支持用户自定义传入教师模型的输出缓存，避免教师模型的重复前向计算，加速蒸馏过程。
+  
+    以上特性的详细说明可参见 [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values)
+  
+  * 增加了`MultiTaskDistiller`对中间层匹配损失的支持。
+  * Tensorboard中记录更详细的损失函数(KD loss, hard label loss, matching losses...)。
+
+  更新细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.2.1)。
 
 **Aug 27, 2020**
 
@@ -127,6 +138,10 @@
 
 详细的API可参见 [完整文档](https://textbrewer.readthedocs.io/)。
 
+### TextBrewer结构
+
+![](pics/arch.png)
+
 ## 安装
 
 ### 安装要求
@@ -157,6 +172,8 @@ pip install ./textbrewer
 ## 工作流程
 
 ![](pics/distillation_workflow.png)
+
+![](pics/distillation_workflow2.png)
 
 * **Stage 1 :** 蒸馏之前的准备工作:
   1. 训练**教师**模型
@@ -224,6 +241,7 @@ with distiller:
 * [examples/cmrc2018\_example](examples/cmrc2018_example) (中文): CMRC 2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。
 * [examples/mnli\_example](examples/mnli_example) (英文): MNLI任务上的英文句对分类任务蒸馏，并展示如何使用多教师蒸馏。
 * [examples/conll2003_example](examples/conll2003_example) (英文): CoNLL-2003英文实体识别任务上的序列标注任务蒸馏。
+* [examples/msra_ner_example](examples/msra_ner_example) (中文): MSRA NER(中文命名实体识别)任务上，使用分布式数据并行训练的Chinese-ELECTRA-base模型蒸馏。
 
 ## 蒸馏效果
 
@@ -293,22 +311,22 @@ distill_config = DistillationConfig(temperature = 8, intermediate_matches = matc
 在英文实验中，我们使用了如下三个典型数据集。
 
 | Dataset    | Task type | Metrics | \#Train | \#Dev | Note |
-| :---------- | -------- | ------- | ------- | ---- | ---- | 
+| :---------- | -------- | ------- | ------- | ---- | ---- |
 | [**MNLI**](https://www.nyu.edu/projects/bowman/multinli/)       | 文本分类 | m/mm Acc | 393K    | 20K  | 句对三分类任务 |
-| [**SQuAD 1.1**](https://rajpurkar.github.io/SQuAD-explorer/)   | 阅读理解 | EM/F1   | 88K     | 11K  | 篇章片段抽取型阅读理解 | 
+| [**SQuAD 1.1**](https://rajpurkar.github.io/SQuAD-explorer/)   | 阅读理解 | EM/F1   | 88K     | 11K  | 篇章片段抽取型阅读理解 |
 | [**CoNLL-2003**](https://www.clips.uantwerpen.be/conll2003/ner) | 序列标注 | F1      | 23K     | 6K   | 命名实体识别任务 |
 
 我们在下面两表中列出了[DistilBERT](https://arxiv.org/abs/1910.01108), [BERT-PKD](https://arxiv.org/abs/1908.09355), [BERT-of-Theseus](https://arxiv.org/abs/2002.02925), [TinyBERT](https://arxiv.org/abs/1909.10351) 等公开的蒸馏结果，并与我们的结果做对比。
 
 Public results:
 
-  | Model (public) | MNLI | SQuAD | CoNLL-2003 |
-  | :-------------  | --------------- | ------------- | --------------- |
-  | DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
-  | BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
-  | BERT-of-Theseus (T6) | 82.4/  82.1   | -        | -                |
-  | BERT<sub>3</sub>-PKD (T3)     | 76.7 / 76.3     | -             | -|
-  | TinyBERT (T4-tiny) | 82.8 / 82.9                | 72.7 / 82.1   | -|
+| Model (public) | MNLI | SQuAD | CoNLL-2003 |
+| :-------------  | --------------- | ------------- | --------------- |
+| DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
+| BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
+| BERT-of-Theseus (T6) | 82.4/  82.1   | -        | -                |
+| BERT<sub>3</sub>-PKD (T3)     | 76.7 / 76.3     | -             | -|
+| TinyBERT (T4-tiny) | 82.8 / 82.9                | 72.7 / 82.1   | -|
 
 Our results:
 
@@ -375,7 +393,7 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 * `BasicDistiller`: 提供**单模型单任务**蒸馏方式。可用作测试或简单实验。
 * `GeneralDistiller` (常用): 提供**单模型单任务**蒸馏方式，并且支持**中间层特征匹配**，一般情况下**推荐使用**。
 * `MultiTeacherDistiller`: 多教师蒸馏。将多个（同任务）教师模型蒸馏到一个学生模型上。**暂不支持中间层特征匹配**。
-* `MultiTaskDistiller`：多任务蒸馏。将多个（不同任务）单任务教师模型蒸馏到一个多任务学生模型上。**暂不支持中间层特征匹配**。
+* `MultiTaskDistiller`：多任务蒸馏。将多个（不同任务）单任务教师模型蒸馏到一个多任务学生模型。
 * `BasicTrainer`：用于单个模型的有监督训练，而非蒸馏。**可用于训练教师模型**。
 
 ### 用户定义函数
@@ -402,9 +420,18 @@ Distiller负责执行实际的蒸馏过程。目前实现了以下的distillers:
 
 **A**: 知识蒸馏的比有标签数据上的训练需要更多的训练轮数与更大的学习率。比如，BERT-base上训练SQuAD一般以lr=3e-5训练3轮左右即可达到较好的效果；而蒸馏时需要以lr=1e-4训练30~50轮。当然具体到各个任务上肯定还有区别，**我们的建议仅是基于我们的经验得出的，仅供参考**。
 
+**Q**: 我的教师模型和学生模型的输入不同（比如词表不同导致input_ids不兼容），该如何进行蒸馏？
+
+**A**: 需要分别为教师模型和学生模型提供不同的batch，参见完整文档中的 [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values) 章节。
+
+**Q**: 我缓存了教师模型的输出，它们可以用于加速蒸馏吗？
+
+**A**: 可以, 参见完整文档中的 [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values) 章节。
+
 ## 已知问题
 
 * ~~尚不支持DataParallel以外的多卡训练策略。~~
+* 尚不支持多标签分类任务。
 
 ## 引用
 

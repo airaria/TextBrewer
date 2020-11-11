@@ -28,6 +28,18 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 ## News
 
+**Nov 11, 2020**
+
+* **Updated to 0.2.1**:
+  * **More flexible distillation**: Supports feeding different batches to the student and teacher. It means the batches for the student and teacher no longer need to be the same. It can be used for distilling models with different vocabularies (e.g., from RoBERTa to BERT).
+  * **Faster distillation**: Users now can pre-compute and cache the teacher outputs, then feed the cache to the distiller to save teacher's forward pass time.
+  
+    See [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values) for details of the above features.
+  
+  * `MultiTaskDistiller` now supports intermediate feature matching loss.
+  * Tensorboard now records more detailed losses (KD loss, hard label loss, matching losses...).
+
+  See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.2.1).
 
 **August 27, 2020**
 
@@ -94,6 +106,9 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 <!-- /TOC -->
 
 ## Introduction
+
+![](pics/arch.png)
+
 **Textbrewer** is designed for the knowledge distillation of NLP models. It provides various distillation methods and offers a distillation framework for quickly setting up experiments. 
 
 The main features of **TextBrewer** are:
@@ -128,6 +143,10 @@ To start distillation, users need to provide
 
 See [Full Documentation](https://textbrewer.readthedocs.io/) for detailed usages.
 
+### Architecture
+
+![](pics/arch.png)
+
 ## Installation
 
 * Requirements
@@ -155,6 +174,8 @@ See [Full Documentation](https://textbrewer.readthedocs.io/) for detailed usages
 ## Workflow
 
 ![](pics/distillation_workflow_en.png)
+
+![](pics/distillation_workflow2.png)
 
 * **Stage 1**: Preparation:
   1. Train the teacher model
@@ -192,7 +213,7 @@ print("student_model's parametrers:")
 result, _ = textbrewer.utils.display_parameters(student_model,max_level=3)
 print (result)
 
-# Define an adaptor for translating the model inputs and outputs
+# Define an adaptor for interpreting the model inputs and outputs
 def simple_adaptor(batch, model_outputs):
       # The second and third elements of model outputs are the logits and hidden states
     return {'logits': model_outputs[1],
@@ -224,6 +245,7 @@ with distiller:
 * [examples/cmrc2018\_example](examples/cmrc2018_example) (Chinese): distillation on CMRC 2018, a Chinese MRC task, using DRCD as data augmentation.
 * [examples/mnli\_example](examples/mnli_example) (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
 * [examples/conll2003_example](examples/conll2003_example) (English): distillation on CoNLL-2003 English NER task, which is in form of sequence labeling.
+* [examples/msra_ner_example](examples/msra_ner_example) (Chinese): This example distills a Chinese-ELECTRA-base model on the MSRA NER task with distributed data-parallel training(single node, muliti-GPU).
 
 
 ## Experiments
@@ -297,22 +319,22 @@ We use GeneralDistiller in all the distillation experiments.
 We experiment on the following typical Enlgish datasets:
 
 | Dataset    | Task type | Metrics | \#Train | \#Dev | Note |
-| :---------- | -------- | ------- | ------- | ---- | ---- | 
+| :---------- | -------- | ------- | ------- | ---- | ---- |
 | [**MNLI**](https://www.nyu.edu/projects/bowman/multinli/)       | text classification | m/mm Acc | 393K    | 20K  | sentence-pair 3-class classification |
-| [**SQuAD 1.1**](https://rajpurkar.github.io/SQuAD-explorer/)   | reading comprehension | EM/F1   | 88K     | 11K  | span-extraction machine reading comprehension | 
+| [**SQuAD 1.1**](https://rajpurkar.github.io/SQuAD-explorer/)   | reading comprehension | EM/F1   | 88K     | 11K  | span-extraction machine reading comprehension |
 | [**CoNLL-2003**](https://www.clips.uantwerpen.be/conll2003/ner) | sequence labeling | F1      | 23K     | 6K   | named entity recognition |
 
 We list the public results from [DistilBERT](https://arxiv.org/abs/1910.01108), [BERT-PKD](https://arxiv.org/abs/1908.09355), [BERT-of-Theseus](https://arxiv.org/abs/2002.02925), [TinyBERT](https://arxiv.org/abs/1909.10351) and our results below for comparison.
 
 Public results:
 
-  | Model (public) | MNLI  | SQuAD  | CoNLL-2003 |
-  | :-------------  | --------------- | ------------- | --------------- |
-  | DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
-  | BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
-  | BERT-of-Theseus (T6) | 82.4/  82.1   | -        | -                |
-  | BERT<sub>3</sub>-PKD (T3)     | 76.7 / 76.3     | -             | -|
-  | TinyBERT (T4-tiny) | 82.8 / 82.9                | 72.7 / 82.1   | -|
+| Model (public) | MNLI  | SQuAD  | CoNLL-2003 |
+| :-------------  | --------------- | ------------- | --------------- |
+| DistilBERT (T6)    | 81.6 / 81.1 | 78.1 / 86.2   | -               |
+| BERT<sub>6</sub>-PKD (T6)     | 81.5 / 81.0     | 77.1 / 85.3   | -|
+| BERT-of-Theseus (T6) | 82.4/  82.1   | -        | -                |
+| BERT<sub>3</sub>-PKD (T3)     | 76.7 / 76.3     | -             | -|
+| TinyBERT (T4-tiny) | 82.8 / 82.9                | 72.7 / 82.1   | -|
 
 Our results:
 
@@ -383,7 +405,7 @@ Distillers are in charge of conducting the actual experiments. The following dis
 * `BasicDistiller`: **single-teacher single-task** distillation, provides basic distillation strategies.
 * `GeneralDistiller` (Recommended): **single-teacher single-task** distillation, supports intermediate features matching. **Recommended most of the time**.
 * `MultiTeacherDistiller`: **multi-teacher** distillation, which distills multiple teacher models (of the same task) into a single student model. **This class doesn't support Intermediate features matching.**
-* `MultiTaskDistiller`: **multi-task** distillation, which distills multiple teacher models (of different tasks) into a single student. **This class doesn't support Intermediate features matching.**
+* `MultiTaskDistiller`: **multi-task** distillation, which distills multiple teacher models (of different tasks) into a single student.
 * `BasicTrainer`: Supervised training a single model on a labeled dataset, not for distillation. **It can be used to train a teacher model**.
 
 
@@ -412,9 +434,18 @@ We recommend that users use pre-trained student models whenever possible to full
 
 **A**: Knowledge distillation usually requires more training epochs and larger learning rate than training on the labeled dataset. For example, training SQuAD on BERT-base usually takes 3 epochs with lr=3e-5; however, distillation takes 30~50 epochs with lr=1e-4. **The conclusions are based on our experiments, and you are advised to try on your own data**.
 
+**Q**: My teacher model and student model take different inputs (they do not share vocabularies), so how can I distill?
+
+**A**: You need to feed different batches to the teacher and the student. See the section [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values) in the full documentation.
+
+**Q**: I have stored the logits from my teacher model. Can I use them in the distillation to save the forward pass time?
+
+**A**: Yes, see the section [Feed Different batches to Student and Teacher, Feed Cached Values](https://textbrewer.readthedocs.io/en/latest/Concepts.html#feed-different-batches-to-student-and-teacher-feed-cached-values) in the full documentation.
+
 ## Known Issues
 
 * ~~Multi-GPU training support is only available through `DataParallel` currently.~~
+* Multi-label classification is not supported.
 
 ## Citation
 

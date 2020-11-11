@@ -1,5 +1,5 @@
 import torch
-from collections import OrderedDict
+from collections import OrderedDict,abc
 from tqdm import tqdm
 from torch import nn
 try:
@@ -70,8 +70,17 @@ class DistillationContext:
             self.model_T_is_training = self.model_T.training
             self.model_T.eval()
 
-        self.model_S_is_training = self.model_S.training
-        self.model_S.train()
+        if isinstance(self.model_S,(list,tuple)):
+            self.model_S_is_training = [model_s.training for model_s in self.model_S]
+            for model_s in self.model_S:
+                model_s.eval()
+        elif isinstance(self.model_S,dict):
+            self.model_S_is_training = {name:model.training for name,model in self.model_S.items()}
+            for name in self.model_S:
+                self.model_S[name].eval()
+        else:
+            self.model_S_is_training = self.model_S.training
+            self.model_S.train()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         #Restore model status
@@ -84,7 +93,14 @@ class DistillationContext:
         else:
             self.model_T.train(self.model_T_is_training)
 
-        self.model_S.train(self.model_S_is_training)
+        if isinstance(self.model_S,(list,tuple)):
+            for i in range(len(self.model_S_is_training)):
+                self.model_S[i].train(self.model_S_is_training[i])
+        elif isinstance(self.model_S,dict):
+            for name,is_training  in self.model_S_is_training.items():
+                self.model_S[name].train(is_training)
+        else:
+            self.model_S.train(self.model_S_is_training)
 
 
 class AbstractDistiller(DistillationContext):
@@ -207,3 +223,73 @@ class no_op:
     @staticmethod
     def add_scalar(*args, **kwargs):
         pass
+
+def move_to_device(batch, device):
+    r"""Puts each data field to the device"""
+    if isinstance(batch, torch.Tensor):
+        return batch.to(device)
+    elif isinstance(batch,(list,tuple)):
+        return tuple(move_to_device(item,device) for item in batch)
+    elif isinstance(batch, abc.Mapping):
+        return {key: move_to_device(value,device) for key, value in batch.items()}
+    else:
+        return batch
+
+def get_outputs_from_batch(batch, device, model_T, model_S, args, no_teacher_forward=False):
+    if type(batch) is dict:
+        if 'teacher' in batch and 'student' in batch:
+            teacher_batch = batch['teacher']
+            student_batch = batch['student']
+            teacher_batch = move_to_device(teacher_batch, device)
+            #teacher outputs
+            if no_teacher_forward is True:
+                results_T = None
+            else:
+                if 'teacher_cache' in batch:
+                    results_T = move_to_device(batch['teacher_cache'],device)
+                else:
+                    with torch.no_grad():
+                        results_T = auto_forward(model_T,teacher_batch,args)
+            #student outputs
+            student_batch = move_to_device(student_batch, device)
+            if type(student_batch) is dict:
+                results_S = model_S(**student_batch, **args)
+            else:
+                results_S = model_S(*student_batch, **args)
+        else:
+            batch = move_to_device(batch,device)
+            if no_teacher_forward is True:
+                results_T = None
+            else:
+                with torch.no_grad():
+                    results_T = auto_forward(model_T,batch,args)
+            results_S = model_S(**batch, **args)
+            teacher_batch = student_batch = batch
+    else:
+        batch = move_to_device(batch,device)
+        if no_teacher_forward is True:
+            results_T = None
+        else:
+            with torch.no_grad():
+                results_T = auto_forward(model_T,batch,args)
+        results_S = model_S(*batch, **args)
+        teacher_batch = student_batch = batch
+    
+    return (teacher_batch,results_T), (student_batch,results_S)
+
+def auto_forward(model,batch,args):
+    if type(batch) is dict:
+        if isinstance(model,(list,tuple)):
+            results = [v(**batch, **args) for v in model]
+        elif isinstance(model,dict):
+            results = {k:v(**batch, **args) for k,v in model.items()}
+        else:
+            results = model(**batch, **args)
+    else:
+        if isinstance(model,(list,tuple)):
+            results = [v(*batch, **args) for v in model]
+        elif isinstance(model,dict):
+            results = {k:v(*batch, **args) for k,v in model.items()}
+        else:
+            results = model(*batch, **args)
+    return results

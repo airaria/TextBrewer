@@ -1,9 +1,9 @@
 from .distiller_utils import *
-from .distiller_basic import BasicDistiller
+from .distiller_general import GeneralDistiller
 
-class MultiTaskDistiller(BasicDistiller):
+class MultiTaskDistiller(GeneralDistiller):
     """
-    distills multiple teacher models (of different tasks) into a single student. **It doesn't support intermediate feature matching**.
+    distills multiple teacher models (of different tasks) into a single student. **It supports intermediate feature matching since 0.2.1**.
 
     Args:
         train_config (:class:`TrainingConfig`): training configuration.
@@ -14,7 +14,7 @@ class MultiTaskDistiller(BasicDistiller):
         adaptor_S (dict): dict of student adaptors: {task1:adpt1, task2:adpt2, .... }. Keys are tasknames.
 
     """
-    
+
     def __init__(self, train_config,
                  distill_config,
                  model_T,
@@ -29,7 +29,7 @@ class MultiTaskDistiller(BasicDistiller):
         if hasattr(self.adaptor_T,'__iter__'):
             assert len(self.adaptor_T)==len(self.model_T)==len(self.adaptor_S)
         #assert (self.d_config.kd_loss_weight_scheduler is None) and (self.d_config.hard_label_weight_scheduler is None),\
-        #        "BasicMultiTaskDistiller does not support WEIGHT_SCHEDULER in the current version."
+        #        "MultiTaskDistiller does not support WEIGHT_SCHEDULER in the current version."
 
         self.d_config.is_caching_logits = False
 
@@ -50,30 +50,7 @@ class MultiTaskDistiller(BasicDistiller):
             batch_postprocessors (dict): a dict of batch_postprocessors. Keys are tasknames, values are corresponding batch_postprocessors. Each batch_postprocessor should take a batch and return a batch.
             **args: additional arguments fed to the model.
         """
-
-        # update scheduler
-        if scheduler_class is not None:
-            # overwrite scheduler
-            scheduler = scheduler_class(**{'optimizer':optimizer},**scheduler_args)
-
-        if self.t_config.fp16:
-            if not has_apex:
-                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
-            tasknames, model_Ts = zip(*self.model_T.items())
-            models = [self.model_S] + list(model_Ts)
-            models, optimizer = amp.initialize(models, optimizer, opt_level=self.t_config.fp16_opt_level)
-            self.model_S = models[0]
-            self.model_T = dict(zip(tasknames,models[1:]))
-        if self.local_rank != -1:
-            self.model_S = torch.nn.parallel.DistributedDataParallel(self.model_S, 
-                        device_ids = [self.local_rank], output_device = self.local_rank,
-                        find_unused_parameters = True)
-            self.model_T = {k:torch.nn.parallel.DistributedDataParallel(v, 
-                    device_ids = [self.local_rank], output_device = self.local_rank,
-                    find_unused_parameters = True) for k,v in self.model_T.items()}
-        elif self.t_config.data_parallel:
-            self.model_S = torch.nn.DataParallel(self.model_S)
-            self.model_T = {k:torch.nn.DataParallel(v) for k,v in self.model_T.items()}
+        optimizer, scheduler, tqdm_disable = self.initialize_training(optimizer, scheduler_class, scheduler_args, scheduler)
 
         total_global_steps = num_steps
         ckpt_steps = int(self.t_config.ckpt_steps)
@@ -99,7 +76,7 @@ class MultiTaskDistiller(BasicDistiller):
             tasknames = tuple(dataloaders.keys())
             sampling_weights = None
 
-            
+
         global_step = 0
         writer_step = 0
         optimizer.zero_grad()
@@ -113,17 +90,18 @@ class MultiTaskDistiller(BasicDistiller):
                 if batch_postprocessors is not None:
                     batch = batch_postprocessors[taskname](batch)
                 batch_taskname = (batch, taskname)
-                total_loss = self.train_on_batch(batch_taskname, args)
+                total_loss, losses_dict = self.train_on_batch(batch_taskname, args)
+
+                self.write_loss(total_loss,writer_step,losses_dict)
+                writer_step += 1
+
                 total_loss /= self.t_config.gradient_accumulation_steps
                 if self.t_config.fp16:
                     with amp.scale_loss(total_loss,optimizer) as scaled_loss:
                         scaled_loss.backward()
                 else:
                     total_loss.backward()
-                if self.rank == 0:
-                    scalar_total_loss = total_loss.cpu().item() * self.t_config.gradient_accumulation_steps
-                    self.tb_writer.add_scalar('scalar/total_loss', scalar_total_loss, writer_step)
-                writer_step += 1
+
             if max_grad_norm > 0:
                 if self.t_config.fp16:
                     torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), max_grad_norm)
@@ -153,55 +131,11 @@ class MultiTaskDistiller(BasicDistiller):
         adaptor_T = self.adaptor_T[taskname]
         adaptor_S = self.adaptor_S[taskname]
 
-        if type(batch) is dict:
-            for k,v in batch.items():
-                if type(v) is torch.Tensor:
-                    batch[k] = v.to(self.t_config.device)
-            with torch.no_grad():
-                results_T = model_T(**batch, **args)
-            results_S = self.model_S(**batch, **args)
-        else:
-            moved_batch = tuple(item.to(self.t_config.device) if type(item) is torch.Tensor else item for item in batch)
-            batch = moved_batch
-            with torch.no_grad():
-                results_T = model_T(*batch, **args)
-            results_S = self.model_S(*batch, **args)
+        (teacher_batch, results_T), (student_batch, results_S) = get_outputs_from_batch(batch, self.t_config.device, model_T, self.model_S, args)
 
-        results_T = post_adaptor(adaptor_T(batch,results_T))
-        results_S = post_adaptor(adaptor_S(batch,results_S))
+        results_T = post_adaptor(adaptor_T(teacher_batch,results_T))
+        results_S = post_adaptor(adaptor_S(student_batch,results_S))
 
-        logits_list_T = results_T['logits']  # list of tensor
-        logits_list_S = results_S['logits']  # list of tensor
-        total_loss  = 0
+        total_loss, losses_dict = self.compute_loss(results_S=results_S, results_T=results_T)
 
-        if 'logits_mask' in results_S:
-            masks_list_S = results_S['logits_mask']
-            logits_list_S = select_logits_with_mask(logits_list_S,masks_list_S)  #(mask_sum, num_of_class)
-        if 'logits_mask' in results_T: #TODO
-            masks_list_T = results_T['logits_mask']
-            logits_list_T = select_logits_with_mask(logits_list_T,masks_list_T)
-
-        if self.d_config.probability_shift is True:
-            labels_list = results_S['labels']
-            for l_T, l_S, labels in zip(logits_list_T, logits_list_S, labels_list):
-                l_T = probability_shift_(l_T, labels)
-                if self.d_config.temperature_scheduler is not None:
-                    temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
-                else:
-                    temperature = self.d_config.temperature
-                kd_loss = self.kd_loss(l_S, l_T, temperature) * self.d_config.kd_loss_weight
-                total_loss += kd_loss
-        else:
-            for l_T,l_S in zip(logits_list_T,logits_list_S):
-                if self.d_config.temperature_scheduler is not None:
-                    temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
-                else:
-                    temperature = self.d_config.temperature
-                total_loss += self.kd_loss(l_S, l_T, temperature) * self.d_config.kd_loss_weight
-
-        if 'losses' in results_S:
-            for loss in results_S['losses']:
-                # in case of multi-GPU
-                total_loss += loss.mean() * self.d_config.hard_label_weight
-
-        return total_loss
+        return total_loss, losses_dict

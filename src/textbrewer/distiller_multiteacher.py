@@ -28,44 +28,20 @@ class MultiTeacherDistiller(BasicDistiller):
             adaptor_T, adaptor_S)
         if hasattr(self.adaptor_T,'__iter__'):
             assert len(self.adaptor_T)==len(self.model_T)
-        self.avg = True
 
     def train_on_batch(self, batch, args):
         if self.d_config.is_caching_logits is False:
-            if type(batch) is dict:
-                for k,v in batch.items():
-                    if type(v) is torch.Tensor:
-                        batch[k] = v.to(self.t_config.device)
-                with torch.no_grad():
-                    results_T = [model_t(**batch, **args) for model_t in self.model_T]
-                results_S = self.model_S(**batch, **args)
-            else:
-                moved_batch = tuple(item.to(self.t_config.device) if type(item) is torch.Tensor else item for item in batch)
-                batch = moved_batch
-                with torch.no_grad():
-                    results_T = [model_T(*batch, **args) for model_T in self.model_T]
-                results_S = self.model_S(*batch, **args)
+            (teacher_batch, results_T), (student_batch, results_S) = get_outputs_from_batch(batch, self.t_config.device, self.model_T, self.model_S, args)
 
             if hasattr(self.adaptor_T,'__iter__'):
-                results_T = [post_adaptor(adpt_t(batch,results_t)) for results_t,adpt_t in zip(results_T,self.adaptor_T)]
+                results_T = [post_adaptor(adpt_t(teacher_batch,results_t)) for results_t,adpt_t in zip(results_T,self.adaptor_T)]
             else:
-                results_T = [post_adaptor(self.adaptor_T(batch,results_t)) for results_t in results_T]
-            results_S = post_adaptor(self.adaptor_S(batch,results_S))
+                results_T = [post_adaptor(self.adaptor_T(teacher_batch,results_t)) for results_t in results_T]
+            results_S = post_adaptor(self.adaptor_S(student_batch,results_S))
         else:
             batch, cached_logits = batch
-            if type(batch) is dict:
-                new_batch = {}
-                for k,v in batch.items():
-                    if type(v) is torch.Tensor:
-                        new_batch[k] = v.to(self.t_config.device)
-                    else:
-                        new_batch[k] = v
-                batch = new_batch
-                results_S = self.model_S(**batch, **args)
-            else:
-                batch = tuple(item.to(self.t_config.device) if type(item) is torch.Tensor else item for item in batch)
-                results_S = self.model_S(*batch, **args)
-            results_S = post_adaptor(self.adaptor_S(batch,results_S))
+            _, (student_batch, results_S) = get_outputs_from_batch(batch, self.t_config.device, self.model_T, self.model_S, args, no_teacher_forward=True)
+            results_S = post_adaptor(self.adaptor_S(student_batch,results_S))
             results_T = [{'logits': [lo.to(self.t_config.device) for lo in logits]} for logits in cached_logits]
             if 'logits_mask' in results_S:
                 results_T[0]['logits_mask'] = results_S['logits_mask']
@@ -74,6 +50,8 @@ class MultiTeacherDistiller(BasicDistiller):
         logits_list_T = [results_t['logits'] for results_t in results_T]  # list of tensor
         logits_list_S = results_S['logits']  # list of tensor
         total_loss  = 0
+        losses_dict = dict()
+        total_kd_loss = 0
 
         if 'logits_mask' in results_S:
             masks_list_S = results_S['logits_mask']
@@ -92,7 +70,7 @@ class MultiTeacherDistiller(BasicDistiller):
                     temperature = self.d_config.temperature_scheduler(l_S, mean_l_T, self.d_config.temperature)
                 else:
                     temperature = self.d_config.temperature
-                total_loss += self.kd_loss(l_S, mean_l_T, temperature) * self.d_config.kd_loss_weight
+                total_kd_loss += self.kd_loss(l_S, mean_l_T, temperature)
         else:
             for l_T, l_S in zip(zip(*logits_list_T),logits_list_S):
                 mean_l_T = sum(l_T)/len(l_T)
@@ -100,13 +78,19 @@ class MultiTeacherDistiller(BasicDistiller):
                     temperature = self.d_config.temperature_scheduler(l_S, mean_l_T, self.d_config.temperature)
                 else:
                     temperature = self.d_config.temperature
-                total_loss += self.kd_loss(l_S, mean_l_T, temperature) * self.d_config.kd_loss_weight
+                total_kd_loss += self.kd_loss(l_S, mean_l_T, temperature)
+        total_loss += total_kd_loss * self.d_config.kd_loss_weight
+        losses_dict['unweighted_kd_loss'] = total_kd_loss
 
         if 'losses' in results_S:
+            total_hl_loss = 0
             for loss in results_S['losses']:
                 # in case of multi-GPU
-                total_loss += loss.mean() * self.d_config.hard_label_weight
-        return total_loss
+                total_hl_loss += loss.mean() 
+            total_loss += total_hl_loss * self.d_config.hard_label_weight
+            losses_dict['unweighted_hard_label_loss'] = total_hl_loss
+
+        return total_loss, losses_dict
 
     def cache_logits(self, batch, args, batch_postprocessor):
         if batch_postprocessor is not None:
