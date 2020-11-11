@@ -44,6 +44,10 @@
 
 **哈工大讯飞联合实验室在通用自然语言理解评测GLUE中荣登榜首，查看[GLUE榜单](https://gluebenchmark.com/leaderboard)，[新闻](http://dwz.date/ckrD)。**
 
+<details>
+<summary>点击查看过往新闻</summary>
+
+
 **Aug 24, 2020**
 
 * **版本更新至0.2.0.1**:
@@ -83,6 +87,8 @@
 **Mar 2, 2020**
 
 * **当前版本**: 0.1.7, 初始版本。
+
+</details>
 
 ## 目录
 

@@ -45,6 +45,10 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 **We are happy to announce that our model is on top of GLUE benchmark, check [leaderboard](https://gluebenchmark.com/leaderboard).**
 
+<details>
+<summary>Click here to see old news</summary>
+
+
 **Aug 24, 2020**
 
 * **Updated to 0.2.0.1**:
@@ -85,6 +89,7 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 * Initial public version 0.1.7 has been released. See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.1.7).
 
+</details>
 
 ## Table of Contents
 
