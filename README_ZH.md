@@ -25,9 +25,9 @@
 
 ### [TextBrewer完整文档](https://textbrewer.readthedocs.io/)
 
-## 更新
+## 新闻
 
-**Nov 12, 2020**
+**Nov 11, 2020**
 
 * **版本更新至0.2.1**:
   * **灵活性提升**：支持为教师模型和学生模型输入各自独立的batch，不再要求教师模型和学生模型的输入相同。可用于词表不同的模型之间（例如从RoBERTa到BERT）的蒸馏。
@@ -39,6 +39,10 @@
   * Tensorboard中记录更详细的损失函数(KD loss, hard label loss, matching losses...)。
 
   更新细节参见 [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.2.1)。
+
+**Aug 27, 2020**
+
+**哈工大讯飞联合实验室在通用自然语言理解评测GLUE中荣登榜首，查看[GLUE榜单](https://gluebenchmark.com/leaderboard)，[新闻](http://dwz.date/ckrD)。**
 
 **Aug 24, 2020**
 

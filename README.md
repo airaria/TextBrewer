@@ -26,8 +26,9 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 [Full Documentation](https://textbrewer.readthedocs.io/)
 
-## Update
-**Nov 12, 2020**
+## News
+
+**Nov 11, 2020**
 
 * **Updated to 0.2.1**:
   * **More flexible distillation**: Supports feeding different batches to the student and teacher. It means the batches for the student and teacher no longer need to be the same. It can be used for distilling models with different vocabularies (e.g., from RoBERTa to BERT).
@@ -39,6 +40,10 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
   * Tensorboard now records more detailed losses (KD loss, hard label loss, matching losses...).
 
   See details in [releases](https://github.com/airaria/TextBrewer/releases/tag/v0.2.1).
+
+**August 27, 2020**
+
+**We are happy to announce that our model is on top of GLUE benchmark, check [leaderboard](https://gluebenchmark.com/leaderboard).**
 
 **Aug 24, 2020**
 
