@@ -105,14 +105,14 @@ class GeneralDistiller(BasicDistiller):
                         temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
                     else:
                         temperature = self.d_config.temperature
-                    total_kd_loss += self.kd_loss(l_S, l_T, temperature) 
+                    total_kd_loss += self.kd_loss(l_S, l_T, temperature)
             else:
                 for l_T,l_S in zip(logits_list_T,logits_list_S):
                     if self.d_config.temperature_scheduler is not None:
                         temperature = self.d_config.temperature_scheduler(l_S, l_T, self.d_config.temperature)
                     else:
                         temperature = self.d_config.temperature
-                    total_kd_loss = self.kd_loss(l_S, l_T, temperature) 
+                    total_kd_loss += self.kd_loss(l_S, l_T, temperature)
             total_loss += total_kd_loss * self.d_config.kd_loss_weight
             losses_dict['unweighted_kd_loss'] = total_kd_loss
 
