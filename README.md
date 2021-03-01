@@ -28,6 +28,18 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 ## News
 
+**Mar 1, 2021**
+
+* **BERT-EMD and custom distiller**
+
+  * We added an experiment with [BERT-EMD](https://www.aclweb.org/anthology/2020.emnlp-main.242/) in the [MNLI exmaple](examples/mnli_example/). BERT-EMD allows each intermediate student layer to learn from any intermediate teacher layers adaptively, bassed on optimizing Earth Mover’s Distance. So there is no need to specify the mathcing scheme. 
+  * We have written a new [EMDDistiller](examples/mnli_example/distiller_emd.py) to perform BERT-EMD. It demonstrates how to write a custom distiller.
+
+* **updated MNLI example**
+
+  * We removed the pretrained_pytorch_bert and used transformers library instead in all the MNLI exmaples.
+
+
 **Nov 11, 2020**
 
 * **Updated to 0.2.1**:

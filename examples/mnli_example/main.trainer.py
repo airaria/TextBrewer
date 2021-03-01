@@ -10,19 +10,18 @@ import os,random
 import numpy as np
 import torch
 from utils_glue import output_modes, processors
-from pytorch_pretrained_bert.my_modeling import BertConfig
-from pytorch_pretrained_bert import BertTokenizer
-from optimization import BERTAdam
+from transformers import BertConfig, AdamW, get_linear_schedule_with_warmup, BertTokenizer
 import config
 from utils import divide_parameters, load_and_cache_examples
-from modeling import BertForGLUESimple,BertForGLUESimpleAdaptorTraining
-
+from modeling import BertForGLUESimple, BertForGLUESimpleAdaptorTrain, BertForGLUESimpleAdaptor
 from textbrewer import DistillationConfig, TrainingConfig, BasicTrainer
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler, DistributedSampler
 from tqdm import tqdm
 from utils_glue import compute_metrics
 from functools import partial
-
+import re
+from predict_function import predict
+from parse import parse_model_config, MODEL_CLASSES
 
 def args_check(args):
     if os.path.exists(args.output_dir) and os.listdir(args.output_dir):
@@ -34,6 +33,8 @@ def args_check(args):
         raise ValueError("At least one of `do_train` or `do_predict` must be True.")
 
     if args.local_rank == -1 or args.no_cuda:
+        if not args.no_cuda and not torch.cuda.is_available():
+            raise ValueError("No CUDA available!")
         device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
         n_gpu = torch.cuda.device_count() if not args.no_cuda else 0
     else:
@@ -44,58 +45,6 @@ def args_check(args):
     args.n_gpu = n_gpu
     args.device = device
     return device, n_gpu
-
-def predict(model,eval_datasets,step,args):
-    eval_task_names = ("mnli", "mnli-mm") if args.task_name == "mnli" else (args.task_name,)
-    eval_output_dir = args.output_dir
-    results = {}
-    for eval_task,eval_dataset in zip(eval_task_names, eval_datasets):
-        if not os.path.exists(eval_output_dir) and args.local_rank in [-1, 0]:
-            os.makedirs(eval_output_dir)
-        logger.info("Predicting...")
-        logger.info("***** Running predictions *****")
-        logger.info(" task name = %s", eval_task)
-        logger.info("  Num  examples = %d", len(eval_dataset))
-        logger.info("  Batch size = %d", args.predict_batch_size)
-        eval_sampler = SequentialSampler(eval_dataset) if args.local_rank == -1 else DistributedSampler(eval_dataset)
-        eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.predict_batch_size)
-        model.eval()
-
-        pred_logits = []
-        label_ids = []
-        for batch in tqdm(eval_dataloader, desc="Evaluating", disable=None):
-            input_ids, input_mask, segment_ids, labels = batch
-            input_ids = input_ids.to(args.device)
-            input_mask = input_mask.to(args.device)
-            segment_ids = segment_ids.to(args.device)
-            with torch.no_grad():
-                logits = model(input_ids, input_mask, segment_ids)
-            cpu_logits = logits.detach().cpu()
-            for i in range(len(cpu_logits)):
-                pred_logits.append(cpu_logits[i].numpy())
-                label_ids.append(labels[i])
-
-        pred_logits = np.array(pred_logits)
-        label_ids   = np.array(label_ids)
-
-        if args.output_mode == "classification":
-            preds = np.argmax(pred_logits, axis=1)
-        else: # args.output_mode == "regression":
-            preds = np.squeeze(pred_logits)
-        result = compute_metrics(eval_task, preds, label_ids)
-        logger.info(f"task:,{eval_task}")
-        logger.info(f"result: {result}")
-        results.update(result)
-
-    output_eval_file = os.path.join(eval_output_dir, "eval_results-%s.txt" % eval_task)
-    with open(output_eval_file, "a") as writer:
-        logger.info("***** Eval results {} task {} *****".format(step, eval_task))
-        writer.write("step: %d ****\n " % step)
-        for key in sorted(results.keys()):
-            logger.info("%s = %s", key, str(results[key]))
-            writer.write("%s = %s\n" % (key, str(results[key])))
-    model.train()
-    return results
 
 def main():
     #parse arguments
@@ -115,9 +64,8 @@ def main():
     forward_batch_size = int(args.train_batch_size / args.gradient_accumulation_steps)
     args.forward_batch_size = forward_batch_size
 
-    #load bert config
-    bert_config_S = BertConfig.from_json_file(args.bert_config_file_S)
-    assert args.max_seq_length <= bert_config_S.max_position_embeddings
+    #load config
+    teachers_and_student = parse_model_config(args.model_config_json)
 
     #Prepare GLUE task
     processor = processors[args.task_name]()
@@ -129,43 +77,36 @@ def main():
     train_dataset = None
     eval_datasets  = None
     num_train_steps = None
-    tokenizer = BertTokenizer(vocab_file=args.vocab_file, do_lower_case=args.do_lower_case)
+
+    tokenizer_S = teachers_and_student['student']['tokenizer']
+    prefix_S = teachers_and_student['student']['prefix']
+
     if args.do_train:
-        train_dataset = load_and_cache_examples(args, args.task_name, tokenizer, evaluate=False)
-        if args.aux_task_name:
-            aux_train_dataset = load_and_cache_examples(args, args.aux_task_name, tokenizer, evaluate=False, is_aux=True)
-            train_dataset = torch.utils.data.ConcatDataset([train_dataset, aux_train_dataset])
-        num_train_steps = int(len(train_dataset)/args.train_batch_size) * args.num_train_epochs
+        train_dataset = load_and_cache_examples(
+        args, args.task_name,tokenizer_S, prefix=prefix_S,evaluate=False)
     if args.do_predict:
         eval_datasets = []
         eval_task_names = ("mnli", "mnli-mm") if args.task_name == "mnli" else (args.task_name,)
         for eval_task in eval_task_names:
-            eval_datasets.append(load_and_cache_examples(args, eval_task, tokenizer, evaluate=True))
+            eval_datasets.append(load_and_cache_examples(args, eval_task, tokenizer_S, prefix=prefix_S, evaluate=True))
     logger.info("Data loaded")
 
 
     #Build Model and load checkpoint
-    model_S = BertForGLUESimple(bert_config_S, num_labels=num_labels,args=args)
-    #Load student
-    if args.load_model_type=='bert':
-        assert args.init_checkpoint_S is not None
-        state_dict_S = torch.load(args.init_checkpoint_S, map_location='cpu')
-        if args.only_load_embedding:
-            state_weight = {k[5:]:v for k,v in state_dict_S.items() if k.startswith('bert.embeddings')}
-            missing_keys,_ = model_S.bert.load_state_dict(state_weight,strict=False)
-            logger.info(f"Missing keys {list(missing_keys)}")
-        else:
-            state_weight = {k[5:]:v for k,v in state_dict_S.items() if k.startswith('bert.')}
-            missing_keys,_ = model_S.bert.load_state_dict(state_weight,strict=False)
-            assert len(missing_keys)==0
-        logger.info("Model loaded")
-    elif args.load_model_type=='all':
-        assert args.tuned_checkpoint_S is not None
-        state_dict_S = torch.load(args.tuned_checkpoint_S,map_location='cpu')
-        model_S.load_state_dict(state_dict_S)
-        logger.info("Model loaded")
+    student = teachers_and_student['student']
+    model_type_S = student['model_type']
+    model_config_S = student['config']
+    checkpoint_S = student['checkpoint']
+    _,_,model_class_S = MODEL_CLASSES[model_type_S]
+    model_S = model_class_S(model_config_S, num_labels=num_labels)
+    if checkpoint_S is not None:
+        state_dict_S = torch.load(checkpoint_S, map_location='cpu')
+        missing_keys, un_keys = model_S.load_state_dict(state_dict_S,strict=False)
+        logger.info(f"missing keys:{missing_keys}")
+        logger.info(f"unexpected keys:{un_keys}")
     else:
-        logger.info("Model is randomly initialized.")
+        logger.warning("Initializing student randomly")
+    logger.info("Student Model loaded")
     model_S.to(device)
 
     if args.local_rank != -1 or n_gpu > 1:
@@ -180,37 +121,44 @@ def main():
         all_trainable_params = divide_parameters(params, lr=args.learning_rate)
         logger.info("Length of all_trainable_params: %d", len(all_trainable_params))
 
-        optimizer = BERTAdam(all_trainable_params,lr=args.learning_rate,
-                             warmup=args.warmup_proportion,t_total=num_train_steps,schedule=args.schedule,
-                             s_opt1=args.s_opt1, s_opt2=args.s_opt2, s_opt3=args.s_opt3)
+        #if args.local_rank == -1:
+        train_dataloader = DataLoader(train_dataset, sampler=RandomSampler(train_dataset), batch_size=args.forward_batch_size,drop_last=True)
+        num_train_steps = int(len(train_dataloader)//args.gradient_accumulation_steps * args.num_train_epochs)
+
+        ########## DISTILLATION ###########
+        train_config = TrainingConfig(
+            gradient_accumulation_steps = args.gradient_accumulation_steps,
+            ckpt_frequency = args.ckpt_frequency,
+            log_dir = args.output_dir,
+            output_dir = args.output_dir,
+            fp16 = args.fp16,
+            device = args.device)
+
+
+        distiller = BasicTrainer(train_config = train_config,
+                                 model = model_S,
+                                 adaptor = BertForGLUESimpleAdaptorTrain)
+
+        optimizer = AdamW(all_trainable_params,lr=args.learning_rate)
+        scheduler_class = get_linear_schedule_with_warmup
+        scheduler_args = {'num_warmup_steps': int(args.warmup_proportion*num_train_steps), 
+                          'num_training_steps': num_train_steps}
 
         logger.info("***** Running training *****")
         logger.info("  Num examples = %d", len(train_dataset))
         logger.info("  Forward batch size = %d", forward_batch_size)
         logger.info("  Num backward steps = %d", num_train_steps)
 
-        ########### DISTILLATION ###########
-        train_config = TrainingConfig(
-            gradient_accumulation_steps = args.gradient_accumulation_steps,
-            ckpt_frequency = args.ckpt_frequency,
-            log_dir = args.output_dir,
-            output_dir = args.output_dir,
-            device = args.device)
 
-
-        distiller = BasicTrainer(train_config = train_config,
-                                 model = model_S,
-                                 adaptor = BertForGLUESimpleAdaptorTraining)
+        callback_func = partial(predict, eval_datasets=eval_datasets, args=args)
 
         if args.local_rank == -1:
             train_sampler = RandomSampler(train_dataset)
         else:
             raise NotImplementedError
-        train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.forward_batch_size,drop_last=True)
-        callback_func = partial(predict, eval_datasets=eval_datasets, args=args)
         with distiller:
-            distiller.train(optimizer, scheduler=None, dataloader=train_dataloader,
-                              num_epochs=args.num_train_epochs, callback=callback_func)
+            distiller.train(optimizer, scheduler_class=scheduler_class, scheduler_args=scheduler_args, dataloader = train_dataloader,
+                              num_epochs = args.num_train_epochs, callback=callback_func,max_grad_norm=1)
 
     if not args.do_train and args.do_predict:
         res = predict(model_S,eval_datasets,step=0,args=args)

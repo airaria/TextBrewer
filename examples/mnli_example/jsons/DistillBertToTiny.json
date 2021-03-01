@@ -1,0 +1,22 @@
+{
+    "teachers":[
+        {
+            "model_type":"bert",
+            "prefix":"bertuncased",
+            "vocab_file":"/path/to/vocab.txt",
+            "config_file":"/path/to/config.json",
+            "checkpoint":"/path/to/fine-tuned/checkpoint",
+            "tokenizer_kwargs":{"do_lower_case": true},
+            "disable":false
+        }
+    ],
+    "student":{
+        "model_type":"bert",
+        "prefix":"bertuncased",
+        "vocab_file":"/path/to/vocab.txt",
+        "config_file":"./jsons/bert_config_L4t.json",
+        "checkpoint": null,
+        "tokenizer_kwargs":{"do_lower_case": true},
+        "disable":false
+    }
+}

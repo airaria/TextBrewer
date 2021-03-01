@@ -27,6 +27,18 @@
 
 ## 新闻
 
+**Mar 1, 2021**
+
+* **BERT-EMD示例与自定义distiller**
+
+  * 在[MNLI示例](examples/mnli_example)中增加了[BERT-EMD](https://www.aclweb.org/anthology/2020.emnlp-main.242/)算法的实现。BERT-EMD通过优化中间层之间的Earth Mvoer's Distance以自适应地调整教师与学生之间中间层匹配，而无需人工指定。
+  * BERT-EMD以自定义distiller的方式([EMDDistiller](examples/mnli_example/distiller_emd.py))实现，可作为自定义distiller的参考。
+
+* **MNLI示例更新**
+
+  * 更新了MNLI任务上的蒸馏示例，新代码不再依赖pytorch_pretrained_bert而使用transofrmers。
+
+
 **Nov 11, 2020**
 
 * **版本更新至0.2.1**:
