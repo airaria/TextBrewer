@@ -14,7 +14,8 @@ from transformers import BertConfig, AdamW, get_linear_schedule_with_warmup, Ber
 import config
 from utils import divide_parameters, load_and_cache_examples
 from modeling import BertForGLUESimple, BertForGLUESimpleAdaptorTrain, BertForGLUESimpleAdaptor
-from textbrewer import DistillationConfig, TrainingConfig, GeneralDistiller
+from textbrewer import DistillationConfig, TrainingConfig
+from distiller_emd import EMDDistiller
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler, DistributedSampler
 from tqdm import tqdm
 from utils_glue import compute_metrics
@@ -137,11 +138,8 @@ def main():
         all_trainable_params = divide_parameters(params, lr=args.learning_rate)
         logger.info("Length of all_trainable_params: %d", len(all_trainable_params))
 
-        if args.local_rank == -1:
-            train_sampler = RandomSampler(train_dataset)
-        else:
-            raise NotImplementedError
-        train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.forward_batch_size,drop_last=True)
+        #if args.local_rank == -1:
+        train_dataloader = DataLoader(train_dataset, sampler=RandomSampler(train_dataset), batch_size=args.forward_batch_size,drop_last=True)
         num_train_steps = int(len(train_dataloader)//args.gradient_accumulation_steps * args.num_train_epochs)
 
         ########## DISTILLATION ###########
@@ -155,25 +153,27 @@ def main():
 
         from matches import matches
         intermediate_matches = None
-        if isinstance(args.matches,(list,tuple)):
-            intermediate_matches = []
-            for match in args.matches:
-                intermediate_matches += matches[match]
-        logger.info(f"{intermediate_matches}")
+        #if isinstance(args.matches,(list,tuple)):
+        #    intermediate_matches = []
+        #    for match in args.matches:
+        #        intermediate_matches += matches[match]
+        #logger.info(f"{intermediate_matches}")
         distill_config = DistillationConfig(
-            temperature=args.temperature,
-            intermediate_matches=intermediate_matches)
+            temperature=args.temperature)
 
         logger.info(f"{train_config}")
         logger.info(f"{distill_config}")
         adaptor_T = BertForGLUESimpleAdaptor
         adaptor_S = BertForGLUESimpleAdaptor
 
-        distiller = GeneralDistiller(train_config = train_config,
+        distiller = EMDDistiller(train_config = train_config,
                                    distill_config = distill_config,
                                    model_T = model_T, model_S = model_S,
                                    adaptor_T = adaptor_T,
-                                   adaptor_S = adaptor_S)
+                                   adaptor_S = adaptor_S,
+                                   emd = {'layer_num_S':4+1, 'layer_num_T':12+1,  #number of hidden_states + embedding_layer
+                                          'feature':'hidden','loss':'hidden_mse',
+                                          'weight':1.0,'proj':['linear',312,768]})
 
         optimizer = AdamW(all_trainable_params,lr=args.learning_rate)
         scheduler_class = get_linear_schedule_with_warmup
@@ -187,6 +187,11 @@ def main():
 
 
         callback_func = partial(predict, eval_datasets=eval_datasets, args=args)
+
+        if args.local_rank == -1:
+            train_sampler = RandomSampler(train_dataset)
+        else:
+            raise NotImplementedError
         with distiller:
             distiller.train(optimizer, scheduler_class=scheduler_class, scheduler_args=scheduler_args, dataloader = train_dataloader,
                               num_epochs = args.num_train_epochs, callback=callback_func,max_grad_norm=1)

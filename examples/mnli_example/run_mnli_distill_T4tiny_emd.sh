@@ -12,7 +12,7 @@ length=128
 torch_seed=9580
 
 taskname='mnli'
-NAME=${taskname}_t${temperature}_TbaseST4tiny_L4SmmdMSE_lr${lr}e${ep}_bs${batch_size}
+NAME=${taskname}_t${temperature}_TbaseST4tiny_EMDHiddenMSE_lr${lr}e${ep}_bs${batch_size}
 DATA_DIR=${DATA_ROOT_DIR}/MNLI
 OUTPUT_DIR=${OUTPUT_ROOT_DIR}/${NAME}
 
@@ -21,7 +21,7 @@ model_config_json_file=DistillBertToTiny.json
 cp jsons/${model_config_json_file} ${OUTPUT_DIR}/${model_config_json_file}.run
 
 
-python -u main.distill.py \
+python -u main.emd.py \
     --data_dir  $DATA_DIR \
     --do_train \
     --do_eval \
@@ -37,5 +37,4 @@ python -u main.distill.py \
     --temperature ${temperature} \
     --task_name ${taskname} \
     --model_config_json ${OUTPUT_DIR}/${model_config_json_file}.run \
-    --fp16 \
-    --matches L4t_hidden_mse L4_hidden_smmd
+    --fp16

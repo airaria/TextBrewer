@@ -15,7 +15,7 @@
 # limitations under the License.
 """ BERT classification fine-tuning: utilities to work with GLUE tasks """
 
-import csv
+import csv, json
 import logging
 import os
 import sys
@@ -320,69 +320,60 @@ class QnliProcessor(DataProcessor):
         return examples
 
 
-class RteProcessor(DataProcessor):
-    """Processor for the RTE data set (GLUE version)."""
 
-    def get_train_examples(self, data_dir):
-        """See base class."""
-        return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+from dataclasses import dataclass
+import dataclasses
+from typing import List,Optional,Union
+@dataclass(frozen=True)
+class Trans3InputFeatures:
+    input_ids: List[int]
+    attention_mask: Optional[List[int]] = None
+    token_type_ids: Optional[List[int]] = None
+    label: Optional[Union[int, float]] = None
 
-    def get_dev_examples(self, data_dir):
-        """See base class."""
-        return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
-
-    def get_labels(self):
-        """See base class."""
-        return ["entailment", "not_entailment"]
-
-    def _create_examples(self, lines, set_type):
-        """Creates examples for the training and dev sets."""
-        examples = []
-        for (i, line) in enumerate(lines):
-            if i == 0:
-                continue
-            guid = "%s-%s" % (set_type, line[0])
-            text_a = line[1]
-            text_b = line[2]
-            label = line[-1]
-            examples.append(
-                InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
-        return examples
+    def to_json_string(self):
+        return json.dumps(dataclasses.asdict(self)) + "\n"
 
 
-class WnliProcessor(DataProcessor):
-    """Processor for the WNLI data set (GLUE version)."""
+def trans3_convert_examples_to_features(examples, label_list, max_length,
+                                 tokenizer, output_mode):
+    if max_length is None:
+        max_length = tokenizer.max_len
 
-    def get_train_examples(self, data_dir):
-        """See base class."""
-        return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+    label_map = {label: i for i, label in enumerate(label_list)}
 
-    def get_dev_examples(self, data_dir):
-        """See base class."""
-        return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+    def label_from_example(example: InputExample):
+        if example.label is None:
+            return None
+        if output_mode == "classification":
+            return label_map[example.label]
+        elif output_mode == "regression":
+            return float(example.label)
+        raise KeyError(output_mode)
 
-    def get_labels(self):
-        """See base class."""
-        return ["0", "1"]
+    labels = [label_from_example(example) for example in examples]
 
-    def _create_examples(self, lines, set_type):
-        """Creates examples for the training and dev sets."""
-        examples = []
-        for (i, line) in enumerate(lines):
-            if i == 0:
-                continue
-            guid = "%s-%s" % (set_type, line[0])
-            text_a = line[1]
-            text_b = line[2]
-            label = line[-1]
-            examples.append(
-                InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
-        return examples
+    batch_encoding = tokenizer(
+        [(example.text_a, example.text_b) for example in examples],
+        max_length=max_length,
+        padding="max_length",
+        truncation=True,
+        return_token_type_ids=True
+    )
 
+    features = []
+    for i in range(len(examples)):
+        inputs = {k: batch_encoding[k][i] for k in batch_encoding}
+
+        feature = Trans3InputFeatures(**inputs, label=labels[i])
+        features.append(feature)
+
+    for i, example in enumerate(examples[:5]):
+        logger.info("*** Example ***")
+        logger.info("guid: %s" % (example.guid))
+        logger.info("features: %s" % features[i])
+
+    return features
 
 def convert_examples_to_features(examples, label_list, max_seq_length,
                                  tokenizer, output_mode,
@@ -553,7 +544,7 @@ def compute_metrics(task_name, preds, labels):
     elif task_name == "mnli":
         return {"acc": simple_accuracy(preds, labels)}
     elif task_name == "mnli-mm":
-        return {"mm-acc": simple_accuracy(preds, labels)}
+        return {"acc": simple_accuracy(preds, labels)}
     elif task_name == "qnli":
         return {"acc": simple_accuracy(preds, labels)}
     elif task_name == "rte":
@@ -564,16 +555,16 @@ def compute_metrics(task_name, preds, labels):
         raise KeyError(task_name)
 
 processors = {
-    "cola": ColaProcessor,
+    #"cola": ColaProcessor,
     "mnli": MnliProcessor,
     "mnli-mm": MnliMismatchedProcessor,
-    "mrpc": MrpcProcessor,
-    "sst-2": Sst2Processor,
-    "sts-b": StsbProcessor,
-    "qqp": QqpProcessor,
-    "qnli": QnliProcessor,
-    "rte": RteProcessor,
-    "wnli": WnliProcessor,
+    #"mrpc": MrpcProcessor,
+    #"sst-2": Sst2Processor,
+    #"sts-b": StsbProcessor,
+    #"qqp": QqpProcessor,
+    #"qnli": QnliProcessor,
+    #"rte": RteProcessor,
+    #"wnli": WnliProcessor,
 }
 
 output_modes = {

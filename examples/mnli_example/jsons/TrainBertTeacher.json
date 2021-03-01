@@ -1,0 +1,12 @@
+{
+    "teachers":[],
+    "student":{
+        "model_type":"bert",
+        "prefix":"bertuncased",
+        "vocab_file":"/path/to/vocab.txt",
+        "config_file":"/path/to/config.json",
+        "checkpoint":"/path/to/bert/original/weight(pytorch_model.bin)",
+        "tokenizer_kwargs":{"do_lower_case": true},
+        "disable":false
+    }
+}

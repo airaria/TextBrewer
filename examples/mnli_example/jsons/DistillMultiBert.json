@@ -1,0 +1,40 @@
+{
+    "teachers":[
+        {
+            "model_type":"bert",
+            "prefix":"bertuncased",
+            "vocab_file":"/path/to/vocab.txt",
+            "config_file":"/path/to/config.json",
+            "checkpoint":"/path/to/teacher1/checkpoint",
+            "tokenizer_kwargs":{"do_lower_case": true},
+            "disable":false
+        },
+        {
+            "model_type":"bert",
+            "prefix":"bertuncased",
+            "vocab_file":"/path/to/vocab.txt",
+            "config_file":"/path/to/config.json",
+            "checkpoint":"/path/to/teacher2/checkpoint",
+            "tokenizer_kwargs":{"do_lower_case": true},
+            "disable":false
+        },
+        {
+            "model_type":"bert",
+            "prefix":"bertuncased",
+            "vocab_file":"/path/to/vocab.txt",
+            "config_file":"/path/to/config.json",
+            "checkpoint":"/path/to/teacher3/checkpoint",
+            "tokenizer_kwargs":{"do_lower_case": true},
+            "disable":false
+        }
+    ],
+    "student":{
+        "model_type":"bert",
+        "prefix":"bertuncased",
+        "vocab_file":"/path/to/vocab.txt",
+        "config_file":"/path/to/config.json",
+        "checkpoint":"/path/to/bert/original/weight(pytorch_model.bin)",
+        "tokenizer_kwargs":{"do_lower_case": true},
+        "disable":false
+    }
+}
