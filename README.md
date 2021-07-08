@@ -28,6 +28,12 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 ## News
 
+**Jul 8, 2021**
+
+* **New examples with Transformers 4**
+  * The current examples (exmaples/) have been written with old versions of Transformers and they may cause some confusions and bugs. We rewrite the examples with Transformers 4 in jupyter notebooks, which are easy to follow and learn.
+  * The new examples can be found at [examples/notebook_examples](examples/notebook_examples/). See [Examples](#examples) for details.
+
 **Mar 1, 2021**
 
 * **BERT-EMD and custom distiller**
@@ -39,6 +45,8 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
   * We removed the pretrained_pytorch_bert and used transformers library instead in all the MNLI exmaples.
 
+<details>
+<summary>Click here to see old news</summary>
 
 **Nov 11, 2020**
 
@@ -57,8 +65,6 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 **We are happy to announce that our model is on top of GLUE benchmark, check [leaderboard](https://gluebenchmark.com/leaderboard).**
 
-<details>
-<summary>Click here to see old news</summary>
 
 
 **Aug 24, 2020**
@@ -256,7 +262,11 @@ with distiller:
     distiller.train(optimizer, dataloader, num_epochs=1, scheduler_class=scheduler_class, scheduler_args = scheduler_args, callback=None)
 ```
 
-**Examples can be found in the `examples` directory :**
+### **Examples**
+
+* **Notebook examples with Transformers 4**
+  * [examples/notebook\_examples/sst2.ipynb](examples/notebook\_examples/sst2.ipynb) (English): Training and distilling BERT on SST-2, an English sentence classification task.
+  * [examples/notebook\_examples/msra_ner.ipynb](examples/notebook\_examples/msra_ner.ipynb) (Chinese): Training and distilling BERT on MSRA NER, a sequence labeling task.
 
 * [examples/random_token_example](examples/random_token_example) : a simple runable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
 * [examples/cmrc2018\_example](examples/cmrc2018_example) (Chinese): distillation on CMRC 2018, a Chinese MRC task, using DRCD as data augmentation.
