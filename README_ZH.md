@@ -30,7 +30,7 @@
 **Jul 8, 2021**
 
 * **新增Transformers 4示例**
-  * 目前已有示例基于较早版本的Transformers，使用习惯与当前的Transformers不同。为了避免使用中的困惑与bugs，我们新添了基于Transformers 4的jupyter notebook示例，更易学习与使用。
+  * 目前已有示例基于较早版本的Transformers，使用习惯与当前的Transformers不同。为了减少使用中的困惑与bugs，我们添加了基于Transformers 4的notebook示例，更易学习与使用。
   * 新示例位于[examples/notebook_examples](examples/notebook_examples/)。详情参见[蒸馏任务示例](#蒸馏任务示例)。
 
 **Mar 1, 2021**
@@ -265,6 +265,7 @@ with distiller:
 * **Transformers 4示例**
   * [examples/notebook\_examples/sst2.ipynb](examples/notebook\_examples/sst2.ipynb) (英文):  SST-2文本分类任务上的BERT模型训练与蒸馏。
   * [examples/notebook\_examples/msra_ner.ipynb](examples/notebook\_examples/msra_ner.ipynb) (中文): MSRA NER中文命名实体识别任务上的BERT模型训练与蒸馏。
+  * [examples/notebook\_examples/sqaudv1.1.ipynb](examples/notebook\_examples/sqaudv1.1.ipynb) (英文): SQuAD 1.1英文阅读理解任务上的BERT模型训练与蒸馏。
 
 * [examples/random_token_example](examples/random_token_example): 一个可运行的简单示例，在文本分类任务上以随机文本为输入，演示TextBrewer用法。
 * [examples/cmrc2018\_example](examples/cmrc2018_example) (中文): CMRC 2018上的中文阅读理解任务蒸馏，并使用DRCD数据集做数据增强。
