@@ -27,6 +27,9 @@
 
 ## 新闻
 
+**Oct 24, 2021**
+ * **哈工大讯飞联合实验室发布面向少数民族语言的预训练模型CINO。查看：https://github.com/ymcui/Chinese-Minority-PLM**
+
 **Jul 8, 2021**
 
 * **新增Transformers 4示例**
