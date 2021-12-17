@@ -27,6 +27,9 @@
 
 ## 新闻
 
+**Dec 17, 2021**
+ * **哈工大讯飞联合实验室全新推出模型裁剪工具包TextPruner。查看：https://github.com/airaria/TextPruner**
+
 **Oct 24, 2021**
  * **哈工大讯飞联合实验室发布面向少数民族语言的预训练模型CINO。查看：https://github.com/ymcui/Chinese-Minority-PLM**
 

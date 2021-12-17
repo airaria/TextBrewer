@@ -28,6 +28,10 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 ## News
 
+**Dec 17, 2021**
+
+* **We have released a model pruning toolkit TextPruner**. Check https://github.com/airaria/TextPruner
+
 **Oct 24, 2021**
 
 * **We propose the first pre-trained language model that specifically focusing on Chinese minority languages. Check：https://github.com/ymcui/Chinese-Minority-PLM**
