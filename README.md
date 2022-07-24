@@ -47,12 +47,12 @@ Check our paper through [ACL Anthology](https://www.aclweb.org/anthology/2020.ac
 
 * **BERT-EMD and custom distiller**
 
-  * We added an experiment with [BERT-EMD](https://www.aclweb.org/anthology/2020.emnlp-main.242/) in the [MNLI exmaple](examples/mnli_example/). BERT-EMD allows each intermediate student layer to learn from any intermediate teacher layers adaptively, bassed on optimizing Earth Mover’s Distance. So there is no need to specify the mathcing scheme. 
+  * We added an experiment with [BERT-EMD](https://www.aclweb.org/anthology/2020.emnlp-main.242/) in the [MNLI exmaple](examples/mnli_example/). BERT-EMD allows each intermediate student layer to learn from any intermediate teacher layers adaptively, based on optimizing Earth Mover’s Distance. So there is no need to specify the matching scheme. 
   * We have written a new [EMDDistiller](examples/mnli_example/distiller_emd.py) to perform BERT-EMD. It demonstrates how to write a custom distiller.
 
 * **updated MNLI example**
 
-  * We removed the pretrained_pytorch_bert and used transformers library instead in all the MNLI exmaples.
+  * We removed the pretrained_pytorch_bert and used transformers library instead in all the MNLI examples.
 
 <details>
 <summary>Click here to see old news</summary>
@@ -278,11 +278,11 @@ with distiller:
   * [examples/notebook\_examples/msra_ner.ipynb](examples/notebook\_examples/msra_ner.ipynb) (Chinese): training and distilling BERT on MSRA NER, a Chinese sequence labeling task.
   * [examples/notebook\_examples/sqaudv1.1.ipynb](examples/notebook\_examples/sqaudv1.1.ipynb) (English): training and distilling BERT on SQuAD 1.1, an English MRC task.
 
-* [examples/random_token_example](examples/random_token_example) : a simple runable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
+* [examples/random_token_example](examples/random_token_example) : a simple runnable toy example which demonstrates the usage of TextBrewer. This example performs distillation on the text classification task with random tokens as inputs.
 * [examples/cmrc2018\_example](examples/cmrc2018_example) (Chinese): distillation on CMRC 2018, a Chinese MRC task, using DRCD as data augmentation.
 * [examples/mnli\_example](examples/mnli_example) (English): distillation on MNLI, an English sentence-pair classification task. This example also shows how to perform multi-teacher distillation.
 * [examples/conll2003_example](examples/conll2003_example) (English): distillation on CoNLL-2003 English NER task, which is in form of sequence labeling.
-* [examples/msra_ner_example](examples/msra_ner_example) (Chinese): This example distills a Chinese-ELECTRA-base model on the MSRA NER task with distributed data-parallel training(single node, muliti-GPU).
+* [examples/msra_ner_example](examples/msra_ner_example) (Chinese): This example distills a Chinese-ELECTRA-base model on the MSRA NER task with distributed data-parallel training(single node, multi-GPU).
 
 
 ## Experiments
@@ -319,8 +319,8 @@ We have tested different student models. To compare with public results, the stu
 | T4-Tiny (student)         | 4         | 312         | 1200              | 11M       | 11%           |
 | Electra-small (student)   | 12        | 256         | 1024              | 12M       | 12%           |
 
-* T6 archtecture is the same as [DistilBERT<sup>[1]</sup>](https://arxiv.org/abs/1910.01108), [BERT<sub>6</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355), and  [BERT-of-Theseus<sup>[3]</sup>](https://arxiv.org/abs/2002.02925).
-* T4-tiny archtecture is the same as [TinyBERT<sup>[4]</sup>](https://arxiv.org/abs/1909.10351).
+* T6 architecture is the same as [DistilBERT<sup>[1]</sup>](https://arxiv.org/abs/1910.01108), [BERT<sub>6</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355), and  [BERT-of-Theseus<sup>[3]</sup>](https://arxiv.org/abs/2002.02925).
+* T4-tiny architecture is the same as [TinyBERT<sup>[4]</sup>](https://arxiv.org/abs/1909.10351).
 * T3 architecure is the same as [BERT<sub>3</sub>-PKD<sup>[2]</sup>](https://arxiv.org/abs/1908.09355).
 
 ### Distillation Configurations
@@ -353,7 +353,7 @@ We use GeneralDistiller in all the distillation experiments.
 
 ### Results on English Datasets
 
-We experiment on the following typical Enlgish datasets:
+We experiment on the following typical English datasets:
 
 | Dataset    | Task type | Metrics | \#Train | \#Dev | Note |
 | :---------- | -------- | ------- | ------- | ---- | ---- |
@@ -426,7 +426,7 @@ The results are listed below.
 1. Learning rate decay is not used in distillation on CMRC 2018 and DRCD.
 2. CMRC 2018 and DRCD take each other as the augmentation dataset in the distillation.
 3. The settings of training Electra-base teacher model can be found at [**Chinese-ELECTRA**](https://github.com/ymcui/Chinese-ELECTRA).
-4. Electra-small student model is intialized with the [pretrained weights](https://github.com/ymcui/Chinese-ELECTRA).
+4. Electra-small student model is initialized with the [pretrained weights](https://github.com/ymcui/Chinese-ELECTRA).
 
 ## Core Concepts
 
